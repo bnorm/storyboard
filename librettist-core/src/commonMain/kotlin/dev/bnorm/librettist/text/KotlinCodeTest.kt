@@ -18,6 +18,7 @@ import dev.bnorm.librettist.text.antlr.kotlin.KotlinParser
 import dev.bnorm.librettist.text.antlr.kotlin.KotlinParserBaseListener
 import org.antlr.v4.kotlinruntime.CharStreams
 import org.antlr.v4.kotlinruntime.CommonTokenStream
+import org.antlr.v4.kotlinruntime.tree.ParseTree
 import org.antlr.v4.kotlinruntime.tree.ParseTreeWalker
 import org.antlr.v4.kotlinruntime.tree.TerminalNode
 
@@ -38,13 +39,25 @@ fun CodeText(
 }
 
 @Composable
+fun GradleKtsCodeText(
+    text: String,
+    modifier: Modifier = Modifier,
+    identifierType: (String) -> SpanStyle? = { null },
+) {
+    val annotated = GradleKtsCodeString(text, identifierType)
+
+    Column(modifier) {
+        Text(text = annotated)
+    }
+}
+
+@Composable
 fun KotlinCodeText(
     text: String,
     modifier: Modifier = Modifier,
     identifierType: (String) -> SpanStyle? = { null },
-    asScript: Boolean = false,
 ) {
-    val annotated = KotlinCodeString(text, identifierType, asScript)
+    val annotated = KotlinCodeString(text, identifierType)
 
     Column(modifier) {
         Text(text = annotated)
@@ -63,10 +76,19 @@ fun GroovyCodeText(
 fun KotlinCodeString(
     text: String,
     identifierType: (String) -> SpanStyle? = { null },
-    asScript: Boolean = false,
 ): AnnotatedString {
     val codeStyle = LocalShowTheme.current.code
-    val annotated = remember(text) { buildKotlinCodeString(text, codeStyle, identifierType, asScript) }
+    val annotated = remember(text) { buildKotlinCodeString(text, codeStyle, identifierType) }
+    return annotated
+}
+
+@Composable
+fun GradleKtsCodeString(
+    text: String,
+    identifierType: (String) -> SpanStyle? = { null },
+): AnnotatedString {
+    val codeStyle = LocalShowTheme.current.code
+    val annotated = remember(text) { buildGradleKtsCodeString(text, codeStyle, identifierType) }
     return annotated
 }
 
@@ -74,12 +96,28 @@ fun buildKotlinCodeString(
     text: String,
     codeStyle: ShowTheme.CodeStyle,
     identifierType: (String) -> SpanStyle? = { null },
-    asScript: Boolean = false,
+): AnnotatedString {
+    return buildKotlinCodeString(text, { it.kotlinFile() }, codeStyle, identifierType)
+}
+
+fun buildGradleKtsCodeString(
+    text: String,
+    codeStyle: ShowTheme.CodeStyle,
+    identifierType: (String) -> SpanStyle? = { null },
+): AnnotatedString {
+    return buildKotlinCodeString(text, { it.script() }, codeStyle, identifierType)
+}
+
+private fun buildKotlinCodeString(
+    text: String,
+    treeBuilder: (KotlinParser) -> ParseTree,
+    codeStyle: ShowTheme.CodeStyle,
+    identifierType: (String) -> SpanStyle? = { null },
 ): AnnotatedString {
     val walker = ParseTreeWalker()
     val lexer = KotlinLexer(CharStreams.fromString(text))
     val parser = KotlinParser(CommonTokenStream(lexer))
-    val context = if (asScript) parser.script() else parser.kotlinFile()
+    val context = treeBuilder(parser)
 
     return buildAnnotatedString {
         withStyle(codeStyle.simple) { append(text) }

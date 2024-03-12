@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import dev.bnorm.librettist.show.LocalShowState
 import dev.bnorm.librettist.show.ShowState
+import dev.bnorm.librettist.show.assist.LocalShowAssistState
 
 @Composable
 fun SlideShow(
@@ -105,28 +106,30 @@ fun SlideShowOverview(
     //  is there a better way to disable advancement?
     val constantShowState = remember { ShowState(emptyList()) }
     CompositionLocalProvider(LocalShowState provides constantShowState) {
+        CompositionLocalProvider(LocalShowAssistState provides null) {
 
-        // TODO: use state.animateScrollToItem(selectedSlide) somehow to always keep selected slide visible (but not always at the top)
-        LazyColumn(modifier = modifier, contentPadding = PaddingValues(8.dp), state = state) {
-            items(showState.slides.size) { index ->
-                val slide = remember(index) { showState.slides[index] }
+            // TODO: use state.animateScrollToItem(selectedSlide) somehow to always keep selected slide visible (but not always at the top)
+            LazyColumn(modifier = modifier, contentPadding = PaddingValues(8.dp), state = state) {
+                items(showState.slides.size) { index ->
+                    val slide = remember(index) { showState.slides[index] }
 
-                ScaledBox(
-                    targetSize = targetSize,
-                    modifier = Modifier.fillMaxWidth()
-                        .padding(8.dp)
-                        .aspectRatio(targetSize.width / targetSize.height)
-                        .background(MaterialTheme.colors.background)
-                        .clickable { showState.index = index }
-                        .then(if (index == showState.index) Modifier.border(2.dp, Color.Red) else Modifier)
-                ) {
-                    Surface(modifier = Modifier.fillMaxSize()) {
-                        // TODO why is this box required for proper alignment?
-                        Box(modifier = Modifier.fillMaxSize()) {
-                            constantShowState.slide()
+                    ScaledBox(
+                        targetSize = targetSize,
+                        modifier = Modifier.fillMaxWidth()
+                            .padding(8.dp)
+                            .aspectRatio(targetSize.width / targetSize.height)
+                            .background(MaterialTheme.colors.background)
+                            .clickable { showState.index = index }
+                            .then(if (index == showState.index) Modifier.border(2.dp, Color.Red) else Modifier)
+                    ) {
+                        Surface(modifier = Modifier.fillMaxSize()) {
+                            // TODO why is this box required for proper alignment?
+                            Box(modifier = Modifier.fillMaxSize()) {
+                                constantShowState.slide()
                             }
                         }
                     }
+                }
             }
         }
     }

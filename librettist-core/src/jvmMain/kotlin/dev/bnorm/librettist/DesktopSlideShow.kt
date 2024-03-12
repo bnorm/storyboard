@@ -1,26 +1,20 @@
 package dev.bnorm.librettist
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
-import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.scale
-import androidx.compose.ui.graphics.Color
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.input.key.*
-import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.*
-import dev.bnorm.librettist.show.*
+import androidx.compose.ui.window.Window
+import androidx.compose.ui.window.WindowPlacement
+import androidx.compose.ui.window.WindowState
+import androidx.compose.ui.window.application
+import dev.bnorm.librettist.show.Advancement
+import dev.bnorm.librettist.show.ShowBuilder
+import dev.bnorm.librettist.show.ShowState
+import dev.bnorm.librettist.show.assist.LocalShowAssistState
+import dev.bnorm.librettist.show.assist.ShowAssist
+import dev.bnorm.librettist.show.assist.ShowAssistState
 
 fun DesktopSlideShow(
     title: String,
@@ -32,6 +26,7 @@ fun DesktopSlideShow(
 
     val windowState = WindowState(size = DpSize(1000.dp, 800.dp))
     val showState = ShowState(builder)
+    val showAssistState = ShowAssistState()
 
     fun handleKeyEvent(event: KeyEvent): Boolean {
         // TODO rate-limit holding down the key?
@@ -80,12 +75,21 @@ fun DesktopSlideShow(
             title = title,
             onPreviewKeyEvent = ::handleKeyEvent,
         ) {
-            SlideShow(
-                showState = showState,
-                showOverview = windowState.placement != WindowPlacement.Fullscreen,
-                theme = theme(),
-                targetSize = slideSize,
-            )
+            CompositionLocalProvider(LocalShowAssistState provides showAssistState) {
+                SlideShow(
+                    showState = showState,
+                    showOverview = windowState.placement != WindowPlacement.Fullscreen,
+                    theme = theme(),
+                    targetSize = slideSize,
+                )
+            }
+        }
+
+        Window(
+            onCloseRequest = ::exitApplication,
+            title = "Assist",
+        ) {
+            ShowAssist(showAssistState)
         }
     }
 }
