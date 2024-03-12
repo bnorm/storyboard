@@ -80,41 +80,40 @@ fun AnnotatedString.flowLineEndDiff(other: AnnotatedString): Flow<AnnotatedStrin
 
     return flow {
         emit(this@flowLineEndDiff)
-        for (line in 0..<lines) {
-            val left = leftLines[line]
-            val right = rightLines[line]
+        for (lineIndex in 0..<lines) {
+            val left = leftLines[lineIndex]
+            val right = rightLines[lineIndex]
 
-            fun buildLeftString(i: Int): AnnotatedString {
+            fun buildString(i: Int, line: AnnotatedString): AnnotatedString {
                 return buildAnnotatedString {
-                    for (l in 0..<line) appendLine(leftLines[l])
-                    appendLine(left.subSequence(0, i))
-                    for (l in line + 1..<lines) appendLine(rightLines[l])
+                    for (l in 0..<lineIndex) {
+                        append(leftLines[l])
+                        if (l + 1 < lines) appendLine()
+                    }
+                    append(line.subSequence(0, i))
+                    for (l in lineIndex + 1..<lines) {
+                        appendLine()
+                        append(rightLines[l])
+                    }
                 }
             }
 
-            fun buildRightString(i: Int): AnnotatedString {
-                return buildAnnotatedString {
-                    for (l in 0..<line) appendLine(leftLines[l])
-                    appendLine(right.subSequence(0, i))
-                    for (l in line + 1..<lines) appendLine(rightLines[l])
-                }
-            }
-
-            // TODO codepoints
+            // TODO codepoints?
             var index = 0
             while (index < left.length && index < right.length && left[index] == right[index]) index++
 
             if (index < left.length) {
                 for (i in (index..<left.length).reversed()) {
-                    emit(buildLeftString(i))
+                    emit(buildString(i, left))
                 }
             }
             if (index < right.length) {
                 for (i in index + 1..right.length) {
-                    emit(buildRightString(i))
+                    emit(buildString(i, right))
                 }
             }
         }
+        emit(other)
     }
 }
 
