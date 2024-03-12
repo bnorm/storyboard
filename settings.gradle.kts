@@ -19,3 +19,4 @@ pluginManagement {
 rootProject.name = "librettist"
 
 include(":librettist-core")
+include(":librettist-text")

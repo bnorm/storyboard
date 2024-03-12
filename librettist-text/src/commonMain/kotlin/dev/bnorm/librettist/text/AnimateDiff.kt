@@ -5,8 +5,6 @@ import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import org.apache.commons.text.diff.ReplacementsFinder
 import org.apache.commons.text.diff.StringsComparator
-import kotlin.time.Duration
-import kotlin.time.Duration.Companion.milliseconds
 
 private data class Diff(
     val skipped: Int,

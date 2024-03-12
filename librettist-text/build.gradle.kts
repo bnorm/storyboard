@@ -19,10 +19,10 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                api(compose.runtime)
-                api(compose.foundation)
-                api(compose.ui)
-                api(compose.material)
+                api(project(":librettist-core"))
+
+                api("de.cketti.unicode:kotlin-codepoints-deluxe:0.7.0")
+                api("com.strumenta:antlr-kotlin-runtime:1.0.0-RC2")
             }
         }
     }
