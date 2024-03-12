@@ -59,20 +59,6 @@ fun AnimationSequence<String>.thenLineEndDiff(next: String): AnimationSequence<S
 }
 
 fun AnnotatedString.flowLineEndDiff(other: AnnotatedString): Flow<AnnotatedString> {
-    fun AnnotatedString.annotatedLines(): List<AnnotatedString> {
-        val delimiters = listOf("\r\n", "\n", "\r")
-        return buildList {
-            var previousIndex = 0
-            var index = text.findAnyOf(delimiters)?.first ?: -1
-            while (index != -1) {
-                add(subSequence(previousIndex, index))
-                previousIndex = index + 1
-                index = text.findAnyOf(delimiters, previousIndex)?.first ?: -1
-            }
-            add(subSequence(previousIndex, length))
-        }
-    }
-
     val leftLines = this.annotatedLines()
     val rightLines = other.annotatedLines()
     require(rightLines.size == leftLines.size)

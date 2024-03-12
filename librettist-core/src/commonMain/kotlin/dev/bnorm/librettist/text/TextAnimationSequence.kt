@@ -4,7 +4,9 @@ import androidx.compose.runtime.*
 import dev.bnorm.librettist.animation.AnimationState
 import dev.bnorm.librettist.animation.LaunchedAnimation
 import dev.bnorm.librettist.animation.rememberAdvancementAnimation
+import dev.bnorm.librettist.show.Advancement
 import dev.bnorm.librettist.show.SlideScope
+import dev.bnorm.librettist.show.rememberAdvancementIndex
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
@@ -15,7 +17,7 @@ import kotlin.time.Duration.Companion.milliseconds
 data class AnimationSequence<T>(
     val start: T,
     val end: T,
-    val flow: Flow<T>
+    val flow: Flow<T>,
 )
 
 fun <T> startAnimation(start: T): AnimationSequence<T> {
@@ -27,7 +29,7 @@ fun <T> AnimateSequence(
     sequence: AnimationSequence<T>,
     state: MutableState<AnimationState>,
     delay: Duration = 50.milliseconds,
-    content: @Composable (T) -> Unit
+    content: @Composable (T) -> Unit,
 ) {
     var text by remember(sequence) {
         mutableStateOf(if (state.value == AnimationState.PENDING) sequence.start else sequence.end)
@@ -49,7 +51,7 @@ fun <T> SlideScope.AnimateSequence(
     sequence: AnimationSequence<T>,
     state: MutableState<AnimationState> = rememberAdvancementAnimation(),
     delay: Duration = 50.milliseconds,
-    content: @Composable (T) -> Unit
+    content: @Composable (T) -> Unit,
 ) {
     var text by remember(sequence) {
         mutableStateOf(if (state.value == AnimationState.PENDING) sequence.start else sequence.end)
@@ -64,4 +66,39 @@ fun <T> SlideScope.AnimateSequence(
     }
 
     content(text)
+}
+
+@Composable
+fun <T> SlideScope.AnimateSequences(
+    sequences: List<AnimationSequence<T>>,
+    delay: Duration = 50.milliseconds,
+    content: @Composable (T) -> Unit,
+) {
+    var index by rememberAdvancementIndex(sequences.size * 2 + 1)
+
+    var value by remember(sequences) {
+        mutableStateOf(if (index == 0) sequences.first().start else sequences.last().end)
+    }
+
+    LaunchedEffect(index) {
+        when {
+            index % 2 == 0 -> {
+                value = when {
+                    index / 2 >= sequences.size -> sequences[index / 2 - 1].end
+                    else -> sequences[index / 2].start
+                }
+            }
+
+            else -> {
+                if (direction == Advancement.Direction.Forward) {
+                    sequences[index / 2].flow.dedup().collect { delay(delay); value = it }
+                    index++
+                } else {
+                    index--
+                }
+            }
+        }
+    }
+
+    content(value)
 }

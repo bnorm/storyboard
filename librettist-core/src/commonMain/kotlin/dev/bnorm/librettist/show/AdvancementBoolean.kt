@@ -1,7 +1,7 @@
 package dev.bnorm.librettist.show
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.State
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 
@@ -9,7 +9,7 @@ import androidx.compose.runtime.remember
  * Starts as `false` and advances forward to `true`.
  */
 @Composable
-fun SlideScope.rememberAdvancementBoolean(): State<Boolean> {
+fun SlideScope.rememberAdvancementBoolean(): MutableState<Boolean> {
     val state = remember {
         mutableStateOf(direction.toValue(forward = false, backward = true))
     }

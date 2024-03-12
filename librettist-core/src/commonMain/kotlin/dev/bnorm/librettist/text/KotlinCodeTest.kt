@@ -3,7 +3,6 @@ package dev.bnorm.librettist.text
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
@@ -39,57 +38,11 @@ fun CodeText(
 }
 
 @Composable
-fun GradleKtsCodeText(
-    text: String,
-    modifier: Modifier = Modifier,
-    identifierType: (String) -> SpanStyle? = { null },
-) {
-    val annotated = GradleKtsCodeString(text, identifierType)
-
-    Column(modifier) {
-        Text(text = annotated)
-    }
-}
-
-@Composable
-fun KotlinCodeText(
-    text: String,
-    modifier: Modifier = Modifier,
-    identifierType: (String) -> SpanStyle? = { null },
-) {
-    val annotated = KotlinCodeString(text, identifierType)
-
-    Column(modifier) {
-        Text(text = annotated)
-    }
-}
-
-@Composable
 fun GroovyCodeText(
     text: String,
     modifier: Modifier = Modifier,
 ) {
     CodeText(text, "groovy", modifier)
-}
-
-@Composable
-fun KotlinCodeString(
-    text: String,
-    identifierType: (String) -> SpanStyle? = { null },
-): AnnotatedString {
-    val codeStyle = LocalShowTheme.current.code
-    val annotated = remember(text) { buildKotlinCodeString(text, codeStyle, identifierType) }
-    return annotated
-}
-
-@Composable
-fun GradleKtsCodeString(
-    text: String,
-    identifierType: (String) -> SpanStyle? = { null },
-): AnnotatedString {
-    val codeStyle = LocalShowTheme.current.code
-    val annotated = remember(text) { buildGradleKtsCodeString(text, codeStyle, identifierType) }
-    return annotated
 }
 
 fun buildKotlinCodeString(
@@ -123,8 +76,14 @@ private fun buildKotlinCodeString(
         withStyle(codeStyle.simple) { append(text) }
 
         walker.walk(object : KotlinParserBaseListener() {
+            // TODO parser doesn't seem to output comments in any meaningful way;
+            //  do we need to go back to using just the lexer? probably lighter weight...
+            //  something like highlighter.kt but with the official lexer?
+
             override fun enterAnnotation(ctx: KotlinParser.AnnotationContext) {
-                addStyle(codeStyle.annotation, ctx.start!!.startIndex, ctx.stop!!.stopIndex + 1)
+                val userType = ctx.singleAnnotation()?.unescapedAnnotation()?.constructorInvocation()?.userType()
+                val stopIndex = (userType?.stop?.stopIndex ?: ctx.start!!.stopIndex) + 1
+                addStyle(codeStyle.annotation, ctx.start!!.startIndex, stopIndex)
                 super.enterAnnotation(ctx)
             }
 
@@ -139,7 +98,11 @@ private fun buildKotlinCodeString(
                     KotlinLexer.Tokens.FUN,
                     KotlinLexer.Tokens.VAL,
                     KotlinLexer.Tokens.VAR,
+                    KotlinLexer.Tokens.CLASS,
                     -> addStyle(codeStyle.keyword, symbol.startIndex, symbol.stopIndex + 1)
+
+                    KotlinLexer.Tokens.LineStrRef,
+                    -> addStyle(codeStyle.keyword, symbol.startIndex, symbol.startIndex + 1)
 
                     KotlinLexer.Tokens.QUOTE_OPEN,
                     KotlinLexer.Tokens.TRIPLE_QUOTE_OPEN,
@@ -147,9 +110,6 @@ private fun buildKotlinCodeString(
                     KotlinLexer.Tokens.TRIPLE_QUOTE_CLOSE,
                     KotlinLexer.Tokens.LineStrText,
                     -> addStyle(codeStyle.string, symbol.startIndex, symbol.stopIndex + 1)
-
-                    KotlinLexer.Tokens.LineStrRef,
-                    -> addStyle(codeStyle.keyword, symbol.startIndex, symbol.startIndex + 1)
 
                     KotlinLexer.Tokens.Identifier -> {
                         val style = identifierType(node.text)
