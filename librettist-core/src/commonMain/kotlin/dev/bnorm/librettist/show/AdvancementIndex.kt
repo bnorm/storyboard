@@ -1,17 +1,14 @@
 package dev.bnorm.librettist.show
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 
 /**
  * Starts at `0` and advances forward to `count - 1`.
  */
 @Composable
-fun SlideScope.rememberAdvancementIndex(count: Int): State<Int> {
+fun SlideScope.rememberAdvancementIndex(count: Int): IntState {
     val index = remember {
-        mutableStateOf(direction.toValue(forward = 0, backward = count - 1))
+        mutableIntStateOf(direction.toValue(forward = 0, backward = count - 1))
     }
 
     HandleAdvancement {
