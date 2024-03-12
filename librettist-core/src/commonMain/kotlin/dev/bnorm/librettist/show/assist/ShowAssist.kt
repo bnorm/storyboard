@@ -1,10 +1,17 @@
 package dev.bnorm.librettist.show.assist
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.TimeMark
@@ -14,7 +21,7 @@ import kotlin.time.TimeSource
 fun ShowAssist(showAssistState: ShowAssistState) {
     MaterialTheme {
         Column {
-            Row(horizontalArrangement = Arrangement.Center) {
+            Row(horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth()) {
                 PresentationClock()
             }
 
@@ -57,17 +64,19 @@ fun PresentationClock(timeSource: TimeSource = TimeSource.Monotonic) {
         }
     }
 
-    Row {
-        Button(
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Text(display, fontSize = 32.sp, fontFamily = FontFamily.Monospace)
+
+        IconButton(
             onClick = {
                 start = timeSource.markNow()
                 display = "00h 00m 00s"
-            }
+            },
+            modifier = Modifier
+                .padding(start = 16.dp)
+                .background(MaterialTheme.colors.primary, shape = CircleShape)
         ) {
-            // TODO icon?
-            Text("Start")
+            Icon(Icons.Filled.PlayArrow, tint = MaterialTheme.colors.onPrimary, contentDescription = "")
         }
-
-        Text(display)
     }
 }

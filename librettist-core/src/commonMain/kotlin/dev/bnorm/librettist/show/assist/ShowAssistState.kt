@@ -3,6 +3,8 @@ package dev.bnorm.librettist.show.assist
 import androidx.compose.runtime.*
 
 class ShowAssistState {
+    var visible by mutableStateOf(false)
+
     private val mutableTabs = mutableStateListOf<Tab>()
     val tabs: List<Tab> = mutableTabs
 

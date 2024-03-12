@@ -5,10 +5,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.input.key.*
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Window
-import androidx.compose.ui.window.WindowPlacement
-import androidx.compose.ui.window.WindowState
-import androidx.compose.ui.window.application
+import androidx.compose.ui.window.*
 import dev.bnorm.librettist.show.Advancement
 import dev.bnorm.librettist.show.ShowBuilder
 import dev.bnorm.librettist.show.ShowState
@@ -65,8 +62,28 @@ fun DesktopSlideShow(
             }
         }
 
-        return true
+        return false
     }
+
+    @Composable
+    fun FrameWindowScope.ShowMenu() {
+        MenuBar {
+            Menu("Play") {
+                Item(text = "Play Slideshow", shortcut = KeyShortcut(Key.P, alt = true, meta = true)) {
+                    // TODO keynote seems to create a new window which fades in over the entire screen
+                    //  - is this a better experience then converting the window to full screen?
+                    //  - would *just* the overview be shown when note in full screen?
+                    windowState.placement = WindowPlacement.Fullscreen
+                }
+            }
+            Menu("Assist") {
+                CheckboxItem(text = "Visible", checked = showAssistState.visible, shortcut = KeyShortcut(Key.F2)) {
+                    showAssistState.visible = it
+                }
+            }
+        }
+    }
+
 
     application {
         Window(
@@ -75,6 +92,8 @@ fun DesktopSlideShow(
             title = title,
             onPreviewKeyEvent = ::handleKeyEvent,
         ) {
+            ShowMenu()
+
             CompositionLocalProvider(LocalShowAssistState provides showAssistState) {
                 SlideShow(
                     showState = showState,
@@ -85,11 +104,15 @@ fun DesktopSlideShow(
             }
         }
 
-        Window(
-            onCloseRequest = ::exitApplication,
-            title = "Assist",
-        ) {
-            ShowAssist(showAssistState)
+        if (showAssistState.visible) {
+            Window(
+                onCloseRequest = { showAssistState.visible = false },
+                title = "Assist",
+            ) {
+                ShowMenu()
+
+                ShowAssist(showAssistState)
+            }
         }
     }
 }
