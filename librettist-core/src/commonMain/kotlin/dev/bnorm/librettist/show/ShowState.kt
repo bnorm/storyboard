@@ -32,26 +32,36 @@ class ShowState(
     private val handlers = mutableListOf<AdvancementHandler>()
     private val listeners = mutableListOf<AdvancementListener>() // TODO shared flow?
 
-    init {
-        // Add default handler for slide index
-        fun defaultHandler(it: Advancement): Boolean {
+    override var direction = initialDirection
+        private set
+
+    fun advance(advancement: Advancement) {
+        direction = advancement.direction
+
+        fun advanceSlideIndex(): Boolean {
             val value = mutableIndex.value
-            val nextValue = it.direction.toValue(forward = value + 1, backward = value - 1)
+            val nextValue = advancement.direction.toValue(forward = value + 1, backward = value - 1)
 
             val inRange = nextValue in slides.indices
             if (inRange) mutableIndex.value = nextValue
             return inRange
         }
 
-        handlers.add(::defaultHandler)
-    }
+        /*
+         * We need to call handlers in different directions based on advancement direction. When advancing forward,
+         * handlers should be called in natural order. When advancing backwards, handlers should be called in reverse
+         * order. This is so advancement handling happens in LIFO order. When something is the last to advance forward,
+         * it needs to be the first to advance backwards. This is all so multiple advancement handlers defined within
+         * the same Composable function are called in the expected order when advancing, regardless of direction.
+         *
+         * Advancing though the slide index is always the last "handler", since it is outside the slide Composable
+         * function.
+         */
+        when (advancement.direction) {
+            Advancement.Direction.Forward -> handlers.any { it(advancement) }
+            Advancement.Direction.Backward -> handlers.reversed().any { it(advancement) }
+        } || advanceSlideIndex()
 
-    override var direction = initialDirection
-        private set
-
-    fun advance(advancement: Advancement) {
-        direction = advancement.direction
-        handlers.reversed().any { it(advancement) }
         listeners.forEach { it(advancement) }
     }
 
