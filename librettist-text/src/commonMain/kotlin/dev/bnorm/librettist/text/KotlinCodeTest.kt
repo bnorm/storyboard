@@ -81,7 +81,8 @@ private fun buildKotlinCodeString(
             //  something like highlighter.kt but with the official lexer?
 
             override fun enterAnnotation(ctx: KotlinParser.AnnotationContext) {
-                val userType = ctx.singleAnnotation()?.unescapedAnnotation()?.constructorInvocation()?.userType()
+                val unescapedAnnotation = ctx.singleAnnotation()?.unescapedAnnotation()
+                val userType = unescapedAnnotation?.constructorInvocation()?.userType() ?: unescapedAnnotation?.userType()
                 val stopIndex = (userType?.stop?.stopIndex ?: ctx.start!!.stopIndex) + 1
                 addStyle(codeStyle.annotation, ctx.start!!.startIndex, stopIndex)
                 super.enterAnnotation(ctx)
