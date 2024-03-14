@@ -4,35 +4,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.withStyle
-import ch.deletescape.highlight.core.Highlighter
 import ch.deletescape.highlight.core.StyleRenderer
 import dev.bnorm.librettist.ShowTheme
-
-fun main() {
-    val code = """
-       @Test
-       fun test() {
-           val actual: List<Int> = subject.operation()
-           assertEquals(4, actual.size, "Actual: ${'$'}actual !")
-       }
-   """.trimIndent()
-
-    val highlighter = Highlighter {
-        AnnotatedStringRenderer(
-            ShowTheme.CodeStyle(
-                simple = SpanStyle(Color(0xFFBCBEC4)),
-                number = SpanStyle(Color(0xFF2AACB8)),
-                keyword = SpanStyle(Color(0xFFCF8E6D)),
-                punctuation = SpanStyle(Color(0xFFA1C17E)),
-                annotation = SpanStyle(Color(0xFFBBB529)),
-                comment = SpanStyle(Color(0xFF7A7E85)),
-                string = SpanStyle(Color(0xFF6AAB73)),
-            )
-        )
-    }
-    val result = highlighter.highlight("kotlin", code, graceful = false)
-    println(result?.result?.spanStyles)
-}
 
 class AnnotatedStringRenderer(
     private val codeStyle: ShowTheme.CodeStyle,
