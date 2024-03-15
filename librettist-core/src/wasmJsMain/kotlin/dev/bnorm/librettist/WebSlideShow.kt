@@ -18,7 +18,6 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.*
-import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.CanvasBasedWindow
 import dev.bnorm.librettist.show.*
@@ -33,7 +32,7 @@ fun WebSlideShow(
     builder: ShowBuilder.() -> Unit,
 ) {
     // Pulled from Google Slides with 1 inch = 100 dp
-    val slideSize = DpSize(1000.dp, 563.dp)
+    val slideSize = DEFAULT_SLIDE_SIZE
 
     val showState = ShowState(builder)
 
@@ -65,15 +64,16 @@ fun WebSlideShow(
 
     CanvasBasedWindow(canvasElementId = canvasElementId) {
         val focusRequester = remember { FocusRequester() }
-        Box(modifier = Modifier.focusRequester(focusRequester).focusTarget().onKeyEvent(::handleKeyEvent)) {
-            SlideShow(
-                showState = showState,
-                showOverview = false,
-                theme = theme(),
-                targetSize = slideSize,
-            )
+        ShowTheme(theme()) {
+            Box(modifier = Modifier.focusRequester(focusRequester).focusTarget().onKeyEvent(::handleKeyEvent)) {
+                SlideShow(
+                    showState = showState,
+                    showOverview = false,
+                    slideSize = slideSize,
+                )
 
-            MouseNavigationIndicators(showState)
+                MouseNavigationIndicators(showState)
+            }
         }
 
         LaunchedEffect(Unit) {

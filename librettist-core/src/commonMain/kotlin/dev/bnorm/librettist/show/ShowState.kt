@@ -29,6 +29,9 @@ class ShowState(
             mutableIndex.value = value
         }
 
+    val currentSlide: SlideContent
+        get() = slides[index]
+
     private val handlers = mutableListOf<AdvancementHandler>()
     private val listeners = mutableListOf<AdvancementListener>() // TODO shared flow?
 

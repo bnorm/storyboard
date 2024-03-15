@@ -19,7 +19,7 @@ fun DesktopSlideShow(
     builder: ShowBuilder.() -> Unit,
 ) {
     // Pulled from Google Slides with 1 inch = 100 dp
-    val slideSize = DpSize(1000.dp, 563.dp)
+    val slideSize = DEFAULT_SLIDE_SIZE
 
     val windowState = WindowState(size = DpSize(1000.dp, 800.dp))
     val showState = ShowState(builder)
@@ -95,12 +95,13 @@ fun DesktopSlideShow(
             ShowMenu()
 
             CompositionLocalProvider(LocalShowAssistState provides showAssistState) {
-                SlideShow(
-                    showState = showState,
-                    showOverview = windowState.placement != WindowPlacement.Fullscreen,
-                    theme = theme(),
-                    targetSize = slideSize,
-                )
+                ShowTheme(theme()) {
+                    SlideShow(
+                        showState = showState,
+                        showOverview = windowState.placement != WindowPlacement.Fullscreen,
+                        slideSize = slideSize,
+                    )
+                }
             }
         }
 

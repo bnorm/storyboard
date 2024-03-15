@@ -22,49 +22,46 @@ import dev.bnorm.librettist.show.LocalShowState
 import dev.bnorm.librettist.show.ShowState
 import dev.bnorm.librettist.show.assist.LocalShowAssistState
 
+val DEFAULT_SLIDE_SIZE = DpSize(1920.dp, 1080.dp)
+
 @Composable
 fun SlideShow(
     showState: ShowState,
     showOverview: Boolean,
-    theme: ShowTheme,
-    targetSize: DpSize
+    slideSize: DpSize = DEFAULT_SLIDE_SIZE,
 ) {
-    CompositionLocalProvider(LocalShowState provides showState) {
-        ShowTheme(theme) {
-            Row(modifier = Modifier.fillMaxSize()) {
-                val state = rememberLazyListState()
-                if (showOverview) {
-                    SlideShowOverview(
-                        targetSize = targetSize,
-                        showState = showState,
-                        modifier = Modifier.weight(0.2f),
-                        state = state
-                    )
-                }
-
-                SlideShowDisplay(targetSize, showState.index, showState, Modifier.weight(0.8f))
-            }
+    Row(modifier = Modifier.fillMaxSize()) {
+        val state = rememberLazyListState()
+        if (showOverview) {
+            SlideShowOverview(
+                showState = showState,
+                slideSize = slideSize,
+                modifier = Modifier.weight(0.2f),
+                state = state
+            )
         }
+
+        SlideShowDisplay(showState, slideSize, Modifier.weight(0.8f).fillMaxHeight())
     }
 }
 
 @Composable
 fun SlideShowDisplay(
-    targetSize: DpSize,
-    slideIndex: Int,
     showState: ShowState,
+    slideSize: DpSize = DEFAULT_SLIDE_SIZE,
     modifier: Modifier = Modifier,
 ) {
-    ScaledBox(
-        targetSize = targetSize,
-        modifier = modifier.fillMaxHeight().background(MaterialTheme.colors.background)
-    ) {
-        Surface(modifier = Modifier.fillMaxSize()) {
-            // TODO why is this box required for proper alignment?
-            Box(modifier = Modifier.fillMaxSize()) {
-                key(slideIndex) {
-                    val slide = showState.slides[slideIndex]
-                    showState.slide()
+    CompositionLocalProvider(LocalShowState provides showState) {
+        ScaledBox(
+            targetSize = slideSize,
+            modifier = modifier.background(MaterialTheme.colors.background)
+        ) {
+            Surface(modifier = Modifier.fillMaxSize()) {
+                // TODO why is this box required for proper alignment?
+                Box(modifier = Modifier.fillMaxSize()) {
+                    with(showState) {
+                        currentSlide()
+                    }
                 }
             }
         }
@@ -96,8 +93,8 @@ private fun ScaledBox(
 
 @Composable
 fun SlideShowOverview(
-    targetSize: DpSize,
     showState: ShowState,
+    slideSize: DpSize = DEFAULT_SLIDE_SIZE,
     modifier: Modifier = Modifier,
     state: LazyListState = rememberLazyListState(),
 ) {
@@ -114,10 +111,10 @@ fun SlideShowOverview(
                     val slide = remember(index) { showState.slides[index] }
 
                     ScaledBox(
-                        targetSize = targetSize,
+                        targetSize = slideSize,
                         modifier = Modifier.fillMaxWidth()
                             .padding(8.dp)
-                            .aspectRatio(targetSize.width / targetSize.height)
+                            .aspectRatio(slideSize.width / slideSize.height)
                             .background(MaterialTheme.colors.background)
                             .clickable { showState.index = index }
                             .then(if (index == showState.index) Modifier.border(2.dp, Color.Red) else Modifier)
