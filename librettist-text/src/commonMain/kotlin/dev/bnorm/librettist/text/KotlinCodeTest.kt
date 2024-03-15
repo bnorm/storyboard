@@ -10,6 +10,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import ch.deletescape.highlight.core.Highlighter
 import ch.deletescape.highlight.highlight.render.AnnotatedStringRenderer
+import dev.bnorm.librettist.Highlighting
 import dev.bnorm.librettist.ShowTheme
 import dev.bnorm.librettist.text.antlr.kotlin.KotlinLexer
 import dev.bnorm.librettist.text.antlr.kotlin.KotlinParser
@@ -46,7 +47,7 @@ fun GroovyCodeText(
 
 fun buildKotlinCodeString(
     text: String,
-    codeStyle: ShowTheme.CodeStyle,
+    codeStyle: Highlighting,
     identifierType: (String) -> SpanStyle? = { null },
 ): AnnotatedString {
     return buildKotlinCodeString(text, { it.kotlinFile() }, codeStyle, identifierType)
@@ -54,7 +55,7 @@ fun buildKotlinCodeString(
 
 fun buildGradleKtsCodeString(
     text: String,
-    codeStyle: ShowTheme.CodeStyle,
+    codeStyle: Highlighting,
     identifierType: (String) -> SpanStyle? = { null },
 ): AnnotatedString {
     return buildKotlinCodeString(text, { it.script() }, codeStyle, identifierType)
@@ -63,7 +64,7 @@ fun buildGradleKtsCodeString(
 private fun buildKotlinCodeString(
     text: String,
     treeBuilder: (KotlinParser) -> ParseTree,
-    codeStyle: ShowTheme.CodeStyle,
+    codeStyle: Highlighting,
     identifierType: (String) -> SpanStyle? = { null },
 ): AnnotatedString {
     val walker = ParseTreeWalker()

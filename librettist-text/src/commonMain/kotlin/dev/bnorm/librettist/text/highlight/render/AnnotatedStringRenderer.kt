@@ -5,10 +5,11 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.withStyle
 import ch.deletescape.highlight.core.StyleRenderer
+import dev.bnorm.librettist.Highlighting
 import dev.bnorm.librettist.ShowTheme
 
 class AnnotatedStringRenderer(
-    private val codeStyle: ShowTheme.CodeStyle,
+    private val codeStyle: Highlighting,
 ) : StyleRenderer<AnnotatedString> {
     private var builder = AnnotatedString.Builder()
 

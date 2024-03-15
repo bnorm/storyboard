@@ -11,53 +11,51 @@ import androidx.compose.ui.text.SpanStyle
 
 @Composable
 fun ShowTheme(theme: ShowTheme, content: @Composable () -> Unit) {
-    CompositionLocalProvider(LocalShowTheme provides theme) {
+    Highlighting(theme.code) {
         MaterialTheme(colors = theme.colors, typography = theme.typography) {
             content()
         }
     }
 }
 
-private val LocalShowTheme = staticCompositionLocalOf<ShowTheme> {
-    error("ShowTheme is not provided")
-}
-
-// TODO reduce to just CodeStyle and let MaterialTheme take care of the rest?
-//  This way it could be moved to librettist-text
-//  How is the theme provided then? some kind of slide decorator?
 @Immutable
 data class ShowTheme(
     val colors: Colors,
     val typography: Typography,
-    val code: CodeStyle,
+    val code: Highlighting,
 ) {
-    @Immutable
-    data class CodeStyle(
-        val simple: SpanStyle,
-        val number: SpanStyle,
-        val keyword: SpanStyle,
-        val punctuation: SpanStyle,
-        val annotation: SpanStyle,
-        val comment: SpanStyle,
-        val string: SpanStyle,
-        val property: SpanStyle,
-        val functionDeclaration: SpanStyle,
-        val staticFunctionCall: SpanStyle,
-        val extensionFunctionCall: SpanStyle,
-        val typeParameters: SpanStyle,
-    )
-
     companion object {
-        val colors: Colors
+        val code: Highlighting
             @Composable
-            get() = LocalShowTheme.current.colors
+            get() = LocalHighlighting.current
+    }
+}
 
-        val typography: Typography
-            @Composable
-            get() = LocalShowTheme.current.typography
+@Immutable
+data class Highlighting(
+    val simple: SpanStyle,
+    val number: SpanStyle,
+    val keyword: SpanStyle,
+    val punctuation: SpanStyle,
+    val annotation: SpanStyle,
+    val comment: SpanStyle,
+    val string: SpanStyle,
+    val property: SpanStyle,
+    val functionDeclaration: SpanStyle,
+    val staticFunctionCall: SpanStyle,
+    val extensionFunctionCall: SpanStyle,
+    val typeParameters: SpanStyle,
+)
 
-        val code: CodeStyle
-            @Composable
-            get() = LocalShowTheme.current.code
+val LocalHighlighting = staticCompositionLocalOf<Highlighting> {
+    // TODO provide a default highlighting
+    //  compatible with default material theme?
+    error("Highlighting is not provided")
+}
+
+@Composable
+fun Highlighting(highlighting: Highlighting, content: @Composable () -> Unit) {
+    CompositionLocalProvider(LocalHighlighting provides highlighting) {
+        content()
     }
 }
