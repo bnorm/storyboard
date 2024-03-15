@@ -1,12 +1,10 @@
-package dev.bnorm.librettist.text
+package dev.bnorm.librettist.animation
 
 import androidx.compose.runtime.*
-import dev.bnorm.librettist.animation.AnimationState
-import dev.bnorm.librettist.animation.LaunchedAnimation
-import dev.bnorm.librettist.animation.rememberAdvancementAnimation
 import dev.bnorm.librettist.show.Advancement
 import dev.bnorm.librettist.show.SlideScope
 import dev.bnorm.librettist.show.rememberAdvancementIndex
+import dev.bnorm.librettist.text.dedup
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf

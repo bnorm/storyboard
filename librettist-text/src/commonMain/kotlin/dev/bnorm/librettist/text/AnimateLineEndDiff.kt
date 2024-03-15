@@ -2,6 +2,7 @@ package dev.bnorm.librettist.text
 
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.buildAnnotatedString
+import dev.bnorm.librettist.animation.AnimationSequence
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
