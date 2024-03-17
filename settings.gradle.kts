@@ -4,8 +4,8 @@ pluginManagement {
     }
 
     plugins {
-        kotlin("multiplatform") version "1.9.22"
-        id("org.jetbrains.compose") version "1.6.0"
+        kotlin("multiplatform") version "1.9.23"
+        id("org.jetbrains.compose") version "1.6.1"
     }
 
     dependencyResolutionManagement {
