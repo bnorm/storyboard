@@ -9,13 +9,14 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.layout.layout
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import dev.bnorm.librettist.show.LocalShowState
@@ -53,18 +54,22 @@ private fun ScaledBox(
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit,
 ) {
-    var scale by remember { mutableStateOf(1f) }
-    val density = LocalDensity.current
+    Box(modifier = modifier, contentAlignment = Alignment.Center) {
+        Box(modifier = Modifier.layout { measurable, constraints ->
+            val fixedSize = Constraints.fixed(targetSize.width.roundToPx(), targetSize.height.roundToPx())
+            val scale = minOf(
+                constraints.maxWidth.toDp() / targetSize.width,
+                constraints.maxHeight.toDp() / targetSize.height,
+            )
 
-    Box(
-        modifier = modifier
-            .onSizeChanged {
-                val (w, h) = with(density) { DpSize(it.width.toDp(), it.height.toDp()) }
-                scale = minOf(w / targetSize.width, h / targetSize.height)
-            },
-        contentAlignment = Alignment.Center,
-    ) {
-        Box(modifier = Modifier.requiredSize(targetSize).scale(scale)) {
+            val placeable = measurable.measure(fixedSize)
+            layout(placeable.width, placeable.height) {
+                placeable.placeWithLayer(0, 0, layerBlock = {
+                    scaleX = scale
+                    scaleY = scale
+                })
+            }
+        }) {
             content()
         }
     }
