@@ -1,7 +1,12 @@
 package dev.bnorm.librettist
 
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.*
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
@@ -16,11 +21,9 @@ import dev.bnorm.librettist.show.assist.ShowAssistState
 fun DesktopSlideShow(
     title: String,
     theme: @Composable () -> ShowTheme,
+    slideSize: DpSize = DEFAULT_SLIDE_SIZE,
     builder: ShowBuilder.() -> Unit,
 ) {
-    // Pulled from Google Slides with 1 inch = 100 dp
-    val slideSize = DEFAULT_SLIDE_SIZE
-
     val windowState = WindowState(size = DpSize(1000.dp, 800.dp))
     val showState = ShowState(builder)
     val showAssistState = ShowAssistState()
@@ -84,7 +87,6 @@ fun DesktopSlideShow(
         }
     }
 
-
     application {
         Window(
             onCloseRequest = ::exitApplication,
@@ -96,11 +98,23 @@ fun DesktopSlideShow(
 
             CompositionLocalProvider(LocalShowAssistState provides showAssistState) {
                 ShowTheme(theme()) {
-                    SlideShow(
-                        showState = showState,
-                        showOverview = windowState.placement != WindowPlacement.Fullscreen,
-                        slideSize = slideSize,
-                    )
+                    Row(modifier = Modifier.fillMaxSize()) {
+                        val state = rememberLazyListState()
+                        if (windowState.placement != WindowPlacement.Fullscreen) {
+                            SlideShowOverview(
+                                showState = showState,
+                                slideSize = slideSize,
+                                modifier = Modifier.weight(0.2f),
+                                state = state
+                            )
+                        }
+
+                        SlideShowDisplay(
+                            showState = showState,
+                            slideSize = slideSize,
+                            modifier = Modifier.weight(0.8f).fillMaxHeight()
+                        )
+                    }
                 }
             }
         }

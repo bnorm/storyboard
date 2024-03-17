@@ -25,30 +25,9 @@ import dev.bnorm.librettist.show.assist.LocalShowAssistState
 val DEFAULT_SLIDE_SIZE = DpSize(1920.dp, 1080.dp)
 
 @Composable
-fun SlideShow(
-    showState: ShowState,
-    showOverview: Boolean,
-    slideSize: DpSize = DEFAULT_SLIDE_SIZE,
-) {
-    Row(modifier = Modifier.fillMaxSize()) {
-        val state = rememberLazyListState()
-        if (showOverview) {
-            SlideShowOverview(
-                showState = showState,
-                slideSize = slideSize,
-                modifier = Modifier.weight(0.2f),
-                state = state
-            )
-        }
-
-        SlideShowDisplay(showState, slideSize, Modifier.weight(0.8f).fillMaxHeight())
-    }
-}
-
-@Composable
 fun SlideShowDisplay(
     showState: ShowState,
-    slideSize: DpSize = DEFAULT_SLIDE_SIZE,
+    slideSize: DpSize,
     modifier: Modifier = Modifier,
 ) {
     CompositionLocalProvider(LocalShowState provides showState) {
@@ -94,7 +73,7 @@ private fun ScaledBox(
 @Composable
 fun SlideShowOverview(
     showState: ShowState,
-    slideSize: DpSize = DEFAULT_SLIDE_SIZE,
+    slideSize: DpSize,
     modifier: Modifier = Modifier,
     state: LazyListState = rememberLazyListState(),
 ) {

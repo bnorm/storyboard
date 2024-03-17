@@ -1,6 +1,8 @@
 package dev.bnorm.librettist
 
-import androidx.compose.animation.*
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -18,9 +20,13 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.*
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.CanvasBasedWindow
-import dev.bnorm.librettist.show.*
+import dev.bnorm.librettist.show.Advancement
+import dev.bnorm.librettist.show.AdvancementListener
+import dev.bnorm.librettist.show.ShowBuilder
+import dev.bnorm.librettist.show.ShowState
 import kotlinx.coroutines.delay
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.TimeSource
@@ -29,16 +35,12 @@ import kotlin.time.TimeSource
 fun WebSlideShow(
     canvasElementId: String,
     theme: @Composable () -> ShowTheme,
+    slideSize: DpSize = DEFAULT_SLIDE_SIZE,
     builder: ShowBuilder.() -> Unit,
 ) {
-    // Pulled from Google Slides with 1 inch = 100 dp
-    val slideSize = DEFAULT_SLIDE_SIZE
-
     val showState = ShowState(builder)
 
     fun handleKeyEvent(event: KeyEvent): Boolean {
-        println(event)
-
         // TODO rate-limit holding down the key?
         if (event.type == KeyEventType.KeyDown) {
             val advancement = when (event.key) {
@@ -66,10 +68,10 @@ fun WebSlideShow(
         val focusRequester = remember { FocusRequester() }
         ShowTheme(theme()) {
             Box(modifier = Modifier.focusRequester(focusRequester).focusTarget().onKeyEvent(::handleKeyEvent)) {
-                SlideShow(
+                SlideShowDisplay(
                     showState = showState,
-                    showOverview = false,
                     slideSize = slideSize,
+                    modifier = Modifier.fillMaxSize()
                 )
 
                 MouseNavigationIndicators(showState)
