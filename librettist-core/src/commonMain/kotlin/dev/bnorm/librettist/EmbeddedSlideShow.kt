@@ -33,6 +33,7 @@ import kotlin.time.TimeSource
 fun EmbeddedSlideShow(
     theme: ShowTheme,
     slideSize: DpSize = DEFAULT_SLIDE_SIZE,
+    showIndicators: Boolean = true,
     builder: ShowBuilder.() -> Unit,
 ) {
     val showState = remember(builder) { ShowState(builder) }
@@ -70,7 +71,7 @@ fun EmbeddedSlideShow(
                 modifier = Modifier.fillMaxSize()
             )
 
-            MouseNavigationIndicators(showState)
+            MouseNavigationIndicators(showState, showIndicators)
         }
     }
 
@@ -80,24 +81,26 @@ fun EmbeddedSlideShow(
 }
 
 @Composable
-private fun MouseNavigationIndicators(showState: ShowState) {
+private fun MouseNavigationIndicators(showState: ShowState, showIndicators: Boolean = true) {
     val interactionSource = remember { MutableInteractionSource() }
-    var visible by remember { mutableStateOf(true) }
+    var visible by remember(showIndicators) { mutableStateOf(showIndicators) }
     var lastAdvancement by remember { mutableStateOf(TimeSource.Monotonic.markNow()) }
 
-    DisposableEffect(Unit) {
-        val handler: AdvancementListener = {
-            visible = false
-            lastAdvancement = TimeSource.Monotonic.markNow()
+    if (showIndicators) {
+        DisposableEffect(Unit) {
+            val listener: AdvancementListener = {
+                visible = false
+                lastAdvancement = TimeSource.Monotonic.markNow()
+            }
+            showState.addAdvancementListener(listener)
+            onDispose { showState.removeAdvancementListener(listener) }
         }
-        showState.addAdvancementListener(handler)
-        onDispose { showState.removeAdvancementListener(handler) }
-    }
 
-    if (!visible) {
-        LaunchedEffect(lastAdvancement) {
-            delay(10.seconds)
-            visible = true
+        if (!visible) {
+            LaunchedEffect(lastAdvancement) {
+                delay(10.seconds)
+                visible = true
+            }
         }
     }
 
