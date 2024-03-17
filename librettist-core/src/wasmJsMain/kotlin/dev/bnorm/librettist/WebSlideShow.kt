@@ -13,7 +13,6 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -22,7 +21,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.*
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.CanvasBasedWindow
 import dev.bnorm.librettist.show.Advancement
 import dev.bnorm.librettist.show.AdvancementListener
 import dev.bnorm.librettist.show.ShowBuilder
@@ -31,14 +29,13 @@ import kotlinx.coroutines.delay
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.TimeSource
 
-@OptIn(ExperimentalComposeUiApi::class)
+@Composable
 fun WebSlideShow(
-    canvasElementId: String,
-    theme: @Composable () -> ShowTheme,
+    theme: ShowTheme,
     slideSize: DpSize = DEFAULT_SLIDE_SIZE,
     builder: ShowBuilder.() -> Unit,
 ) {
-    val showState = ShowState(builder)
+    val showState = remember(builder) { ShowState(builder) }
 
     fun handleKeyEvent(event: KeyEvent): Boolean {
         // TODO rate-limit holding down the key?
@@ -64,23 +61,21 @@ fun WebSlideShow(
         return false
     }
 
-    CanvasBasedWindow(canvasElementId = canvasElementId) {
-        val focusRequester = remember { FocusRequester() }
-        ShowTheme(theme()) {
-            Box(modifier = Modifier.focusRequester(focusRequester).focusTarget().onKeyEvent(::handleKeyEvent)) {
-                SlideShowDisplay(
-                    showState = showState,
-                    slideSize = slideSize,
-                    modifier = Modifier.fillMaxSize()
-                )
+    val focusRequester = remember { FocusRequester() }
+    ShowTheme(theme) {
+        Box(modifier = Modifier.focusRequester(focusRequester).focusTarget().onKeyEvent(::handleKeyEvent)) {
+            SlideShowDisplay(
+                showState = showState,
+                slideSize = slideSize,
+                modifier = Modifier.fillMaxSize()
+            )
 
-                MouseNavigationIndicators(showState)
-            }
+            MouseNavigationIndicators(showState)
         }
+    }
 
-        LaunchedEffect(Unit) {
-            focusRequester.requestFocus()
-        }
+    LaunchedEffect(Unit) {
+        focusRequester.requestFocus()
     }
 }
 

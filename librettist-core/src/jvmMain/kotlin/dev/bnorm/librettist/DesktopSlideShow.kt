@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.*
 import androidx.compose.ui.unit.DpSize
@@ -18,15 +19,16 @@ import dev.bnorm.librettist.show.assist.LocalShowAssistState
 import dev.bnorm.librettist.show.assist.ShowAssist
 import dev.bnorm.librettist.show.assist.ShowAssistState
 
-fun DesktopSlideShow(
+@Composable
+fun ApplicationScope.DesktopSlideShow(
     title: String,
-    theme: @Composable () -> ShowTheme,
+    theme: ShowTheme,
     slideSize: DpSize = DEFAULT_SLIDE_SIZE,
     builder: ShowBuilder.() -> Unit,
 ) {
-    val windowState = WindowState(size = DpSize(1000.dp, 800.dp))
-    val showState = ShowState(builder)
-    val showAssistState = ShowAssistState()
+    val windowState = remember { WindowState(size = DpSize(1000.dp, 800.dp)) }
+    val showState = remember(builder) { ShowState(builder) }
+    val showAssistState = remember { ShowAssistState() }
 
     fun handleKeyEvent(event: KeyEvent): Boolean {
         // TODO rate-limit holding down the key?
@@ -87,47 +89,45 @@ fun DesktopSlideShow(
         }
     }
 
-    application {
-        Window(
-            onCloseRequest = ::exitApplication,
-            state = windowState,
-            title = title,
-            onPreviewKeyEvent = ::handleKeyEvent,
-        ) {
-            ShowMenu()
+    Window(
+        onCloseRequest = ::exitApplication,
+        state = windowState,
+        title = title,
+        onPreviewKeyEvent = ::handleKeyEvent,
+    ) {
+        ShowMenu()
 
-            CompositionLocalProvider(LocalShowAssistState provides showAssistState) {
-                ShowTheme(theme()) {
-                    Row(modifier = Modifier.fillMaxSize()) {
-                        val state = rememberLazyListState()
-                        if (windowState.placement != WindowPlacement.Fullscreen) {
-                            SlideShowOverview(
-                                showState = showState,
-                                slideSize = slideSize,
-                                modifier = Modifier.weight(0.2f),
-                                state = state
-                            )
-                        }
-
-                        SlideShowDisplay(
+        CompositionLocalProvider(LocalShowAssistState provides showAssistState) {
+            ShowTheme(theme) {
+                Row(modifier = Modifier.fillMaxSize()) {
+                    val state = rememberLazyListState()
+                    if (windowState.placement != WindowPlacement.Fullscreen) {
+                        SlideShowOverview(
                             showState = showState,
                             slideSize = slideSize,
-                            modifier = Modifier.weight(0.8f).fillMaxHeight()
+                            modifier = Modifier.weight(0.2f),
+                            state = state
                         )
                     }
+
+                    SlideShowDisplay(
+                        showState = showState,
+                        slideSize = slideSize,
+                        modifier = Modifier.weight(0.8f).fillMaxHeight()
+                    )
                 }
             }
         }
+    }
 
-        if (showAssistState.visible) {
-            Window(
-                onCloseRequest = { showAssistState.visible = false },
-                title = "Assist",
-            ) {
-                ShowMenu()
+    if (showAssistState.visible) {
+        Window(
+            onCloseRequest = { showAssistState.visible = false },
+            title = "Assist",
+        ) {
+            ShowMenu()
 
-                ShowAssist(showAssistState)
-            }
+            ShowAssist(showAssistState)
         }
     }
 }
