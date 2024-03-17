@@ -30,7 +30,7 @@ import kotlin.time.Duration.Companion.seconds
 import kotlin.time.TimeSource
 
 @Composable
-fun WebSlideShow(
+fun EmbeddedSlideShow(
     theme: ShowTheme,
     slideSize: DpSize = DEFAULT_SLIDE_SIZE,
     builder: ShowBuilder.() -> Unit,
