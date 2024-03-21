@@ -22,8 +22,6 @@ class ShowState(val slides: List<Slide>) {
     val currentSlide: SlideContent
         get() = slides[mutableIndex.value].content
 
-    private val listeners = mutableListOf<AdvancementListener>() // TODO shared flow?
-
     fun jumpToSlide(index: Int, advancement: Int = 0) {
         require(index in 0..<slides.size)
         require(advancement in 0..<slides[index].advancements)
@@ -54,30 +52,6 @@ class ShowState(val slides: List<Slide>) {
             return inRange
         }
 
-        /*
-         * We need to call handlers in different directions based on advancement direction. When advancing forward,
-         * handlers should be called in natural order. When advancing backwards, handlers should be called in reverse
-         * order. This is so advancement handling happens in LIFO order. When something is the last to advance forward,
-         * it needs to be the first to advance backwards. This is all so multiple advancement handlers defined within
-         * the same Composable function are called in the expected order when advancing, regardless of direction.
-         *
-         * Advancing though the slide index is always the last "handler", since it is outside the slide Composable
-         * function.
-         */
-        val result = advanceSlideAdvancement() || advanceSlideIndex()
-
-        listeners.forEach { it(advancement) }
-
-        return result
-    }
-
-    fun addAdvancementListener(listener: AdvancementListener) {
-        listeners.add(listener)
-    }
-
-    fun removeAdvancementListener(listener: AdvancementListener) {
-        listeners.remove(listener)
+        return advanceSlideAdvancement() || advanceSlideIndex()
     }
 }
-
-typealias AdvancementListener = (Advancement) -> Unit

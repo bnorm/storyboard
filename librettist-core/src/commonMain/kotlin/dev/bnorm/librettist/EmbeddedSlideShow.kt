@@ -22,7 +22,6 @@ import androidx.compose.ui.input.key.*
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import dev.bnorm.librettist.show.Advancement
-import dev.bnorm.librettist.show.AdvancementListener
 import dev.bnorm.librettist.show.ShowBuilder
 import dev.bnorm.librettist.show.ShowState
 import kotlinx.coroutines.delay
@@ -37,6 +36,25 @@ fun EmbeddedSlideShow(
     builder: ShowBuilder.() -> Unit,
 ) {
     val showState = remember(builder) { ShowState(builder) }
+    var visibleIndicators by remember(showIndicators) { mutableStateOf(showIndicators) }
+    var lastAdvancement by remember { mutableStateOf(TimeSource.Monotonic.markNow()) }
+
+    if (showIndicators && !visibleIndicators) {
+        LaunchedEffect(lastAdvancement) {
+            delay(10.seconds)
+            visibleIndicators = true
+        }
+    }
+
+    fun advance(advancement: Advancement): Boolean {
+        if (showState.advance(advancement)) {
+            visibleIndicators = false
+            lastAdvancement = TimeSource.Monotonic.markNow()
+            return true
+        } else {
+            return false
+        }
+    }
 
     fun handleKeyEvent(event: KeyEvent): Boolean {
         // TODO rate-limit holding down the key?
@@ -53,8 +71,7 @@ fun EmbeddedSlideShow(
 
                 else -> null
             }
-            if (advancement != null) {
-                showState.advance(advancement)
+            if (advancement != null && advance(advancement)) {
                 return true
             }
         }
@@ -71,7 +88,7 @@ fun EmbeddedSlideShow(
                 modifier = Modifier.fillMaxSize()
             )
 
-            MouseNavigationIndicators(showState, showIndicators)
+            MouseNavigationIndicators(onAdvancement = { advance(it) }, visibleIndicators)
         }
     }
 
@@ -81,38 +98,18 @@ fun EmbeddedSlideShow(
 }
 
 @Composable
-private fun MouseNavigationIndicators(showState: ShowState, showIndicators: Boolean = true) {
+private fun MouseNavigationIndicators(onAdvancement: (Advancement) -> Unit, visibleIndicators: Boolean = true) {
     val interactionSource = remember { MutableInteractionSource() }
-    var visible by remember(showIndicators) { mutableStateOf(showIndicators) }
-    var lastAdvancement by remember { mutableStateOf(TimeSource.Monotonic.markNow()) }
-
-    if (showIndicators) {
-        DisposableEffect(Unit) {
-            val listener: AdvancementListener = {
-                visible = false
-                lastAdvancement = TimeSource.Monotonic.markNow()
-            }
-            showState.addAdvancementListener(listener)
-            onDispose { showState.removeAdvancementListener(listener) }
-        }
-
-        if (!visible) {
-            LaunchedEffect(lastAdvancement) {
-                delay(10.seconds)
-                visible = true
-            }
-        }
-    }
 
     Box(modifier = Modifier.fillMaxSize()) {
         Box(
             modifier = Modifier.fillMaxHeight().width(200.dp).align(Alignment.CenterStart)
                 .clickable(interactionSource, indication = null) {
-                    showState.advance(Advancement(direction = Advancement.Direction.Backward))
+                    onAdvancement(Advancement(direction = Advancement.Direction.Backward))
                 }
         ) {
             AnimatedVisibility(
-                visible = visible,
+                visible = visibleIndicators,
                 enter = slideInHorizontally { -it },
                 exit = slideOutHorizontally { -it },
             ) {
@@ -130,11 +127,11 @@ private fun MouseNavigationIndicators(showState: ShowState, showIndicators: Bool
         Box(
             modifier = Modifier.fillMaxHeight().width(200.dp).align(Alignment.CenterEnd)
                 .clickable(interactionSource, indication = null) {
-                    showState.advance(Advancement(direction = Advancement.Direction.Forward))
+                    onAdvancement(Advancement(direction = Advancement.Direction.Forward))
                 }
         ) {
             AnimatedVisibility(
-                visible = visible,
+                visible = visibleIndicators,
                 enter = slideInHorizontally { it },
                 exit = slideOutHorizontally { it },
             ) {
