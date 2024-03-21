@@ -3,50 +3,54 @@ package dev.bnorm.librettist.show
 import androidx.compose.runtime.*
 
 fun ShowState(builder: ShowBuilder.() -> Unit): ShowState {
-    val slides = buildList {
-        object : ShowBuilder {
-            override fun slide(content: SlideContent) {
-                add(content)
-            }
-        }.builder()
-    }
-
-    return ShowState(slides)
+    return ShowState(buildSlides(builder))
 }
 
-class ShowState(
-    val slides: List<SlideContent>,
-    initialDirection: Advancement.Direction = Advancement.Direction.Forward,
-) : SlideScope {
+// TODO
+//   - could the slide index be driven by MutableTransitionState? and a Transition exposed through SlideScope?
+//     - once SeekableTransitionState is better in multiplatform, could help skip animations naturally
+class ShowState(val slides: List<Slide>) {
     private val mutableIndex = mutableIntStateOf(0)
+    private val mutableAdvancement = mutableIntStateOf(0)
 
-    var index: Int
+    val index: Int
         get() = mutableIndex.value
-        // TODO instead of a setter, should this be a jumpToSlide() function instead?
-        set(value) {
-            require(index in 0..slides.size)
-            direction = Advancement.Direction.Forward // Jumping to a slide is always considered a forward advancement.
-            mutableIndex.value = value
-        }
+
+    val advancement: Int
+        get() = mutableAdvancement.value
 
     val currentSlide: SlideContent
-        get() = slides[index]
+        get() = slides[mutableIndex.value].content
 
-    private val handlers = mutableListOf<AdvancementHandler>()
     private val listeners = mutableListOf<AdvancementListener>() // TODO shared flow?
 
-    override var direction = initialDirection
-        private set
+    fun jumpToSlide(index: Int, advancement: Int = 0) {
+        require(index in 0..<slides.size)
+        require(advancement in 0..<slides[index].advancements)
+        mutableIndex.value = index
+        mutableAdvancement.value = advancement
+    }
 
-    fun advance(advancement: Advancement) {
-        direction = advancement.direction
-
+    fun advance(advancement: Advancement): Boolean {
         fun advanceSlideIndex(): Boolean {
-            val value = mutableIndex.value
-            val nextValue = advancement.direction.toValue(forward = value + 1, backward = value - 1)
+            val nextValue = mutableIndex.value + advancement.direction.toValue(forward = +1, backward = -1)
 
             val inRange = nextValue in slides.indices
-            if (inRange) mutableIndex.value = nextValue
+            if (inRange) {
+                mutableIndex.value = nextValue
+                mutableAdvancement.value = advancement.direction.toValue(
+                    forward = 0,
+                    backward = slides[nextValue].advancements - 1,
+                )
+            }
+            return inRange
+        }
+
+        fun advanceSlideAdvancement(): Boolean {
+            val nextValue = mutableAdvancement.value + advancement.direction.toValue(forward = +1, backward = -1)
+
+            val inRange = nextValue >= 0 && nextValue < slides[mutableIndex.value].advancements
+            if (inRange) mutableAdvancement.value = nextValue
             return inRange
         }
 
@@ -60,20 +64,11 @@ class ShowState(
          * Advancing though the slide index is always the last "handler", since it is outside the slide Composable
          * function.
          */
-        when (advancement.direction) {
-            Advancement.Direction.Forward -> handlers.any { it(advancement) }
-            Advancement.Direction.Backward -> handlers.reversed().any { it(advancement) }
-        } || advanceSlideIndex()
+        val result = advanceSlideAdvancement() || advanceSlideIndex()
 
         listeners.forEach { it(advancement) }
-    }
 
-    fun addAdvancementHandler(handler: AdvancementHandler) {
-        handlers.add(handler)
-    }
-
-    fun removeAdvancementHandler(handler: AdvancementHandler) {
-        handlers.remove(handler)
+        return result
     }
 
     fun addAdvancementListener(listener: AdvancementListener) {
@@ -85,24 +80,4 @@ class ShowState(
     }
 }
 
-val LocalShowState = compositionLocalOf<ShowState> {
-    error("LocalShowState is not provided")
-}
-
-typealias AdvancementHandler = (Advancement) -> Boolean
 typealias AdvancementListener = (Advancement) -> Unit
-
-@Composable
-fun HandleAdvancement(handler: AdvancementHandler) {
-    val handlerState = rememberUpdatedState(handler)
-    val state = LocalShowState.current
-    DisposableEffect(handlerState) {
-        val localHandler: AdvancementHandler = {
-            handlerState.value(it)
-        }
-        state.addAdvancementHandler(localHandler)
-        onDispose {
-            state.removeAdvancementHandler(localHandler)
-        }
-    }
-}

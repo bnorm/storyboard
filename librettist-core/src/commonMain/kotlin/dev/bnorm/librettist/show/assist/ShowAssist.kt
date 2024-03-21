@@ -25,6 +25,10 @@ fun ShowAssist(showAssistState: ShowAssistState) {
                 PresentationClock()
             }
 
+            // TODO how can we do a preview of the next slide?
+            //  - we would really like to have a preview of the next **advancement**
+            //  - can we render the show like an export to create the previews without animations?
+
             if (showAssistState.tabs.isNotEmpty()) {
                 var state by remember { mutableStateOf(0) }
                 Scaffold(

@@ -25,16 +25,14 @@ fun ShowBuilder.section(
     title: @Composable () -> Unit,
     block: ShowBuilder.() -> Unit,
 ) {
-    val upstream = this
-    val section = SlideSection(title)
+    val slides = buildSlides(block)
+    val advancements = slides.advancements
 
-    object : ShowBuilder {
-        override fun slide(content: SlideContent) {
-            upstream.slide {
-                CompositionLocalProvider(LocalSlideSection provides section) {
-                    content()
-                }
-            }
+    slide(advancements.size) {
+        CompositionLocalProvider(LocalSlideSection provides SlideSection(title)) {
+            val (index, adv) = advancements[advancement]
+            val content = slides[index].content
+            SlideScope(adv).content()
         }
-    }.block()
+    }
 }

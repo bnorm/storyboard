@@ -6,5 +6,5 @@ annotation class ShowBuilderDsl
 @ShowBuilderDsl
 interface ShowBuilder {
     @ShowBuilderDsl
-    fun slide(content: SlideContent)
+    fun slide(advancements: Int = 1, content: SlideContent)
 }
