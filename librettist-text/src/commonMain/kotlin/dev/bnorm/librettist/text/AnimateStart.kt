@@ -8,17 +8,16 @@ import kotlinx.coroutines.flow.flow
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 
-fun String.flowStart(charDelay: Duration = 50.milliseconds): Flow<String> = flow {
+fun String.flowStart(): Sequence<String> = sequence {
     val value = StringBuilder()
-    emit(value.toString())
+    yield(value.toString())
 
     for (codePoint in this@flowStart.codePointIterator()) {
         value.appendCodePoint(codePoint)
         if (!codePoint.isWhitespace()) {
-            delay(charDelay)
-            emit(value.toString())
+            yield(value.toString())
         }
     }
 
-    emit(value.toString())
+    yield(value.toString())
 }

@@ -3,19 +3,16 @@ package dev.bnorm.librettist.text
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.buildAnnotatedString
 import dev.bnorm.librettist.animation.AnimationSequence
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.emitAll
-import kotlinx.coroutines.flow.flow
 
-fun String.flowLines(other: String): Flow<String> {
+fun String.flowLines(other: String): Sequence<String> {
     val thisLines = this.lines()
     val otherLines = other.lines()
     require(otherLines.size >= thisLines.size)
 
-    return flow {
-        emit(this@flowLines)
+    return sequence {
+        yield(this@flowLines)
         for (line in otherLines.indices) {
-            emit(buildString {
+            yield(buildString {
                 for (i in 0..line) {
                     appendLine(otherLines[i])
                 }
@@ -27,15 +24,15 @@ fun String.flowLines(other: String): Flow<String> {
     }
 }
 
-fun AnnotatedString.flowLines(other: AnnotatedString): Flow<AnnotatedString> {
+fun AnnotatedString.flowLines(other: AnnotatedString): Sequence<AnnotatedString> {
     val thisLines = this.annotatedLines()
     val otherLines = other.annotatedLines()
     require(otherLines.size >= thisLines.size)
 
-    return flow {
-        emit(this@flowLines)
+    return sequence {
+        yield(this@flowLines)
         for (line in otherLines.indices) {
-            emit(buildAnnotatedString {
+            yield(buildAnnotatedString {
                 for (i in 0..line) {
                     append(otherLines[i])
                     if (i + 1 < thisLines.size) appendLine()
@@ -50,15 +47,15 @@ fun AnnotatedString.flowLines(other: AnnotatedString): Flow<AnnotatedString> {
 }
 
 fun AnimationSequence<String>.thenLines(next: String): AnimationSequence<String> {
-    val nextFlow = end.flowLines(next)
-    val flow = flow { emitAll(flow); emitAll(nextFlow) }
-    return copy(end = next, flow = flow)
+    val nextSequence = end.flowLines(next)
+    val sequence = sequence { yieldAll(sequence); yieldAll(nextSequence) }
+    return copy(end = next, sequence = sequence)
 }
 
 
 fun AnimationSequence<AnnotatedString>.thenLines(next: AnnotatedString): AnimationSequence<AnnotatedString> {
-    val nextFlow = end.flowLines(next)
-    val flow = flow { emitAll(flow); emitAll(nextFlow) }
-    return copy(end = next, flow = flow)
+    val nextSequence = end.flowLines(next)
+    val sequence = sequence { yieldAll(sequence); yieldAll(nextSequence) }
+    return copy(end = next, sequence = sequence)
 }
 

@@ -6,8 +6,7 @@ import dev.bnorm.librettist.show.SlideScope
 import dev.bnorm.librettist.show.rememberAdvancementIndex
 import dev.bnorm.librettist.text.dedup
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.asFlow
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -15,11 +14,11 @@ import kotlin.time.Duration.Companion.milliseconds
 data class AnimationSequence<T>(
     val start: T,
     val end: T,
-    val flow: Flow<T>,
+    val sequence: Sequence<T>,
 )
 
 fun <T> startAnimation(start: T): AnimationSequence<T> {
-    return AnimationSequence(start, start, flowOf(start))
+    return AnimationSequence(start, start, sequenceOf(start))
 }
 
 @Composable
@@ -36,7 +35,7 @@ fun <T> AnimateSequence(
     LaunchedAnimation(state) {
         when (it) {
             AnimationState.PENDING -> text = sequence.start
-            AnimationState.RUNNING -> sequence.flow.dedup().collect { delay(delay); text = it }
+            AnimationState.RUNNING -> sequence.sequence.asFlow().dedup().collect { delay(delay); text = it }
             AnimationState.COMPLETE -> text = sequence.end
         }
     }
@@ -58,7 +57,7 @@ fun <T> SlideScope.AnimateSequence(
     LaunchedAnimation(state) {
         when (it) {
             AnimationState.PENDING -> text = sequence.start
-            AnimationState.RUNNING -> sequence.flow.dedup().collect { delay(delay); text = it }
+            AnimationState.RUNNING -> sequence.sequence.asFlow().dedup().collect { delay(delay); text = it }
             AnimationState.COMPLETE -> text = sequence.end
         }
     }
@@ -89,7 +88,7 @@ fun <T> SlideScope.AnimateSequences(
 
             else -> {
                 if (direction == Advancement.Direction.Forward) {
-                    sequences[index / 2].flow.dedup().collect { delay(delay); value = it }
+                    sequences[index / 2].sequence.asFlow().dedup().collect { delay(delay); value = it }
                     index++
                 } else {
                     index--

@@ -8,16 +8,15 @@ import kotlinx.coroutines.flow.flow
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 
-fun String.flowMiddleOut(charDelay: Duration = 50.milliseconds): Flow<String> {
+fun String.flowMiddleOut(): Sequence<String> {
     val codePoints = Iterable { codePointIterator() }.toList()
-    return flow {
+    return sequence {
         var leftIndex = (codePoints.size - 1) / 2
         var rightIndex = codePoints.size / 2
 
-        emit("")
+        yield("")
         while (leftIndex >= 0) {
-            delay(charDelay)
-            emit(buildString {
+            yield(buildString {
                 for (i in leftIndex..rightIndex) {
                     appendCodePoint(codePoints[i])
                 }

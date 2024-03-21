@@ -1,9 +1,6 @@
 package dev.bnorm.librettist.text
 
 import dev.bnorm.librettist.animation.AnimationSequence
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.emitAll
-import kotlinx.coroutines.flow.flow
 import org.apache.commons.text.diff.ReplacementsFinder
 import org.apache.commons.text.diff.StringsComparator
 
@@ -17,16 +14,16 @@ private data class Diff(
 // TODO: write our own diff algorithm? (work is all public...) base it on code points instead! YES!
 // TODO: how to handle code points? https://github.com/cketti/kotlin-codepoints
 
-fun String.flowDiff(other: String): Flow<String> {
+fun String.flowDiff(other: String): Sequence<String> {
     val diffs = buildList {
         StringsComparator(this@flowDiff, other).script.visit(ReplacementsFinder { skipped, from, to ->
             add(Diff(skipped, from.toList(), to.toList()))
         })
     }
 
-    return flow {
+    return sequence {
         var value = this@flowDiff
-        emit(value)
+        yield(value)
 
         var offset = 0
         for ((skipped, from, to) in diffs) {
@@ -44,7 +41,7 @@ fun String.flowDiff(other: String): Flow<String> {
                     }
                     append(end)
                 }
-                emit(value)
+                yield(value)
             }
 
             for (i in to.indices) {
@@ -58,7 +55,7 @@ fun String.flowDiff(other: String): Flow<String> {
                     append(end)
                 }
                 offset++
-                emit(value)
+                yield(value)
             }
         }
     }
@@ -66,7 +63,7 @@ fun String.flowDiff(other: String): Flow<String> {
 
 
 fun AnimationSequence<String>.thenDiff(next: String): AnimationSequence<String> {
-    val nextFlow = end.flowDiff(next)
-    val flow = flow { emitAll(flow); emitAll(nextFlow) }
-    return copy(end = next, flow = flow)
+    val nextSequence = end.flowDiff(next)
+    val sequence = sequence { yieldAll(sequence); yieldAll(nextSequence) }
+    return copy(end = next, sequence = sequence)
 }
