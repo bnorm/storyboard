@@ -2,6 +2,7 @@ package dev.bnorm.librettist
 
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.rememberTransition
+import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -35,7 +36,6 @@ fun SlideShowDisplay(
     slideSize: DpSize,
     modifier: Modifier = Modifier,
 ) {
-    val advancement = showState.rememberAdvancementTransition()
     ScaledBox(
         targetSize = slideSize,
         modifier = modifier.background(MaterialTheme.colors.background)
@@ -44,7 +44,8 @@ fun SlideShowDisplay(
             // TODO why is this box required for proper alignment?
             Box(modifier = Modifier.fillMaxSize()) {
                 val slide = showState.currentSlide
-                SlideScope(advancement).slide()
+                val transition = updateTransition(showState.advancement)
+                SlideScope(transition).slide()
             }
         }
     }
@@ -84,9 +85,6 @@ fun SlideShowOverview(
     modifier: Modifier = Modifier,
     state: LazyListState = rememberLazyListState(),
 ) {
-    // TODO advancement never happens in the overview, but we need
-    //  to provide a show state anyways so ListenAdvancement doesn't error.
-    //  is there a better way to disable advancement?
     CompositionLocalProvider(LocalShowAssistState provides null) {
 
         // TODO: use state.animateScrollToItem(selectedSlide) somehow to always keep selected slide visible (but not always at the top)
@@ -103,7 +101,7 @@ fun SlideShowOverview(
                         .background(MaterialTheme.colors.background)
                         .clickable { showState.jumpToSlide(index, advancement) }
                         .then(
-                            if (index == showState.index && advancement == showState.advancement.targetState)
+                            if (index == showState.index && advancement == showState.advancement)
                                 Modifier.border(2.dp, Color.Red)
                             else Modifier
                         )

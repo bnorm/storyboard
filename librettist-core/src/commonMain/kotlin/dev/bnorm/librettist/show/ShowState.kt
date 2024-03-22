@@ -1,10 +1,6 @@
 package dev.bnorm.librettist.show
 
-import androidx.compose.animation.core.MutableTransitionState
-import androidx.compose.animation.core.Transition
-import androidx.compose.animation.core.TransitionState
-import androidx.compose.animation.core.rememberTransition
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
 
 fun ShowState(builder: ShowBuilder.() -> Unit): ShowState {
     return ShowState(buildSlides(builder))
@@ -14,34 +10,34 @@ fun ShowState(builder: ShowBuilder.() -> Unit): ShowState {
 //   - could the slide index be driven by MutableTransitionState? and a Transition exposed through SlideScope?
 //     - once SeekableTransitionState is better in multiplatform, could help skip animations naturally
 class ShowState(val slides: List<Slide>) {
-    private val mutableIndex = MutableTransitionState(0)
-    private val mutableAdvancement = MutableTransitionState(0)
+    private val mutableIndex = mutableStateOf(0)
+    private val mutableAdvancement = mutableStateOf(0)
 
     val index: Int
-        get() = mutableIndex.targetState
+        get() = mutableIndex.value
 
-    val advancement: TransitionState<Int>
-        get() = mutableAdvancement
+    val advancement: Int
+        get() = mutableAdvancement.value
 
     val currentSlide: SlideContent<Int>
-        get() = slides[mutableIndex.targetState].content
+        get() = slides[mutableIndex.value].content
 
     fun jumpToSlide(index: Int, advancement: Int = 0) {
         require(index in 0..<slides.size)
         require(advancement in 0..<slides[index].advancements)
-        mutableIndex.targetState = index
-        mutableAdvancement.targetState = advancement
+        mutableIndex.value = index
+        mutableAdvancement.value = advancement
     }
 
     fun advance(advancement: Advancement): Boolean {
         fun advanceSlideIndex(): Boolean {
-            val nextValue = mutableIndex.targetState + advancement.direction.toValue(forward = +1, backward = -1)
+            val nextValue = mutableIndex.value + advancement.direction.toValue(forward = +1, backward = -1)
 
             val inRange = nextValue in slides.indices
             if (inRange) {
-                mutableIndex.targetState = nextValue
+                mutableIndex.value = nextValue
                 // TODO snap value?
-                mutableAdvancement.targetState = advancement.direction.toValue(
+                mutableAdvancement.value = advancement.direction.toValue(
                     forward = 0,
                     backward = slides[nextValue].advancements - 1,
                 )
@@ -50,20 +46,15 @@ class ShowState(val slides: List<Slide>) {
         }
 
         fun advanceSlideAdvancement(): Boolean {
-            val nextValue = mutableAdvancement.targetState + advancement.direction.toValue(forward = +1, backward = -1)
+            val nextValue = mutableAdvancement.value + advancement.direction.toValue(forward = +1, backward = -1)
 
-            val inRange = nextValue >= 0 && nextValue < slides[mutableIndex.targetState].advancements
+            val inRange = nextValue >= 0 && nextValue < slides[mutableIndex.value].advancements
             if (inRange) {
-                mutableAdvancement.targetState = nextValue
+                mutableAdvancement.value = nextValue
             }
             return inRange
         }
 
         return advanceSlideAdvancement() || advanceSlideIndex()
-    }
-
-    @Composable
-    fun rememberAdvancementTransition(): Transition<Int> {
-        return rememberTransition(mutableAdvancement)
     }
 }
