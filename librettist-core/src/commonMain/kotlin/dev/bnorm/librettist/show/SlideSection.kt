@@ -1,6 +1,9 @@
 package dev.bnorm.librettist.show
 
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.compositionLocalOf
 
 @Immutable
 class SlideSection(
@@ -22,16 +25,16 @@ fun ShowBuilder.section(
     title: @Composable () -> Unit,
     block: ShowBuilder.() -> Unit,
 ) {
-    val slides = buildSlides(block)
-    val advancements = slides.advancements
+    val upstream = this
+    val section = SlideSection(title)
 
-    slide(advancements.size) {
-        CompositionLocalProvider(LocalSlideSection provides SlideSection(title)) {
-            val (index, adv) = advancements[transition.targetState]
-            val content = slides[index].content
-            key(index) {
-                createChildScope { adv }.content()
+    object : ShowBuilder {
+        override fun slide(advancements: Int, content: SlideContent<Int>) {
+            upstream.slide(advancements) {
+                CompositionLocalProvider(LocalSlideSection provides section) {
+                    content()
+                }
             }
         }
-    }
+    }.block()
 }

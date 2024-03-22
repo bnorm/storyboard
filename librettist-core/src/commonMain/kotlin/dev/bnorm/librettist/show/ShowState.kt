@@ -1,60 +1,107 @@
 package dev.bnorm.librettist.show
 
+import androidx.compose.animation.core.MutableTransitionState
+import androidx.compose.animation.core.Transition
+import androidx.compose.animation.core.rememberTransition
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 
 fun ShowState(builder: ShowBuilder.() -> Unit): ShowState {
     return ShowState(buildSlides(builder))
 }
 
-// TODO
-//   - could the slide index be driven by MutableTransitionState? and a Transition exposed through SlideScope?
-//     - once SeekableTransitionState is better in multiplatform, could help skip animations naturally
+// TODO once SeekableTransitionState is better in multiplatform, could help skip animations naturally
 class ShowState(val slides: List<Slide>) {
     private val mutableIndex = mutableStateOf(0)
-    private val mutableAdvancement = mutableStateOf(0)
+    private val mutableAdvancement = mutableStateOf(MutableTransitionState(0))
 
     val index: Int
         get() = mutableIndex.value
 
     val advancement: Int
-        get() = mutableAdvancement.value
+        get() = mutableAdvancement.value.targetState
+
+    private fun currentSlide(): Slide = slides[mutableIndex.value]
 
     val currentSlide: SlideContent<Int>
-        get() = slides[mutableIndex.value].content
+        get() = currentSlide().content
 
     fun jumpToSlide(index: Int, advancement: Int = 0) {
         require(index in 0..<slides.size)
         require(advancement in 0..<slides[index].advancements)
         mutableIndex.value = index
-        mutableAdvancement.value = advancement
+        mutableAdvancement.value = MutableTransitionState(advancement)
     }
 
     fun advance(advancement: Advancement): Boolean {
-        fun advanceSlideIndex(): Boolean {
-            val nextValue = mutableIndex.value + advancement.direction.toValue(forward = +1, backward = -1)
+        val advancements = currentSlide().advancements
+        val state = mutableAdvancement.value
+        val targetState = state.targetState
 
-            val inRange = nextValue in slides.indices
-            if (inRange) {
-                mutableIndex.value = nextValue
-                // TODO snap value?
-                mutableAdvancement.value = advancement.direction.toValue(
-                    forward = 0,
-                    backward = slides[nextValue].advancements - 1,
-                )
+        if (state.currentState != targetState) {
+            // Seek to the next slide/advancement
+            when (targetState) {
+                -1 -> previousSlide(withTransition = false)
+                advancements -> nextSlide(withTransition = false)
+                else -> mutableAdvancement.value = MutableTransitionState(targetState)
             }
-            return inRange
+
+            return true
         }
 
-        fun advanceSlideAdvancement(): Boolean {
-            val nextValue = mutableAdvancement.value + advancement.direction.toValue(forward = +1, backward = -1)
-
-            val inRange = nextValue >= 0 && nextValue < slides[mutableIndex.value].advancements
-            if (inRange) {
-                mutableAdvancement.value = nextValue
-            }
-            return inRange
+        val newTargetState = targetState + advancement.direction.toValue(forward = +1, backward = -1)
+        if (
+            newTargetState in 0..<advancements || // Advance within slide
+            newTargetState == -1 && mutableIndex.value > 0 || // Advance to previous slide
+            newTargetState == advancements && mutableIndex.value < slides.size - 1 // Advance to next slide
+        ) {
+            state.targetState = newTargetState
+            return true
         }
 
-        return advanceSlideAdvancement() || advanceSlideIndex()
+        return false
+    }
+
+    @Composable
+    fun rememberAdvancementTransition(): Transition<Int> {
+        val state by mutableAdvancement
+        val transition = rememberTransition(state)
+
+        LaunchedEffect(state.currentState) {
+            if (state.currentState == state.targetState) {
+                if (state.currentState == -1) {
+                    previousSlide()
+                } else if (state.currentState == currentSlide().advancements) {
+                    nextSlide()
+                }
+            }
+        }
+
+        return transition
+    }
+
+    private fun previousSlide(withTransition: Boolean = true) {
+        if (mutableIndex.value <= 0) return // No previous slide
+
+        val nextValue = mutableIndex.value - 1
+        mutableIndex.value = nextValue
+
+        val advancements = slides[nextValue].advancements
+        val nextState = MutableTransitionState(if (withTransition) advancements else advancements - 1)
+        nextState.targetState = advancements - 1
+        mutableAdvancement.value = nextState
+    }
+
+    private fun nextSlide(withTransition: Boolean = true) {
+        if (mutableIndex.value >= slides.size - 1) return // No next slide
+
+        val nextValue = mutableIndex.value + 1
+        mutableIndex.value = nextValue
+
+        val nextState = MutableTransitionState(if (withTransition) -1 else 0)
+        nextState.targetState = 0
+        mutableAdvancement.value = nextState
     }
 }

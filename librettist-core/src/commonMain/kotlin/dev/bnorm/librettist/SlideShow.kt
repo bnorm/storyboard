@@ -2,7 +2,6 @@ package dev.bnorm.librettist
 
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.rememberTransition
-import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -36,13 +35,13 @@ fun SlideShowDisplay(
     slideSize: DpSize,
     modifier: Modifier = Modifier,
 ) {
+    val transition = showState.rememberAdvancementTransition()
     ScaledBox(
         targetSize = slideSize,
         modifier = modifier.background(MaterialTheme.colors.background)
     ) {
         Surface(modifier = Modifier.fillMaxSize()) {
             val slide = showState.currentSlide
-            val transition = updateTransition(showState.advancement)
             SlideScope(transition).slide()
         }
     }

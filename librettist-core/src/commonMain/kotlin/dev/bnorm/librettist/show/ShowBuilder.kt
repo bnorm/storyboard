@@ -12,7 +12,7 @@ interface ShowBuilder {
 @ShowBuilderDsl
 fun <T> ShowBuilder.slideForValues(values: List<T>, content: SlideContent<T>) {
     slide(advancements = values.size) {
-        createChildScope { values[it] }.content()
+        createChildScope { values[it.coerceIn(values.indices)] }.content()
     }
 }
 
@@ -20,13 +20,13 @@ fun <T> ShowBuilder.slideForValues(values: List<T>, content: SlideContent<T>) {
 inline fun <reified E : Enum<E>> ShowBuilder.slideForEnum(crossinline content: SlideContent<E>) {
     val values = enumValues<E>()
     slide(advancements = values.size) {
-        createChildScope { values[it] }.content()
+        createChildScope { values[it.coerceIn(values.indices)] }.content()
     }
 }
 
 @ShowBuilderDsl
 fun ShowBuilder.slideForBoolean(content: SlideContent<Boolean>) {
     slide(advancements = 2) {
-        createChildScope { it == 1 }.content()
+        createChildScope { it >= 1 }.content()
     }
 }
