@@ -1,5 +1,7 @@
 package dev.bnorm.librettist
 
+import androidx.compose.animation.core.MutableTransitionState
+import androidx.compose.animation.core.rememberTransition
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -33,6 +35,7 @@ fun SlideShowDisplay(
     slideSize: DpSize,
     modifier: Modifier = Modifier,
 ) {
+    val advancement = showState.rememberAdvancementTransition()
     ScaledBox(
         targetSize = slideSize,
         modifier = modifier.background(MaterialTheme.colors.background)
@@ -41,7 +44,7 @@ fun SlideShowDisplay(
             // TODO why is this box required for proper alignment?
             Box(modifier = Modifier.fillMaxSize()) {
                 val slide = showState.currentSlide
-                SlideScope(showState.advancement).slide()
+                SlideScope(advancement).slide()
             }
         }
     }
@@ -90,6 +93,7 @@ fun SlideShowOverview(
         LazyColumn(modifier = modifier, contentPadding = PaddingValues(8.dp), state = state) {
             items(showState.slides.advancements) { (index, advancement) ->
                 val slide = remember(index) { showState.slides[index].content }
+                val transition = rememberTransition(MutableTransitionState(advancement))
 
                 ScaledBox(
                     targetSize = slideSize,
@@ -99,7 +103,7 @@ fun SlideShowOverview(
                         .background(MaterialTheme.colors.background)
                         .clickable { showState.jumpToSlide(index, advancement) }
                         .then(
-                            if (index == showState.index && advancement == showState.advancement)
+                            if (index == showState.index && advancement == showState.advancement.targetState)
                                 Modifier.border(2.dp, Color.Red)
                             else Modifier
                         )
@@ -107,7 +111,7 @@ fun SlideShowOverview(
                     Surface(modifier = Modifier.fillMaxSize()) {
                         // TODO why is this box required for proper alignment?
                         Box(modifier = Modifier.fillMaxSize()) {
-                            SlideScope(advancement).slide()
+                            SlideScope(transition).slide()
                         }
                     }
                 }

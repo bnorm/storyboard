@@ -16,6 +16,13 @@ kotlin {
         browser()
     }
 
+    compilerOptions {
+        optIn.addAll(
+            "androidx.compose.animation.core.ExperimentalTransitionApi",
+            "androidx.compose.animation.ExperimentalAnimationApi",
+        )
+    }
+
     sourceSets {
         val commonMain by getting {
             dependencies {
