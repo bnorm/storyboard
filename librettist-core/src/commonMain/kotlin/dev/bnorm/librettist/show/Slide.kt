@@ -3,7 +3,7 @@ package dev.bnorm.librettist.show
 fun buildSlides(builder: ShowBuilder.() -> Unit): List<Slide> {
     val slides = buildList {
         object : ShowBuilder {
-            override fun slide(advancements: Int, content: SlideContent) {
+            override fun slide(advancements: Int, content: SlideContent<Int>) {
                 require(advancements >= 1)
                 add(Slide(advancements, content))
             }
@@ -14,7 +14,7 @@ fun buildSlides(builder: ShowBuilder.() -> Unit): List<Slide> {
 
 class Slide(
     val advancements: Int,
-    val content: SlideContent,
+    val content: SlideContent<Int>,
 )
 
 val List<Slide>.advancements: List<Pair<Int, Int>>

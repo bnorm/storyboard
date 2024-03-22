@@ -1,6 +1,5 @@
 package dev.bnorm.librettist.show
 
-import androidx.compose.animation.core.createChildTransition
 import androidx.compose.runtime.*
 
 @Immutable
@@ -31,7 +30,7 @@ fun ShowBuilder.section(
             val (index, adv) = advancements[transition.targetState]
             val content = slides[index].content
             key(index) {
-                SlideScope(transition.createChildTransition { adv }).content()
+                createChildScope { adv }.content()
             }
         }
     }

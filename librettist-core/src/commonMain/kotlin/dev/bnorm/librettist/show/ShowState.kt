@@ -23,7 +23,7 @@ class ShowState(val slides: List<Slide>) {
     val advancement: TransitionState<Int>
         get() = mutableAdvancement
 
-    val currentSlide: SlideContent
+    val currentSlide: SlideContent<Int>
         get() = slides[mutableIndex.targetState].content
 
     fun jumpToSlide(index: Int, advancement: Int = 0) {
