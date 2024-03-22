@@ -12,23 +12,21 @@ fun String.flowLineEndDiff(other: String): Sequence<String> {
 
     return sequence {
         yield(this@flowLineEndDiff)
-        for (line in 0..<lines) {
-            val left = leftLines[line]
-            val right = rightLines[line]
+        for (lineIndex in 0..<lines) {
+            val left = leftLines[lineIndex]
+            val right = rightLines[lineIndex]
 
-            fun buildLeftString(i: Int): String {
+            fun buildString(i: Int, line: String): String {
                 return buildString {
-                    for (l in 0..<line) appendLine(leftLines[l])
-                    appendLine(left.substring(0, i))
-                    for (l in line + 1..<lines) appendLine(rightLines[l])
-                }
-            }
-
-            fun buildRightString(i: Int): String {
-                return buildString {
-                    for (l in 0..<line) appendLine(leftLines[l])
-                    appendLine(right.substring(0, i))
-                    for (l in line + 1..<lines) appendLine(rightLines[l])
+                    for (l in 0..<lineIndex) {
+                        append(leftLines[l])
+                        if (l + 1 < lines) appendLine()
+                    }
+                    append(line.subSequence(0, i))
+                    for (l in lineIndex + 1..<lines) {
+                        appendLine()
+                        append(rightLines[l])
+                    }
                 }
             }
 
@@ -38,12 +36,12 @@ fun String.flowLineEndDiff(other: String): Sequence<String> {
 
             if (index < left.length) {
                 for (i in (index..<left.length).reversed()) {
-                    yield(buildLeftString(i))
+                    yield(buildString(i, left))
                 }
             }
             if (index < right.length) {
                 for (i in index + 1..right.length) {
-                    yield(buildRightString(i))
+                    yield(buildString(i, right))
                 }
             }
         }
