@@ -4,7 +4,7 @@ fun buildSlides(builder: ShowBuilder.() -> Unit): List<Slide> {
     val slides = buildList {
         object : ShowBuilder {
             override fun slide(advancements: Int, content: SlideContent<Int>) {
-                require(advancements >= 1)
+                require(advancements >= 0)
                 add(Slide(advancements, content))
             }
         }.builder()
