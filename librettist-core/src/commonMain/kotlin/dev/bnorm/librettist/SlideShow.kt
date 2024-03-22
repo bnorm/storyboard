@@ -41,12 +41,9 @@ fun SlideShowDisplay(
         modifier = modifier.background(MaterialTheme.colors.background)
     ) {
         Surface(modifier = Modifier.fillMaxSize()) {
-            // TODO why is this box required for proper alignment?
-            Box(modifier = Modifier.fillMaxSize()) {
-                val slide = showState.currentSlide
-                val transition = updateTransition(showState.advancement)
-                SlideScope(transition).slide()
-            }
+            val slide = showState.currentSlide
+            val transition = updateTransition(showState.advancement)
+            SlideScope(transition).slide()
         }
     }
 }
@@ -107,10 +104,7 @@ fun SlideShowOverview(
                         )
                 ) {
                     Surface(modifier = Modifier.fillMaxSize()) {
-                        // TODO why is this box required for proper alignment?
-                        Box(modifier = Modifier.fillMaxSize()) {
-                            SlideScope(transition).slide()
-                        }
+                        SlideScope(transition).slide()
                     }
                 }
             }
