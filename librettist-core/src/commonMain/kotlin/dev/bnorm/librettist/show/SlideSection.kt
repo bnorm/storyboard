@@ -1,5 +1,6 @@
 package dev.bnorm.librettist.show
 
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
@@ -19,6 +20,17 @@ class SlideSection(
 }
 
 private val LocalSlideSection = compositionLocalOf { SlideSection.Empty }
+
+@ShowBuilderDsl
+fun ShowBuilder.section(
+    title: String,
+    block: ShowBuilder.() -> Unit,
+) {
+    section(
+        title = { Text(title) },
+        block = block,
+    )
+}
 
 @ShowBuilderDsl
 fun ShowBuilder.section(
