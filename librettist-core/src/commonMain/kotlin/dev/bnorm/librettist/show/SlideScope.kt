@@ -6,6 +6,7 @@ import androidx.compose.runtime.Composable
 
 // TODO rename to SlideBuilder and add ShowBuilderDsl?
 interface SlideScope<T> {
+    // TODO expose the number of advancements?
     val transition: Transition<T>
 }
 

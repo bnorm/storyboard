@@ -41,7 +41,7 @@ fun ShowBuilder.section(
     val section = SlideSection(title)
 
     object : ShowBuilder {
-        override fun slide(advancements: Int, content: SlideContent<Int>) {
+        override fun slide(advancements: Int, content: SlideContent<SlideState<Int>>) {
             upstream.slide(advancements) {
                 CompositionLocalProvider(LocalSlideSection provides section) {
                     content()
