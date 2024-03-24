@@ -6,12 +6,12 @@ annotation class ShowBuilderDsl
 @ShowBuilderDsl
 interface ShowBuilder {
     @ShowBuilderDsl
-    fun slide(advancements: Int = 1, content: SlideContent<SlideState<Int>>)
+    fun slide(states: Int = 1, content: SlideContent<SlideState<Int>>)
 }
 
 @ShowBuilderDsl
 fun <T> ShowBuilder.slideForValues(values: List<T>, content: SlideContent<SlideState<T>>) {
-    slide(advancements = values.size) {
+    slide(states = values.size) {
         createChildScope { state -> state.map { values[it.coerceIn(values.indices)] } }.content()
     }
 }
@@ -19,14 +19,14 @@ fun <T> ShowBuilder.slideForValues(values: List<T>, content: SlideContent<SlideS
 @ShowBuilderDsl
 inline fun <reified E : Enum<E>> ShowBuilder.slideForEnum(crossinline content: SlideContent<SlideState<E>>) {
     val values = enumValues<E>()
-    slide(advancements = values.size) {
+    slide(states = values.size) {
         createChildScope { state -> state.map { values[it.coerceIn(values.indices)] } }.content()
     }
 }
 
 @ShowBuilderDsl
 fun ShowBuilder.slideForBoolean(content: SlideContent<SlideState<Boolean>>) {
-    slide(advancements = 2) {
+    slide(states = 2) {
         createChildScope { state -> state.map { it > 0 } }.content()
     }
 }

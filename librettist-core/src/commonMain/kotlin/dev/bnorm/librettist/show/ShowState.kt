@@ -24,7 +24,7 @@ class ShowState(val slides: List<Slide>) {
     val advancement: Int
         get() = when (val state = mutableAdvancement.value.targetState) {
             SlideState.Entering -> 0
-            SlideState.Exiting -> currentSlide().advancements - 1
+            SlideState.Exiting -> currentSlide().states - 1
             is SlideState.Index -> state.value
         }
 
@@ -35,14 +35,13 @@ class ShowState(val slides: List<Slide>) {
 
     fun jumpToSlide(index: Int, advancement: Int = 0) {
         require(index in 0..<slides.size)
-        require(advancement in 0..<slides[index].advancements)
+        require(advancement in 0..<slides[index].states)
         mutableIndex.value = index
         mutableAdvancement.value = MutableTransitionState(SlideState.Index(advancement))
     }
 
     fun advance(advancement: Advancement): Boolean {
-        val slide = currentSlide()
-        val advancements = slide.advancements
+        val states = currentSlide().states
         val state = mutableAdvancement.value
         val targetState = state.targetState
 
@@ -58,8 +57,8 @@ class ShowState(val slides: List<Slide>) {
         }
 
         val newTargetState = when (advancement.direction) {
-            Advancement.Direction.Forward -> targetState.next(advancements)
-            Advancement.Direction.Backward -> targetState.previous(advancements)
+            Advancement.Direction.Forward -> targetState.next(states)
+            Advancement.Direction.Backward -> targetState.previous(states)
         }
 
         if (
@@ -71,9 +70,9 @@ class ShowState(val slides: List<Slide>) {
         ) {
             state.targetState = newTargetState
             return true
-        } else {
-            return false
         }
+
+        return false
     }
 
     @Composable
@@ -102,7 +101,7 @@ class ShowState(val slides: List<Slide>) {
             mutableIndex.value = nextValue
             val nextSlide = slides[nextValue]
 
-            val targetState = SlideState.Exiting.previous(nextSlide.advancements)
+            val targetState = SlideState.Exiting.previous(nextSlide.states)
             val nextState = MutableTransitionState(if (withTransition) SlideState.Exiting else targetState)
             nextState.targetState = targetState
             mutableAdvancement.value = nextState
@@ -118,29 +117,29 @@ class ShowState(val slides: List<Slide>) {
             val nextSlide = slides[nextValue]
 
 
-            val targetState = SlideState.Entering.next(nextSlide.advancements)
+            val targetState = SlideState.Entering.next(nextSlide.states)
             val nextState = MutableTransitionState(if (withTransition) SlideState.Entering else targetState)
             nextState.targetState = targetState
             mutableAdvancement.value = nextState
         }
     }
 
-    private fun SlideState<Int>.next(advancements: Int = currentSlide().advancements): SlideState<Int> {
+    private fun SlideState<Int>.next(states: Int = currentSlide().states): SlideState<Int> {
         val nextIndex = when (this) {
             SlideState.Entering -> 0
             SlideState.Exiting -> return this
             is SlideState.Index -> value + 1
         }
 
-        if (nextIndex >= advancements) return SlideState.Exiting
+        if (nextIndex >= states) return SlideState.Exiting
 
         return SlideState.Index(nextIndex)
     }
 
-    private fun SlideState<Int>.previous(advancements: Int = currentSlide().advancements): SlideState<Int> {
+    private fun SlideState<Int>.previous(states: Int = currentSlide().states): SlideState<Int> {
         val nextIndex = when (this) {
             SlideState.Entering -> return this
-            SlideState.Exiting -> advancements - 1
+            SlideState.Exiting -> states - 1
             is SlideState.Index -> value - 1
         }
 

@@ -25,7 +25,7 @@ import androidx.compose.ui.unit.dp
 import dev.bnorm.librettist.show.ShowState
 import dev.bnorm.librettist.show.SlideScope
 import dev.bnorm.librettist.show.SlideState
-import dev.bnorm.librettist.show.advancements
+import dev.bnorm.librettist.show.states
 import dev.bnorm.librettist.show.assist.LocalShowAssistState
 
 val DEFAULT_SLIDE_SIZE = DpSize(1920.dp, 1080.dp)
@@ -90,7 +90,7 @@ fun SlideShowOverview(
         }
 
         LazyColumn(modifier = modifier, contentPadding = PaddingValues(8.dp), state = state) {
-            items(showState.slides.advancements) { (index, advancement) ->
+            items(showState.slides.states) { (index, advancement) ->
                 val slide = remember(index) { showState.slides[index].content }
                 val transition = rememberTransition(MutableTransitionState<SlideState<Int>>(SlideState.Index(advancement)))
 
