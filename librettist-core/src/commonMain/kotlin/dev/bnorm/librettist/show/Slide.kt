@@ -1,5 +1,7 @@
 package dev.bnorm.librettist.show
 
+import androidx.compose.runtime.Immutable
+
 fun buildSlides(builder: ShowBuilder.() -> Unit): List<Slide> {
     val slides = buildList {
         object : ShowBuilder {
@@ -15,7 +17,13 @@ fun buildSlides(builder: ShowBuilder.() -> Unit): List<Slide> {
 class Slide(
     val states: Int,
     val content: SlideContent<SlideState<Int>>,
-)
+) {
+    @Immutable
+    data class Index(
+        val index: Int,
+        val state: Int,
+    )
+}
 
-val List<Slide>.states: List<Pair<Int, Int>>
-    get() = flatMapIndexed { index, slide -> (0..<slide.states).map { index to it } }
+val List<Slide>.indices: List<Slide.Index>
+    get() = flatMapIndexed { index, slide -> (0..<slide.states).map { Slide.Index(index, it) } }

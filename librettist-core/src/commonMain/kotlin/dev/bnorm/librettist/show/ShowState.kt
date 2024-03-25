@@ -13,32 +13,33 @@ fun ShowState(builder: ShowBuilder.() -> Unit): ShowState {
     return ShowState(buildSlides(builder))
 }
 
-// TODO once SeekableTransitionState is better in multiplatform, could help skip animations naturally
 class ShowState(val slides: List<Slide>) {
+    // TODO is there a better way to do state management?
+    //  - build a special linked list which knows how to advance and skip?
     private val mutableIndex = mutableStateOf(0)
     private val mutableAdvancement = mutableStateOf(MutableTransitionState<SlideState<Int>>(SlideState.Index(0)))
 
-    val index: Int
-        get() = mutableIndex.value
-
-    val advancement: Int
-        get() = when (val state = mutableAdvancement.value.targetState) {
-            SlideState.Entering -> 0
-            SlideState.Exiting -> currentSlide().states - 1
-            is SlideState.Index -> state.value
-        }
+    val index: Slide.Index
+        get() = Slide.Index(
+            index = mutableIndex.value,
+            state = when (val state = mutableAdvancement.value.targetState) {
+                SlideState.Entering -> 0
+                SlideState.Exiting -> currentSlide().states - 1
+                is SlideState.Index -> state.value
+            }
+        )
 
     private fun currentSlide(): Slide = slides[mutableIndex.value]
 
     val currentSlide: SlideContent<SlideState<Int>>
         get() = currentSlide().content
 
-    fun jumpToSlide(index: Int, advancement: Int = 0) {
-        require(index in 0..<slides.size)
-        require(advancement in 0..<slides[index].states)
+    fun jumpToSlide(index: Slide.Index) {
+        require(index.index in 0..<slides.size)
+        require(index.state in 0..<slides[index.index].states)
         Snapshot.withMutableSnapshot {
-            mutableIndex.value = index
-            mutableAdvancement.value = MutableTransitionState(SlideState.Index(advancement))
+            mutableIndex.value = index.index
+            mutableAdvancement.value = MutableTransitionState(SlideState.Index(index.state))
         }
     }
 

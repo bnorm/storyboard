@@ -22,10 +22,7 @@ import androidx.compose.ui.layout.layout
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
-import dev.bnorm.librettist.show.ShowState
-import dev.bnorm.librettist.show.SlideScope
-import dev.bnorm.librettist.show.SlideState
-import dev.bnorm.librettist.show.states
+import dev.bnorm.librettist.show.*
 import dev.bnorm.librettist.show.assist.LocalShowAssistState
 
 val DEFAULT_SLIDE_SIZE = DpSize(1920.dp, 1080.dp)
@@ -84,15 +81,15 @@ fun SlideShowOverview(
 ) {
     CompositionLocalProvider(LocalShowAssistState provides null) {
 
-        fun jumpToSlide(index: Int, advancement: Int) {
+        fun jumpToSlide(index: Slide.Index) {
             // TODO: use state.animateScrollToItem(selectedSlide) somehow to always keep selected slide visible (but not always at the top)
-            showState.jumpToSlide(index, advancement)
+            showState.jumpToSlide(index)
         }
 
         LazyColumn(modifier = modifier, contentPadding = PaddingValues(8.dp), state = state) {
-            items(showState.slides.states) { (index, advancement) ->
-                val slide = remember(index) { showState.slides[index].content }
-                val transition = rememberTransition(MutableTransitionState<SlideState<Int>>(SlideState.Index(advancement)))
+            items(showState.slides.indices) { index ->
+                val slide = remember(index.index) { showState.slides[index.index].content }
+                val transition = rememberTransition(MutableTransitionState(SlideState.Index(index.state)))
 
                 Box {
                     ScaledBox(
@@ -102,7 +99,7 @@ fun SlideShowOverview(
                             .aspectRatio(slideSize.width / slideSize.height)
                             .background(MaterialTheme.colors.background)
                             .then(
-                                if (index == showState.index && advancement == showState.advancement)
+                                if (index == showState.index)
                                     Modifier.border(2.dp, Color.Red)
                                 else Modifier
                             )
@@ -114,7 +111,7 @@ fun SlideShowOverview(
 
                     // Add this after slide content, so it covers all click able content
                     // TODO also cannot be within ScaledBox, as column scrolls very strangely
-                    Box(modifier = Modifier.matchParentSize().clickable { jumpToSlide(index, advancement) })
+                    Box(modifier = Modifier.matchParentSize().clickable { jumpToSlide(index) })
                 }
             }
         }
