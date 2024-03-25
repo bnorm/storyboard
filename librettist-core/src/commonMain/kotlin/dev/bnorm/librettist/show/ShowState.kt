@@ -2,152 +2,140 @@ package dev.bnorm.librettist.show
 
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.Transition
+import androidx.compose.animation.core.createChildTransition
 import androidx.compose.animation.core.rememberTransition
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.snapshots.Snapshot
+import androidx.compose.runtime.*
 
 fun ShowState(builder: ShowBuilder.() -> Unit): ShowState {
     return ShowState(buildSlides(builder))
 }
 
 class ShowState(val slides: List<Slide>) {
-    // TODO is there a better way to do state management?
-    //  - build a special linked list which knows how to advance and skip?
-    private val mutableIndex = mutableStateOf(0)
-    private val mutableAdvancement = mutableStateOf(MutableTransitionState<SlideState<Int>>(SlideState.Index(0)))
+    private class SlideNode(
+        val content: SlideContent<SlideState<Int>>,
+        val state: SlideState<Int>,
+        val index: Slide.Index,
+    ) {
+        var next: SlideNode? = null
+        var prev: SlideNode? = null
+    }
 
-    val index: Slide.Index
-        get() = Slide.Index(
-            index = mutableIndex.value,
-            state = when (val state = mutableAdvancement.value.targetState) {
-                SlideState.Entering -> 0
-                SlideState.Exiting -> currentSlide().states - 1
-                is SlideState.Index -> state.value
+    private val nodes: List<SlideNode> = buildList {
+        for ((index, slide) in slides.withIndex()) {
+            if (index > 0) {
+                add(SlideNode(slide.content, SlideState.Entering, Slide.Index(index, 0)))
             }
-        )
+            repeat(slide.states) {
+                add(SlideNode(slide.content, SlideState.Index(it), Slide.Index(index, it)))
+            }
+            if (index < slides.size - 1) {
+                add(SlideNode(slide.content, SlideState.Exiting, Slide.Index(index, slide.states - 1)))
+            }
+        }
 
-    private fun currentSlide(): Slide = slides[mutableIndex.value]
-
-    val currentSlide: SlideContent<SlideState<Int>>
-        get() = currentSlide().content
-
-    fun jumpToSlide(index: Slide.Index) {
-        require(index.index in 0..<slides.size)
-        require(index.state in 0..<slides[index.index].states)
-        Snapshot.withMutableSnapshot {
-            mutableIndex.value = index.index
-            mutableAdvancement.value = MutableTransitionState(SlideState.Index(index.state))
+        var prev: SlideNode? = null
+        for (node in this) {
+            node.prev = prev
+            prev?.next = node
+            prev = node
         }
     }
 
-    fun advance(direction: AdvanceDirection): Boolean {
-        val states = currentSlide().states
-        val state = mutableAdvancement.value
-        val targetState = state.targetState
+    // This is wrapped in a MutableState to allow setting a new MutableTransitionState when the show
+    // needs to jump to a particular SlideNode without animation or skip the current animation.
+    // TODO can SeekableTransitionState eventually help?
+    private var state by mutableStateOf(MutableTransitionState(nodes[0]))
 
+    val currentSlide: SlideContent<SlideState<Int>>
+        get() = state.currentState.content
+
+    fun isShowing(index: Slide.Index): Boolean {
+        return state.currentState.index == index
+    }
+
+    fun jumpToSlide(index: Slide.Index) {
+        val node = nodes.find { it.state is SlideState.Index && it.index == index } ?: return
+        state = MutableTransitionState(node)
+    }
+
+    fun advance(direction: AdvanceDirection): Boolean {
+        val targetState = state.targetState
         if (state.currentState != targetState) {
-            // Seek to the next slide/advancement
-            when (targetState) {
+            // TODO can be going forward and need to skip backwards (or vise versa); need to consider direction!
+            // Skip to the next SlideNode
+            when (targetState.state) {
                 SlideState.Entering -> previousSlide(withTransition = false)
                 SlideState.Exiting -> nextSlide(withTransition = false)
-                is SlideState.Index -> mutableAdvancement.value = MutableTransitionState(targetState)
+                is SlideState.Index -> state = MutableTransitionState(targetState)
             }
 
             return true
         }
 
-        val newTargetState = when (direction) {
-            AdvanceDirection.Forward -> targetState.next(states)
-            AdvanceDirection.Backward -> targetState.previous(states)
+        state.targetState = when (direction) {
+            AdvanceDirection.Forward -> targetState.next ?: return false
+            AdvanceDirection.Backward -> targetState.prev ?: return false
         }
 
-        if (
-            state.targetState != newTargetState && when (newTargetState) {
-                SlideState.Entering -> mutableIndex.value > 0
-                SlideState.Exiting -> mutableIndex.value < slides.size - 1
-                is SlideState.Index -> true
-            }
-        ) {
-            state.targetState = newTargetState
-            return true
-        }
-
-        return false
+        return true
     }
 
     @Composable
     fun rememberAdvancementTransition(): Transition<SlideState<Int>> {
-        val state by mutableAdvancement
-        val transition = rememberTransition(state)
-
-        LaunchedEffect(state.currentState) {
+        LaunchedEffect(state.currentState, state.targetState) {
             if (state.currentState == state.targetState) {
-                if (state.currentState == SlideState.Entering) {
+                // Automatically advance to the next/previous slide after completing transition to
+                // exiting/entering state. This slide state seamlessly transitions from
+                // Index -> Exit -> Enter -> Index and the reverse.
+                // TODO is there a better way to listen for this situation and make the change
+                if (state.currentState.state == SlideState.Entering) {
                     previousSlide()
-                } else if (state.currentState == SlideState.Exiting) {
+                } else if (state.currentState.state == SlideState.Exiting) {
                     nextSlide()
                 }
             }
         }
 
-        return transition
+        return rememberTransition(state).createChildTransition { it.state }
     }
 
     private fun previousSlide(withTransition: Boolean = true) {
-        if (mutableIndex.value <= 0) return // No previous slide
+        val current = state.currentState
+        var previous = current.prev ?: return // No previous slide.
 
-        Snapshot.withMutableSnapshot {
-            val nextValue = mutableIndex.value - 1
-            mutableIndex.value = nextValue
-            val nextSlide = slides[nextValue]
-
-            val targetState = SlideState.Exiting.previous(nextSlide.states)
-            val nextState = MutableTransitionState(if (withTransition) SlideState.Exiting else targetState)
-            nextState.targetState = targetState
-            mutableAdvancement.value = nextState
+        if (withTransition) {
+            when (previous.state) {
+                SlideState.Entering -> state.targetState = previous
+                SlideState.Exiting -> state = MutableTransitionState(previous).apply { targetState = previous.prev!! }
+                is SlideState.Index -> state.targetState = previous
+            }
+        } else {
+            // Jump to the previous SlideState.Index node.
+            // Non-SlideState.Index nodes always have a non-null prev node.
+            while (previous.state !is SlideState.Index) {
+                previous = previous.prev!!
+            }
+            state = MutableTransitionState(previous)
         }
     }
 
     private fun nextSlide(withTransition: Boolean = true) {
-        if (mutableIndex.value >= slides.size - 1) return // No next slide
+        val current = state.currentState
+        var next = current.next ?: return // No next slide.
 
-        Snapshot.withMutableSnapshot {
-            val nextValue = mutableIndex.value + 1
-            mutableIndex.value = nextValue
-            val nextSlide = slides[nextValue]
-
-
-            val targetState = SlideState.Entering.next(nextSlide.states)
-            val nextState = MutableTransitionState(if (withTransition) SlideState.Entering else targetState)
-            nextState.targetState = targetState
-            mutableAdvancement.value = nextState
+        if (withTransition) {
+            when (next.state) {
+                SlideState.Entering -> state = MutableTransitionState(next).apply { targetState = next.next!! }
+                SlideState.Exiting -> state.targetState = next
+                is SlideState.Index -> state.targetState = next
+            }
+        } else {
+            // Jump to the next SlideState.Index node.
+            // Non-SlideState.Index nodes always have a non-null next node.
+            while (next.state !is SlideState.Index) {
+                next = next.next!!
+            }
+            state = MutableTransitionState(next)
         }
-    }
-
-    private fun SlideState<Int>.next(states: Int = currentSlide().states): SlideState<Int> {
-        val nextIndex = when (this) {
-            SlideState.Entering -> 0
-            SlideState.Exiting -> return this
-            is SlideState.Index -> value + 1
-        }
-
-        if (nextIndex >= states) return SlideState.Exiting
-
-        return SlideState.Index(nextIndex)
-    }
-
-    private fun SlideState<Int>.previous(states: Int = currentSlide().states): SlideState<Int> {
-        val nextIndex = when (this) {
-            SlideState.Entering -> return this
-            SlideState.Exiting -> states - 1
-            is SlideState.Index -> value - 1
-        }
-
-        if (nextIndex < 0) return SlideState.Entering
-
-        return SlideState.Index(nextIndex)
     }
 }

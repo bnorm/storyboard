@@ -14,7 +14,6 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -33,12 +32,12 @@ fun SlideShowDisplay(
     slideSize: DpSize,
     modifier: Modifier = Modifier,
 ) {
-    val transition = showState.rememberAdvancementTransition()
     ScaledBox(
         targetSize = slideSize,
         modifier = modifier.background(MaterialTheme.colors.background)
     ) {
         Surface(modifier = Modifier.fillMaxSize()) {
+            val transition = showState.rememberAdvancementTransition()
             val slide = showState.currentSlide
             SlideScope(transition).slide()
         }
@@ -88,7 +87,6 @@ fun SlideShowOverview(
 
         LazyColumn(modifier = modifier, contentPadding = PaddingValues(8.dp), state = state) {
             items(showState.slides.indices) { index ->
-                val slide = remember(index.index) { showState.slides[index.index].content }
                 val transition = rememberTransition(MutableTransitionState(SlideState.Index(index.state)))
 
                 Box {
@@ -99,12 +97,12 @@ fun SlideShowOverview(
                             .aspectRatio(slideSize.width / slideSize.height)
                             .background(MaterialTheme.colors.background)
                             .then(
-                                if (index == showState.index)
-                                    Modifier.border(2.dp, Color.Red)
+                                if (showState.isShowing(index)) Modifier.border(2.dp, Color.Red)
                                 else Modifier
                             )
                     ) {
                         Surface(modifier = Modifier.fillMaxSize()) {
+                            val slide = showState.slides[index.index].content
                             SlideScope(transition).slide()
                         }
                     }
