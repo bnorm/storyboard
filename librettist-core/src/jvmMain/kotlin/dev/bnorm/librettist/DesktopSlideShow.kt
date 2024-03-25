@@ -12,7 +12,7 @@ import androidx.compose.ui.input.key.*
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.*
-import dev.bnorm.librettist.show.Advancement
+import dev.bnorm.librettist.show.AdvanceDirection
 import dev.bnorm.librettist.show.ShowBuilder
 import dev.bnorm.librettist.show.ShowState
 import dev.bnorm.librettist.show.assist.LocalShowAssistState
@@ -33,21 +33,15 @@ fun ApplicationScope.DesktopSlideShow(
     fun handleKeyEvent(event: KeyEvent): Boolean {
         // TODO rate-limit holding down the key?
         if (event.type == KeyEventType.KeyDown) {
-            val advancement = when (event.key) {
+            when (event.key) {
                 Key.DirectionRight,
                 Key.Enter,
                 Key.Spacebar,
-                -> Advancement(direction = Advancement.Direction.Forward)
+                -> return showState.advance(AdvanceDirection.Forward)
 
                 Key.DirectionLeft,
                 Key.Backspace,
-                -> Advancement(direction = Advancement.Direction.Backward)
-
-                else -> null
-            }
-            if (advancement != null) {
-                showState.advance(advancement)
-                return true
+                -> return showState.advance(AdvanceDirection.Backward)
             }
         }
 

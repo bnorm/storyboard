@@ -36,11 +36,13 @@ class ShowState(val slides: List<Slide>) {
     fun jumpToSlide(index: Int, advancement: Int = 0) {
         require(index in 0..<slides.size)
         require(advancement in 0..<slides[index].states)
-        mutableIndex.value = index
-        mutableAdvancement.value = MutableTransitionState(SlideState.Index(advancement))
+        Snapshot.withMutableSnapshot {
+            mutableIndex.value = index
+            mutableAdvancement.value = MutableTransitionState(SlideState.Index(advancement))
+        }
     }
 
-    fun advance(advancement: Advancement): Boolean {
+    fun advance(direction: AdvanceDirection): Boolean {
         val states = currentSlide().states
         val state = mutableAdvancement.value
         val targetState = state.targetState
@@ -56,9 +58,9 @@ class ShowState(val slides: List<Slide>) {
             return true
         }
 
-        val newTargetState = when (advancement.direction) {
-            Advancement.Direction.Forward -> targetState.next(states)
-            Advancement.Direction.Backward -> targetState.previous(states)
+        val newTargetState = when (direction) {
+            AdvanceDirection.Forward -> targetState.next(states)
+            AdvanceDirection.Backward -> targetState.previous(states)
         }
 
         if (

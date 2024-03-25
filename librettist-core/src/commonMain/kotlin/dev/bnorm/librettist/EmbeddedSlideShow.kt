@@ -21,7 +21,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.*
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
-import dev.bnorm.librettist.show.Advancement
+import dev.bnorm.librettist.show.AdvanceDirection
 import dev.bnorm.librettist.show.ShowBuilder
 import dev.bnorm.librettist.show.ShowState
 import kotlinx.coroutines.delay
@@ -46,8 +46,8 @@ fun EmbeddedSlideShow(
         }
     }
 
-    fun advance(advancement: Advancement): Boolean {
-        if (showState.advance(advancement)) {
+    fun advance(direction: AdvanceDirection): Boolean {
+        if (showState.advance(direction)) {
             visibleIndicators = false
             lastAdvancement = TimeSource.Monotonic.markNow()
             return true
@@ -59,20 +59,15 @@ fun EmbeddedSlideShow(
     fun handleKeyEvent(event: KeyEvent): Boolean {
         // TODO rate-limit holding down the key?
         if (event.type == KeyEventType.KeyDown) {
-            val advancement = when (event.key) {
+            when (event.key) {
                 Key.DirectionRight,
                 Key.Enter,
                 Key.Spacebar,
-                -> Advancement(direction = Advancement.Direction.Forward)
+                -> return advance(AdvanceDirection.Forward)
 
                 Key.DirectionLeft,
                 Key.Backspace,
-                -> Advancement(direction = Advancement.Direction.Backward)
-
-                else -> null
-            }
-            if (advancement != null && advance(advancement)) {
-                return true
+                -> return advance(AdvanceDirection.Backward)
             }
         }
 
@@ -98,14 +93,14 @@ fun EmbeddedSlideShow(
 }
 
 @Composable
-private fun MouseNavigationIndicators(onAdvancement: (Advancement) -> Unit, visibleIndicators: Boolean = true) {
+private fun MouseNavigationIndicators(onAdvancement: (AdvanceDirection) -> Unit, visibleIndicators: Boolean = true) {
     val interactionSource = remember { MutableInteractionSource() }
 
     Box(modifier = Modifier.fillMaxSize()) {
         Box(
             modifier = Modifier.fillMaxHeight().width(200.dp).align(Alignment.CenterStart)
                 .clickable(interactionSource, indication = null) {
-                    onAdvancement(Advancement(direction = Advancement.Direction.Backward))
+                    onAdvancement(AdvanceDirection.Backward)
                 }
         ) {
             AnimatedVisibility(
@@ -127,7 +122,7 @@ private fun MouseNavigationIndicators(onAdvancement: (Advancement) -> Unit, visi
         Box(
             modifier = Modifier.fillMaxHeight().width(200.dp).align(Alignment.CenterEnd)
                 .clickable(interactionSource, indication = null) {
-                    onAdvancement(Advancement(direction = Advancement.Direction.Forward))
+                    onAdvancement(AdvanceDirection.Forward)
                 }
         ) {
             AnimatedVisibility(
