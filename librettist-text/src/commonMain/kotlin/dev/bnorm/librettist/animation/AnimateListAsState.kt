@@ -4,11 +4,12 @@ import androidx.compose.animation.core.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
+import kotlinx.collections.immutable.ImmutableList
 
 @Composable
 fun <T> animateListAsState(
     targetIndex: Int,
-    values: List<T>,
+    values: ImmutableList<T>,
     animationSpec: AnimationSpec<Int> = tween(
         durationMillis = 1_000,
         easing = LinearEasing
@@ -28,7 +29,7 @@ fun <T> animateListAsState(
 
 @Composable
 inline fun <S, T> Transition<S>.animateList(
-    values: List<T>,
+    values: ImmutableList<T>,
     noinline transitionSpec: @Composable Transition.Segment<S>.() -> FiniteAnimationSpec<Int> = {
         tween(
             durationMillis = 1_000,
