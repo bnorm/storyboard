@@ -8,6 +8,26 @@ sealed class SlideState<out T> {
     data class Index<T>(val value: T) : SlideState<T>()
 }
 
+operator fun <T : Comparable<T>> SlideState<T>.compareTo(other: SlideState<T>): Int {
+    return when (this) {
+        SlideState.Entering -> if (other == SlideState.Entering) 0 else -1
+        SlideState.Exiting ->  if (other == SlideState.Exiting) 0 else 1
+        is SlideState.Index -> when (other) {
+            SlideState.Entering -> 1
+            SlideState.Exiting -> -1
+            is SlideState.Index -> value.compareTo(other.value)
+        }
+    }
+}
+
+operator fun <T : Comparable<T>> SlideState<T>.compareTo(other: T): Int {
+    return when (this) {
+        SlideState.Entering -> -1
+        SlideState.Exiting ->  1
+        is SlideState.Index -> value.compareTo(other)
+    }
+}
+
 fun <R, T> SlideState<T>.map(transform: (T) -> R): SlideState<R> {
     return when (this) {
         SlideState.Entering -> SlideState.Entering
