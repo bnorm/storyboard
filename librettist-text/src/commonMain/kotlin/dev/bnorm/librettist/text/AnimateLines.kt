@@ -35,7 +35,7 @@ fun AnnotatedString.flowLines(other: AnnotatedString): Sequence<AnnotatedString>
             yield(buildAnnotatedString {
                 for (i in 0..line) {
                     append(otherLines[i])
-                    if (i + 1 < thisLines.size) appendLine()
+                    if (i + 1 < otherLines.size) appendLine()
                 }
                 for (i in line + 1..<thisLines.size) {
                     append(thisLines[i])

@@ -103,6 +103,9 @@ private fun buildKotlinCodeString(
                     KotlinLexer.Tokens.CLASS,
                     KotlinLexer.Tokens.INTERFACE,
                     KotlinLexer.Tokens.TYPE_ALIAS,
+                    KotlinLexer.Tokens.RETURN,
+                    KotlinLexer.Tokens.IN,
+                    KotlinLexer.Tokens.OPERATOR,
                     KotlinLexer.Tokens.NullLiteral,
                     -> addStyle(codeStyle.keyword, symbol.startIndex, symbol.stopIndex + 1)
 

@@ -19,13 +19,13 @@ fun String.flowLineEndDiff(other: String): Sequence<String> {
             fun buildString(i: Int, line: String): String {
                 return buildString {
                     for (l in 0..<lineIndex) {
-                        append(leftLines[l])
+                        append(rightLines[l])
                         if (l + 1 < lines) appendLine()
                     }
                     append(line.subSequence(0, i))
                     for (l in lineIndex + 1..<lines) {
                         appendLine()
-                        append(rightLines[l])
+                        append(leftLines[l])
                     }
                 }
             }
@@ -69,13 +69,13 @@ fun AnnotatedString.flowLineEndDiff(other: AnnotatedString): Sequence<AnnotatedS
             fun buildString(i: Int, line: AnnotatedString): AnnotatedString {
                 return buildAnnotatedString {
                     for (l in 0..<lineIndex) {
-                        append(leftLines[l])
+                        append(rightLines[l])
                         if (l + 1 < lines) appendLine()
                     }
                     append(line.subSequence(0, i))
                     for (l in lineIndex + 1..<lines) {
                         appendLine()
-                        append(rightLines[l])
+                        append(leftLines[l])
                     }
                 }
             }
