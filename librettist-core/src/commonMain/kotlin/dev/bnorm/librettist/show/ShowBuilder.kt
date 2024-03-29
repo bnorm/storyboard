@@ -12,7 +12,7 @@ interface ShowBuilder {
 @ShowBuilderDsl
 fun <T> ShowBuilder.slideForValues(values: List<T>, content: SlideContent<SlideState<T>>) {
     slide(states = values.size) {
-        createChildScope { state -> state.map { values[it.coerceIn(values.indices)] } }.content()
+        createChildScope { state -> state.map { values[it] } }.content()
     }
 }
 
@@ -20,7 +20,7 @@ fun <T> ShowBuilder.slideForValues(values: List<T>, content: SlideContent<SlideS
 inline fun <reified E : Enum<E>> ShowBuilder.slideForEnum(crossinline content: SlideContent<SlideState<E>>) {
     val values = enumValues<E>()
     slide(states = values.size) {
-        createChildScope { state -> state.map { values[it.coerceIn(values.indices)] } }.content()
+        createChildScope { state -> state.map { values[it] } }.content()
     }
 }
 

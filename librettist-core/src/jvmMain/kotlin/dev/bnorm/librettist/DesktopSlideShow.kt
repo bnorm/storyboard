@@ -4,11 +4,15 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.remember
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.TextField
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.input.key.*
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.*
@@ -18,6 +22,7 @@ import dev.bnorm.librettist.show.ShowState
 import dev.bnorm.librettist.show.assist.LocalShowAssistState
 import dev.bnorm.librettist.show.assist.ShowAssist
 import dev.bnorm.librettist.show.assist.ShowAssistState
+import dev.bnorm.librettist.show.indices
 
 @Composable
 fun ApplicationScope.DesktopSlideShow(
@@ -29,6 +34,7 @@ fun ApplicationScope.DesktopSlideShow(
     val windowState = remember { WindowState(size = DpSize(1000.dp, 800.dp)) }
     val showState = remember(builder) { ShowState(builder) }
     val showAssistState = remember { ShowAssistState() }
+    var goToSlide by remember { mutableStateOf(false) }
 
     fun handleKeyEvent(event: KeyEvent): Boolean {
         // TODO rate-limit holding down the key?
@@ -73,6 +79,9 @@ fun ApplicationScope.DesktopSlideShow(
                     //  - is this a better experience then converting the window to full screen?
                     //  - would *just* the overview be shown when note in full screen?
                     windowState.placement = WindowPlacement.Fullscreen
+                }
+                Item(text = "Jump To Slide", shortcut = KeyShortcut(Key.J, meta = true)) {
+                    goToSlide = true
                 }
             }
             Menu("Assist") {
@@ -123,5 +132,44 @@ fun ApplicationScope.DesktopSlideShow(
 
             ShowAssist(showAssistState)
         }
+    }
+
+    if (goToSlide) {
+        GoToSlide(showState, onClose = { goToSlide = false })
+    }
+}
+
+@Composable
+private fun GoToSlide(showState: ShowState, onClose: () -> Unit) {
+    val focusRequester = remember { FocusRequester() }
+
+    DialogWindow(onCloseRequest = onClose, title = "Go To Slide") {
+        var slide by remember { mutableStateOf("") }
+        val indices = remember(showState) { showState.slides.indices }
+
+        fun onKeyEvent(it: KeyEvent): Boolean {
+            if (it.key == Key.Enter) {
+                val index = slide.toIntOrNull()
+                if (index != null) {
+                    showState.jumpToSlide(indices[index.coerceIn(0, indices.size - 1)])
+                    onClose()
+                    return true
+                }
+            }
+
+            return false
+        }
+
+        TextField(
+            value = slide,
+            onValueChange = { slide = it.trim() },
+            isError = slide.toIntOrNull() == null,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            modifier = Modifier.focusTarget().focusRequester(focusRequester).onKeyEvent(::onKeyEvent)
+        )
+    }
+
+    LaunchedEffect(Unit) {
+        focusRequester.requestFocus()
     }
 }
