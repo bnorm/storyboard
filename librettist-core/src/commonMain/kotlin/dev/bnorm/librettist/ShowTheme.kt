@@ -3,10 +3,7 @@ package dev.bnorm.librettist
 import androidx.compose.material.Colors
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Typography
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.Immutable
-import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.runtime.*
 import androidx.compose.ui.text.SpanStyle
 
 @Composable
@@ -23,13 +20,7 @@ data class ShowTheme(
     val colors: Colors,
     val typography: Typography,
     val code: Highlighting,
-) {
-    companion object {
-        val code: Highlighting
-            @Composable
-            get() = LocalHighlighting.current
-    }
-}
+)
 
 @Immutable
 data class Highlighting(
@@ -45,17 +36,46 @@ data class Highlighting(
     val staticFunctionCall: SpanStyle,
     val extensionFunctionCall: SpanStyle,
     val typeParameters: SpanStyle,
-)
+) {
+    companion object {
+        val current: Highlighting
+            @Composable
+            get() = LocalHighlighting.current
+    }
+}
 
-val LocalHighlighting = staticCompositionLocalOf<Highlighting> {
+private val LocalHighlighting = staticCompositionLocalOf<Highlighting> {
     // TODO provide a default highlighting
     //  compatible with default material theme?
     error("Highlighting is not provided")
 }
 
+private val LocalHighlightedCache = staticCompositionLocalOf<MutableMap<Any, Any?>> {
+    error("HighlightedCache is not provided")
+}
+
 @Composable
 fun Highlighting(highlighting: Highlighting, content: @Composable () -> Unit) {
     CompositionLocalProvider(LocalHighlighting provides highlighting) {
-        content()
+        CompositionLocalProvider(LocalHighlightedCache provides mutableMapOf()) {
+            content()
+        }
+    }
+}
+
+/**
+ * Caches the value created by [content] using [key].
+ * [key] must be globally unique or multiple remembered values will conflict.
+ * Values are associated with the current [highlighting][Highlighting], and will be recomputed if highlighting changes.
+ *
+ * The result is also [remembered][remember] based on the current highlighting and [key].
+ */
+@Composable
+fun <T> rememberHighlighted(key: Any, content: (Highlighting) -> T): T {
+    val highlighting = LocalHighlighting.current
+    val cache = LocalHighlightedCache.current
+    return remember(highlighting, key) {
+        @Suppress("UNCHECKED_CAST")
+        cache.getOrPut(key) { content(highlighting) } as T
     }
 }

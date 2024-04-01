@@ -11,7 +11,6 @@ import androidx.compose.ui.text.withStyle
 import ch.deletescape.highlight.core.Highlighter
 import ch.deletescape.highlight.highlight.render.AnnotatedStringRenderer
 import dev.bnorm.librettist.Highlighting
-import dev.bnorm.librettist.ShowTheme
 import dev.bnorm.librettist.text.antlr.kotlin.KotlinLexer
 import dev.bnorm.librettist.text.antlr.kotlin.KotlinParser
 import dev.bnorm.librettist.text.antlr.kotlin.KotlinParserBaseListener
@@ -27,9 +26,9 @@ fun CodeText(
     language: String,
     modifier: Modifier = Modifier,
 ) {
-    val codeStyle = ShowTheme.code
+    val highlighting = Highlighting.current
     Column(modifier) {
-        val highlighter = Highlighter { AnnotatedStringRenderer(codeStyle) }
+        val highlighter = Highlighter { AnnotatedStringRenderer(highlighting) }
         for (line in code.lines()) {
             val result = highlighter.highlight(language, line, graceful = false)
             Text(text = result?.result ?: AnnotatedString(line))
