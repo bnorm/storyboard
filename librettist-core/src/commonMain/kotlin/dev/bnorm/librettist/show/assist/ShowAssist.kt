@@ -131,7 +131,7 @@ fun PresentationClock(timeSource: TimeSource = TimeSource.Monotonic) {
         while (true) {
             delay(250.milliseconds)
             val d = mark.elapsedNow()
-            display = "${d.inWholeHours.pad()}h ${d.inWholeMinutes.pad()}m ${d.inWholeSeconds.pad()}s"
+            display = "${d.inWholeHours.pad()}h ${(d.inWholeMinutes % 60).pad()}m ${(d.inWholeSeconds % 60).pad()}s"
         }
     }
 
