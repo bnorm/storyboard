@@ -130,7 +130,7 @@ fun ApplicationScope.DesktopSlideShow(
         ) {
             ShowMenu()
 
-            ShowAssist(showAssistState)
+            ShowAssist(slideSize, theme, showState, showAssistState)
         }
     }
 

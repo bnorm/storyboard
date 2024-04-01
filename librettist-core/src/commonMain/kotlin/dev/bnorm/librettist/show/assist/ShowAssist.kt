@@ -1,5 +1,7 @@
 package dev.bnorm.librettist.show.assist
 
+import androidx.compose.animation.core.MutableTransitionState
+import androidx.compose.animation.core.rememberTransition
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -10,19 +12,42 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import dev.bnorm.librettist.ScaledBox
+import dev.bnorm.librettist.ShowTheme
+import dev.bnorm.librettist.show.*
 import kotlinx.coroutines.delay
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.TimeMark
 import kotlin.time.TimeSource
 
 @Composable
-fun ShowAssist(showAssistState: ShowAssistState) {
+fun ShowAssist(slideSize: DpSize, theme: ShowTheme, showState: ShowState, showAssistState: ShowAssistState) {
     MaterialTheme {
         Column {
             Row(horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth()) {
                 PresentationClock()
+            }
+
+            Row(modifier = Modifier.fillMaxWidth()) {
+                val indices = remember(showState) { showState.slides.indices }
+                Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text("Previous Slide")
+                    val index = indices.lastOrNull { it < showState.index }
+                    if (index != null) {
+                        PreviewSlide(index, showState, theme, slideSize)
+                    }
+                }
+                Spacer(Modifier.width(16.dp))
+                Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text("Next Slide")
+                    val index = indices.firstOrNull { it > showState.index }
+                    if (index != null) {
+                        PreviewSlide(index, showState, theme, slideSize)
+                    }
+                }
             }
 
             // TODO how can we do a preview of the next slide?
@@ -46,6 +71,48 @@ fun ShowAssist(showAssistState: ShowAssistState) {
                 ) {
                     val tab = showAssistState.tabs[state]
                     tab.content()
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun PreviewSlide(
+    index: Slide.Index,
+    showState: ShowState,
+    theme: ShowTheme,
+    slideSize: DpSize,
+    modifier: Modifier = Modifier,
+) {
+    val slide = showState.getSlide(index)
+    if (slide != null) {
+        PreviewSlide(theme, slideSize, modifier) {
+            val transition = rememberTransition(MutableTransitionState(SlideState.Index(index.state)))
+            SlideScope(transition).slide()
+        }
+    }
+}
+
+@Composable
+private fun PreviewSlide(
+    theme: ShowTheme,
+    slideSize: DpSize,
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit,
+) {
+    Box(modifier) {
+        CompositionLocalProvider(LocalShowAssistState provides null) {
+            ShowTheme(theme) {
+                ScaledBox(
+                    targetSize = slideSize,
+                    modifier = Modifier.fillMaxWidth()
+                        .aspectRatio(slideSize.width / slideSize.height)
+                        .background(MaterialTheme.colors.background)
+                ) {
+                    Surface(modifier = Modifier.fillMaxSize()) {
+                        content()
+                    }
                 }
             }
         }

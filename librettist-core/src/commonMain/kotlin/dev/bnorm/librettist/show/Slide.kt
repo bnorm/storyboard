@@ -22,7 +22,13 @@ class Slide(
     data class Index(
         val index: Int,
         val state: Int,
-    )
+    ) : Comparable<Index> {
+        override fun compareTo(other: Index): Int {
+            val compare = index.compareTo(other.index)
+            if (compare != 0) return compare
+            return state.compareTo(other.state)
+        }
+    }
 }
 
 val List<Slide>.indices: List<Slide.Index>

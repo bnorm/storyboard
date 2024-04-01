@@ -46,6 +46,9 @@ class ShowState(val slides: List<Slide>) {
     // TODO can SeekableTransitionState eventually help?
     private var state by mutableStateOf(MutableTransitionState(nodes[0]))
 
+    val index: Slide.Index
+        get() = state.currentState.index
+
     val currentSlide: SlideContent<SlideState<Int>>
         get() = state.currentState.content
 
@@ -58,15 +61,30 @@ class ShowState(val slides: List<Slide>) {
         state = MutableTransitionState(node)
     }
 
+    fun getSlide(index: Slide.Index): SlideContent<SlideState<Int>>? {
+        val node = nodes.find { it.state is SlideState.Index && it.index == index } ?: return null
+        return node.content
+    }
+
     fun advance(direction: AdvanceDirection): Boolean {
         val targetState = state.targetState
         if (state.currentState != targetState) {
-            // TODO can be going forward and need to skip backwards (or vise versa); need to consider direction!
-            // Skip to the next SlideNode
-            when (targetState.state) {
-                SlideState.Entering -> previousSlide(withTransition = false)
-                SlideState.Exiting -> nextSlide(withTransition = false)
-                is SlideState.Index -> state = MutableTransitionState(targetState)
+            when (direction) {
+                AdvanceDirection.Forward -> {
+                    when (targetState.state) {
+                        SlideState.Entering -> nextSlide(withTransition = false)
+                        SlideState.Exiting -> nextSlide(withTransition = false)
+                        is SlideState.Index -> state = MutableTransitionState(targetState)
+                    }
+                }
+
+                AdvanceDirection.Backward -> {
+                    when (targetState.state) {
+                        SlideState.Entering -> previousSlide(withTransition = false)
+                        SlideState.Exiting -> previousSlide(withTransition = false)
+                        is SlideState.Index -> state = MutableTransitionState(targetState)
+                    }
+                }
             }
 
             return true
