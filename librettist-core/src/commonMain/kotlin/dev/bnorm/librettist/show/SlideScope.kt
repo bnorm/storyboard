@@ -10,8 +10,6 @@ interface SlideScope<out T> {
     val transition: Transition<out T>
 }
 
-typealias SlideContent<T> = @Composable SlideScope<T>.() -> Unit
-
 fun <T> SlideScope(advancement: Transition<T>): SlideScope<T> {
     class SimpleSlideScope(
         override val transition: Transition<T>,

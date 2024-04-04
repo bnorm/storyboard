@@ -1,7 +1,11 @@
 package dev.bnorm.librettist.show
 
+import androidx.compose.runtime.Composable
+
 @DslMarker
 annotation class ShowBuilderDsl
+
+typealias SlideContent<T> = @Composable SlideScope<T>.() -> Unit
 
 @ShowBuilderDsl
 interface ShowBuilder {
@@ -10,7 +14,7 @@ interface ShowBuilder {
 }
 
 @ShowBuilderDsl
-fun <T> ShowBuilder.slideForValues(values: List<T>, content: SlideContent<SlideState<T>>) {
+fun <T> ShowBuilder.slideForList(values: List<T>, content: SlideContent<SlideState<T>>) {
     slide(states = values.size) {
         createChildScope { state -> state.map { values[it] } }.content()
     }
