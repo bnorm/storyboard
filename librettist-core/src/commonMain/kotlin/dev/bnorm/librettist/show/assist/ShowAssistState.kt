@@ -2,6 +2,7 @@ package dev.bnorm.librettist.show.assist
 
 import androidx.compose.runtime.*
 
+@Stable
 class ShowAssistState {
     var visible by mutableStateOf(false)
 

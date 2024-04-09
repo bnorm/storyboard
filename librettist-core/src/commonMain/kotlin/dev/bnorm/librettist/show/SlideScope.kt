@@ -5,18 +5,10 @@ import androidx.compose.animation.core.createChildTransition
 import androidx.compose.runtime.Composable
 
 // TODO rename to SlideBuilder and add ShowBuilderDsl?
-interface SlideScope<out T> {
+class SlideScope<out T>(
     // TODO expose the number of states?
-    val transition: Transition<out T>
-}
-
-fun <T> SlideScope(advancement: Transition<T>): SlideScope<T> {
-    class SimpleSlideScope(
-        override val transition: Transition<T>,
-    ) : SlideScope<T>
-
-    return SimpleSlideScope(advancement)
-}
+    val transition: Transition<out T>,
+)
 
 @Composable
 fun <T, R> SlideScope<T>.createChildScope(transform: (T) -> R): SlideScope<R> {

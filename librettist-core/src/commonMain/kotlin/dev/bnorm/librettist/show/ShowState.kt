@@ -10,6 +10,7 @@ fun ShowState(builder: ShowBuilder.() -> Unit): ShowState {
     return ShowState(buildSlides(builder))
 }
 
+@Stable
 class ShowState(val slides: List<Slide>) {
     private class SlideNode(
         val content: SlideContent<SlideState<Int>>,
