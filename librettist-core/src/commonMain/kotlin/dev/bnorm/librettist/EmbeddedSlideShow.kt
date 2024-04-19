@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import dev.bnorm.librettist.show.AdvanceDirection
 import dev.bnorm.librettist.show.ShowBuilder
 import dev.bnorm.librettist.show.ShowState
+import dev.bnorm.librettist.show.indices
 import kotlinx.coroutines.delay
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.TimeSource
@@ -33,9 +34,15 @@ fun EmbeddedSlideShow(
     theme: ShowTheme,
     slideSize: DpSize = DEFAULT_SLIDE_SIZE,
     showIndicators: Boolean = true,
+    startSlide: Int = 0,
     builder: ShowBuilder.() -> Unit,
 ) {
-    val showState = remember(builder) { ShowState(builder) }
+    val showState = remember(builder, startSlide) {
+        ShowState(builder).also { state ->
+            val indices = state.slides.indices
+            state.jumpToSlide(indices[startSlide.coerceIn(0, indices.size - 1)])
+        }
+    }
     var visibleIndicators by remember(showIndicators) { mutableStateOf(showIndicators) }
     var lastAdvancement by remember { mutableStateOf(TimeSource.Monotonic.markNow()) }
 
