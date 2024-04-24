@@ -16,9 +16,15 @@ class ShowState(val slides: List<Slide>) {
         val content: SlideContent<SlideState<Int>>,
         val state: SlideState<Int>,
         val index: Slide.Index,
-    ) {
+    ) : Comparable<SlideNode> {
         var next: SlideNode? = null
         var prev: SlideNode? = null
+
+        override fun compareTo(other: SlideNode): Int {
+            val compare = compareValues(index, other.index)
+            if (compare != 0) return compare
+            return state.compareTo(other.state)
+        }
     }
 
     private val nodes: List<SlideNode> = buildList {
@@ -69,22 +75,27 @@ class ShowState(val slides: List<Slide>) {
 
     fun advance(direction: AdvanceDirection): Boolean {
         val targetState = state.targetState
-        if (state.currentState != targetState) {
+        val currentState = state.currentState
+        if (currentState != targetState) {
             when (direction) {
                 AdvanceDirection.Forward -> {
-                    when (targetState.state) {
-                        SlideState.Entering -> nextSlide(withTransition = false)
-                        SlideState.Exiting -> nextSlide(withTransition = false)
-                        is SlideState.Index -> state = MutableTransitionState(targetState)
+                    var next = maxOf(currentState, targetState)
+                    // Jump to the next SlideState.Index node.
+                    // Non-SlideState.Index nodes always have a non-null next node.
+                    while (next.state !is SlideState.Index) {
+                        next = next.next!!
                     }
+                    state = MutableTransitionState(next)
                 }
 
                 AdvanceDirection.Backward -> {
-                    when (targetState.state) {
-                        SlideState.Entering -> previousSlide(withTransition = false)
-                        SlideState.Exiting -> previousSlide(withTransition = false)
-                        is SlideState.Index -> state = MutableTransitionState(targetState)
+                    var previous = minOf(currentState, targetState)
+                    // Jump to the previous SlideState.Index node.
+                    // Non-SlideState.Index nodes always have a non-null prev node.
+                    while (previous.state !is SlideState.Index) {
+                        previous = previous.prev!!
                     }
+                    state = MutableTransitionState(previous)
                 }
             }
 
@@ -101,60 +112,25 @@ class ShowState(val slides: List<Slide>) {
 
     @Composable
     fun rememberAdvancementTransition(): Transition<SlideState<Int>> {
-        LaunchedEffect(state.currentState, state.targetState) {
-            if (state.currentState == state.targetState) {
-                // Automatically advance to the next/previous slide after completing transition to
-                // exiting/entering state. This slide state seamlessly transitions from
-                // Index -> Exit -> Enter -> Index and the reverse.
-                // TODO is there a better way to listen for this situation and make the change
-                if (state.currentState.state == SlideState.Entering) {
-                    previousSlide()
-                } else if (state.currentState.state == SlideState.Exiting) {
-                    nextSlide()
-                }
+        val current = state.currentState
+        val stableState = current == state.targetState
+        LaunchedEffect(stableState) {
+            // TODO is there a better way to listen for this situation and make the change
+
+            // Automatically advance to the next/previous slide after completing transition to exiting/entering state.
+            // This slide state seamlessly transitions from Index -> Exit -> Enter -> Index and the reverse.
+            // Entering and Exiting states are always contiguous between slides based on slide node construction.
+            if (stableState && current.state == SlideState.Entering) {
+                val previous = current.prev!!
+                require(previous.state is SlideState.Exiting)
+                state = MutableTransitionState(previous).apply { targetState = previous.prev!! }
+            } else if (stableState && current.state == SlideState.Exiting) {
+                val next = current.next!!
+                require(next.state is SlideState.Entering)
+                state = MutableTransitionState(next).apply { targetState = next.next!! }
             }
         }
 
         return rememberTransition(state).createChildTransition { it.state }
-    }
-
-    private fun previousSlide(withTransition: Boolean = true) {
-        val current = state.currentState
-        var previous = current.prev ?: return // No previous slide.
-
-        if (withTransition) {
-            when (previous.state) {
-                SlideState.Entering -> state.targetState = previous
-                SlideState.Exiting -> state = MutableTransitionState(previous).apply { targetState = previous.prev!! }
-                is SlideState.Index -> state.targetState = previous
-            }
-        } else {
-            // Jump to the previous SlideState.Index node.
-            // Non-SlideState.Index nodes always have a non-null prev node.
-            while (previous.state !is SlideState.Index) {
-                previous = previous.prev!!
-            }
-            state = MutableTransitionState(previous)
-        }
-    }
-
-    private fun nextSlide(withTransition: Boolean = true) {
-        val current = state.currentState
-        var next = current.next ?: return // No next slide.
-
-        if (withTransition) {
-            when (next.state) {
-                SlideState.Entering -> state = MutableTransitionState(next).apply { targetState = next.next!! }
-                SlideState.Exiting -> state.targetState = next
-                is SlideState.Index -> state.targetState = next
-            }
-        } else {
-            // Jump to the next SlideState.Index node.
-            // Non-SlideState.Index nodes always have a non-null next node.
-            while (next.state !is SlideState.Index) {
-                next = next.next!!
-            }
-            state = MutableTransitionState(next)
-        }
     }
 }
