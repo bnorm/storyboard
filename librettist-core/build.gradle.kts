@@ -2,6 +2,7 @@ import org.jetbrains.kotlin.gradle.targets.js.dsl.ExperimentalWasmDsl
 
 plugins {
     kotlin("multiplatform")
+    kotlin("plugin.compose")
     id("org.jetbrains.compose")
 }
 
@@ -16,14 +17,14 @@ kotlin {
         browser()
     }
 
-    compilerOptions {
-        optIn.addAll(
-            "androidx.compose.animation.core.ExperimentalTransitionApi",
-            "androidx.compose.animation.ExperimentalAnimationApi",
-        )
-    }
-
     sourceSets {
+        all {
+            languageSettings {
+                optIn("androidx.compose.animation.core.ExperimentalTransitionApi")
+                optIn("androidx.compose.animation.ExperimentalAnimationApi")
+            }
+        }
+
         val commonMain by getting {
             dependencies {
                 api(compose.runtime)
