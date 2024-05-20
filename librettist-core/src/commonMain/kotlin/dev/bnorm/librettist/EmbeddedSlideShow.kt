@@ -53,8 +53,8 @@ fun EmbeddedSlideShow(
         }
     }
 
-    fun advance(direction: AdvanceDirection): Boolean {
-        if (showState.advance(direction)) {
+    fun advance(direction: AdvanceDirection, jump: Boolean): Boolean {
+        if (showState.advance(direction, jump)) {
             visibleIndicators = false
             lastAdvancement = TimeSource.Monotonic.markNow()
             return true
@@ -63,19 +63,27 @@ fun EmbeddedSlideShow(
         }
     }
 
+    var keyHeld = false
     fun handleKeyEvent(event: KeyEvent): Boolean {
         // TODO rate-limit holding down the key?
         if (event.type == KeyEventType.KeyDown) {
+            val wasHeld = keyHeld
+            keyHeld = true
+
             when (event.key) {
                 Key.DirectionRight,
                 Key.Enter,
                 Key.Spacebar,
-                -> return advance(AdvanceDirection.Forward)
+                -> return advance(AdvanceDirection.Forward, jump = wasHeld)
 
                 Key.DirectionLeft,
                 Key.Backspace,
-                -> return advance(AdvanceDirection.Backward)
+                -> return advance(AdvanceDirection.Backward, jump = wasHeld)
             }
+        }
+
+        if (event.type == KeyEventType.KeyUp) {
+            keyHeld = false
         }
 
         return false
@@ -90,7 +98,7 @@ fun EmbeddedSlideShow(
                 modifier = Modifier.fillMaxSize()
             )
 
-            MouseNavigationIndicators(onAdvancement = { advance(it) }, visibleIndicators)
+            MouseNavigationIndicators(onAdvancement = { advance(it, jump = false) }, visibleIndicators)
         }
     }
 

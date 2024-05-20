@@ -73,7 +73,7 @@ class ShowState(val slides: List<Slide>) {
         return node.content
     }
 
-    fun advance(direction: AdvanceDirection): Boolean {
+    fun advance(direction: AdvanceDirection, jump: Boolean = false): Boolean {
         val targetState = state.targetState
         val currentState = state.currentState
         if (currentState != targetState) {
@@ -102,9 +102,14 @@ class ShowState(val slides: List<Slide>) {
             return true
         }
 
-        state.targetState = when (direction) {
+        val nextState = when (direction) {
             AdvanceDirection.Forward -> targetState.next ?: return false
             AdvanceDirection.Backward -> targetState.prev ?: return false
+        }
+        if (jump) {
+            state = MutableTransitionState(nextState)
+        } else {
+            state.targetState = nextState
         }
 
         return true

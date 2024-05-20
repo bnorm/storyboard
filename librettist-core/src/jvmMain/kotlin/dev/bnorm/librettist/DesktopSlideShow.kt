@@ -36,24 +36,30 @@ fun ApplicationScope.DesktopSlideShow(
     val showAssistState = remember { ShowAssistState() }
     var goToSlide by remember { mutableStateOf(false) }
 
+    var keyHeld = false
     fun handleKeyEvent(event: KeyEvent): Boolean {
         // TODO rate-limit holding down the key?
         if (event.type == KeyEventType.KeyDown) {
+            val wasHeld = keyHeld
+            keyHeld = true
+
             when (event.key) {
                 Key.DirectionRight,
                 Key.Enter,
                 Key.Spacebar,
-                -> return showState.advance(AdvanceDirection.Forward)
+                -> return showState.advance(AdvanceDirection.Forward, jump = wasHeld)
 
                 Key.DirectionLeft,
                 Key.Backspace,
-                -> return showState.advance(AdvanceDirection.Backward)
+                -> return showState.advance(AdvanceDirection.Backward, jump = wasHeld)
             }
         }
 
         // TODO handle some other keys?
         //  - navigating to specific slides?
         if (event.type == KeyEventType.KeyUp) {
+            keyHeld = false
+
             when (event.key) {
                 Key.Escape -> if (windowState.placement == WindowPlacement.Fullscreen) {
                     windowState.placement = WindowPlacement.Floating
