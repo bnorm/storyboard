@@ -18,6 +18,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.layout
+import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.platform.UriHandler
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
@@ -78,7 +80,11 @@ fun SlideShowOverview(
     modifier: Modifier = Modifier,
     state: LazyListState = rememberLazyListState(),
 ) {
-    CompositionLocalProvider(LocalShowAssistState provides null) {
+    val noopUriHandler = object : UriHandler {
+        override fun openUri(uri: String) {
+        }
+    }
+    CompositionLocalProvider(LocalShowAssistState provides null, LocalUriHandler provides noopUriHandler) {
 
         fun jumpToSlide(index: Slide.Index) {
             // TODO: use state.animateScrollToItem(selectedSlide) somehow to always keep selected slide visible (but not always at the top)
