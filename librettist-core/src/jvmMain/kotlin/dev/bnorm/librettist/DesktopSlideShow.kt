@@ -133,6 +133,7 @@ fun ApplicationScope.DesktopSlideShow(
         Window(
             onCloseRequest = { showAssistState.visible = false },
             title = "Assist",
+            onPreviewKeyEvent = ::handleKeyEvent,
         ) {
             ShowMenu()
 

@@ -34,11 +34,8 @@ fun ShowAssist(slideSize: DpSize, theme: ShowTheme, showState: ShowState, showAs
             Row(modifier = Modifier.fillMaxWidth()) {
                 val indices = remember(showState) { showState.slides.indices }
                 Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text("Previous Slide")
-                    val index = indices.lastOrNull { it < showState.index }
-                    if (index != null) {
-                        PreviewSlide(index, showState, theme, slideSize)
-                    }
+                    Text("Current Slide")
+                    PreviewSlide(showState.index, showState, theme, slideSize)
                 }
                 Spacer(Modifier.width(16.dp))
                 Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
