@@ -14,10 +14,12 @@ import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.input.key.*
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
@@ -111,14 +113,14 @@ fun EmbeddedSlideShow(
 private fun MouseNavigationIndicators(onAdvancement: (AdvanceDirection) -> Unit, visibleIndicators: Boolean = true) {
     val interactionSource = remember { MutableInteractionSource() }
 
-    Box(modifier = Modifier.fillMaxSize()) {
+    Row(modifier = Modifier.fillMaxSize().clip(RectangleShape)) {
         Box(
-            modifier = Modifier.fillMaxHeight().width(200.dp).align(Alignment.CenterStart)
+            modifier = Modifier.fillMaxHeight().weight(20f)
                 .clickable(interactionSource, indication = null) {
                     onAdvancement(AdvanceDirection.Backward)
                 }
         ) {
-            AnimatedVisibility(
+            this@Row.AnimatedVisibility(
                 visible = visibleIndicators,
                 enter = slideInHorizontally { -it },
                 exit = slideOutHorizontally { -it },
@@ -134,13 +136,15 @@ private fun MouseNavigationIndicators(onAdvancement: (AdvanceDirection) -> Unit,
             }
         }
 
+        Spacer(Modifier.weight(60f))
+
         Box(
-            modifier = Modifier.fillMaxHeight().width(200.dp).align(Alignment.CenterEnd)
+            modifier = Modifier.fillMaxHeight().weight(20f)
                 .clickable(interactionSource, indication = null) {
                     onAdvancement(AdvanceDirection.Forward)
                 }
         ) {
-            AnimatedVisibility(
+            this@Row.AnimatedVisibility(
                 visible = visibleIndicators,
                 enter = slideInHorizontally { it },
                 exit = slideOutHorizontally { it },
