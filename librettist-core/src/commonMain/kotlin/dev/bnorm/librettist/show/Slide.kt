@@ -9,8 +9,8 @@ fun buildSlides(builder: ShowBuilder.() -> Unit): List<Slide> {
         object : ShowBuilder {
             override fun slide(
                 states: Int,
-                enterTransition: EnterTransition,
-                exitTransition: ExitTransition,
+                enterTransition: (AdvanceDirection) -> EnterTransition,
+                exitTransition: (AdvanceDirection) -> ExitTransition,
                 content: SlideContent<SlideState<Int>>,
             ) {
                 require(states >= 0)
@@ -23,8 +23,8 @@ fun buildSlides(builder: ShowBuilder.() -> Unit): List<Slide> {
 
 class Slide(
     val states: Int,
-    val enterTransition: EnterTransition,
-    val exitTransition: ExitTransition,
+    val enterTransition: (AdvanceDirection) -> EnterTransition,
+    val exitTransition: (AdvanceDirection) -> ExitTransition,
     val content: SlideContent<SlideState<Int>>,
 ) {
     @Immutable

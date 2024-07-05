@@ -14,8 +14,8 @@ interface ShowBuilder {
     @ShowBuilderDsl
     fun slide(
         states: Int = 1,
-        enterTransition: EnterTransition = EnterTransition.None,
-        exitTransition: ExitTransition = ExitTransition.None,
+        enterTransition: (AdvanceDirection) -> EnterTransition = { EnterTransition.None },
+        exitTransition: (AdvanceDirection) -> ExitTransition = { ExitTransition.None },
         content: SlideContent<SlideState<Int>>,
     )
 }
@@ -23,8 +23,8 @@ interface ShowBuilder {
 @ShowBuilderDsl
 fun <T> ShowBuilder.slideForList(
     values: List<T>,
-    enterTransition: EnterTransition = EnterTransition.None,
-    exitTransition: ExitTransition = ExitTransition.None,
+    enterTransition: (AdvanceDirection) -> EnterTransition = { EnterTransition.None },
+    exitTransition: (AdvanceDirection) -> ExitTransition = { ExitTransition.None },
     content: SlideContent<SlideState<T>>,
 ) {
     slide(states = values.size, enterTransition, exitTransition) {
@@ -34,8 +34,8 @@ fun <T> ShowBuilder.slideForList(
 
 @ShowBuilderDsl
 inline fun <reified E : Enum<E>> ShowBuilder.slideForEnum(
-    enterTransition: EnterTransition = EnterTransition.None,
-    exitTransition: ExitTransition = ExitTransition.None,
+    noinline enterTransition: (AdvanceDirection) -> EnterTransition = { EnterTransition.None },
+    noinline exitTransition: (AdvanceDirection) -> ExitTransition = { ExitTransition.None },
     crossinline content: SlideContent<SlideState<E>>,
 ) {
     val values = enumValues<E>()
@@ -46,8 +46,8 @@ inline fun <reified E : Enum<E>> ShowBuilder.slideForEnum(
 
 @ShowBuilderDsl
 fun ShowBuilder.slideForBoolean(
-    enterTransition: EnterTransition = EnterTransition.None,
-    exitTransition: ExitTransition = ExitTransition.None,
+    enterTransition: (AdvanceDirection) -> EnterTransition = { EnterTransition.None },
+    exitTransition: (AdvanceDirection) -> ExitTransition = { ExitTransition.None },
     content: SlideContent<SlideState<Boolean>>,
 ) {
     slide(states = 2, enterTransition, exitTransition) {

@@ -24,5 +24,5 @@ fun <T> SlideScope(value: T): SlideScope<T> {
 @Composable
 fun <T, R> SlideScope<T>.createChildScope(transform: (T) -> R): SlideScope<R> {
     val transition = transition.createChildTransition { transform(it) }
-    return remember(transition) { SlideScope(transition) }
+    return remember(transition) { SlideScope(transition, animatedContentScope, sharedTransitionScope) }
 }

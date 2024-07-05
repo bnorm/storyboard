@@ -132,20 +132,50 @@ class ShowState(val slides: List<Slide>) {
             // This slide state seamlessly transitions from Index -> Exit -> Enter -> Index and the reverse.
             // Entering and Exiting states are always contiguous between slides based on slide node construction.
             val stateNode = slideState.currentNode.currentState
-            if (stateNode.state == SlideState.Entering) {
-                val prev = slideNode.prev!!
-                prev.state.reset(AdvanceDirection.Backward)
-                currentNode.targetState = prev
-            } else if (stateNode.state == SlideState.Exiting) {
-                val next = slideNode.next!!
-                next.state.reset(AdvanceDirection.Forward)
-                currentNode.targetState = next
+            when (stateNode.state) {
+                SlideState.Entering -> {
+                    when (slideState.direction) {
+                        AdvanceDirection.Forward -> {
+                            slideNode.state.currentNode.targetState = stateNode.next!!
+                        }
+
+                        AdvanceDirection.Backward -> {
+                            val prev = slideNode.prev!!
+                            prev.state.reset(AdvanceDirection.Backward)
+                            currentNode.targetState = prev
+                        }
+                    }
+                }
+
+                SlideState.Exiting -> {
+                    when (slideState.direction) {
+                        AdvanceDirection.Forward -> {
+                            val next = slideNode.next!!
+                            next.state.reset(AdvanceDirection.Forward)
+                            currentNode.targetState = next
+                        }
+
+                        AdvanceDirection.Backward -> {
+                            slideNode.state.currentNode.targetState = stateNode.prev!!
+                        }
+                    }
+                }
+
+                is SlideState.Index -> {} // Do nothing
             }
         }
 
         SharedTransitionLayout {
             rememberTransition(currentNode).AnimatedContent(
-                transitionSpec = { targetState.slide.enterTransition togetherWith initialState.slide.exitTransition }
+                transitionSpec = {
+                    if (targetState > initialState) {
+                        targetState.slide.enterTransition(AdvanceDirection.Forward) togetherWith
+                                initialState.slide.exitTransition(AdvanceDirection.Forward)
+                    } else {
+                        targetState.slide.enterTransition(AdvanceDirection.Backward) togetherWith
+                                initialState.slide.exitTransition(AdvanceDirection.Backward)
+                    }
+                }
             ) { node ->
                 val content = node.slide.content
                 key(content) {
@@ -190,6 +220,7 @@ private class InternalSlideState(val index: Int, val slide: Slide, enter: Boolea
     }
 
     var currentNode by mutableStateOf(MutableTransitionState(nodes[0]))
+    var direction by mutableStateOf(AdvanceDirection.Forward)
 
     val currentIndex: Slide.Index
         get() = currentNode.currentState.index
@@ -201,15 +232,14 @@ private class InternalSlideState(val index: Int, val slide: Slide, enter: Boolea
         get() = nodes.last().index
 
     fun reset(direction: AdvanceDirection) {
-        currentNode = when (direction) {
+        this.direction = direction
+        this.currentNode = when (direction) {
             AdvanceDirection.Forward -> {
-                val first = nodes.first()
-                MutableTransitionState(first).apply { targetState = first.next!! }
+                MutableTransitionState(nodes.first())
             }
 
             AdvanceDirection.Backward -> {
-                val last = nodes.last()
-                MutableTransitionState(last).apply { targetState = last.prev!! }
+                MutableTransitionState(nodes.last())
             }
         }
     }
@@ -221,6 +251,8 @@ private class InternalSlideState(val index: Int, val slide: Slide, enter: Boolea
 
     // TODO tri-state boolean => enum?
     fun advance(direction: AdvanceDirection, jump: Boolean = false): Boolean? {
+        this.direction = direction
+
         if (!currentNode.isIdle) {
             currentNode = when (direction) {
                 AdvanceDirection.Forward -> {
@@ -252,7 +284,7 @@ private class InternalSlideState(val index: Int, val slide: Slide, enter: Boolea
         if (jump) {
             currentNode = MutableTransitionState(nextState)
         } else {
-            currentNode.targetState = nextState
+            this.currentNode.targetState = nextState
         }
 
         return true

@@ -45,8 +45,8 @@ fun ShowBuilder.section(
     object : ShowBuilder {
         override fun slide(
             states: Int,
-            enterTransition: EnterTransition,
-            exitTransition: ExitTransition,
+            enterTransition: (AdvanceDirection) -> EnterTransition,
+            exitTransition: (AdvanceDirection) -> ExitTransition,
             content: SlideContent<SlideState<Int>>,
         ) {
             upstream.slide(states, enterTransition, exitTransition) {
