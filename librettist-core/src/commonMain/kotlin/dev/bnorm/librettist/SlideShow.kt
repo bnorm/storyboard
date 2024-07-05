@@ -1,7 +1,7 @@
 package dev.bnorm.librettist
 
-import androidx.compose.animation.core.MutableTransitionState
-import androidx.compose.animation.core.rememberTransition
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -91,8 +91,6 @@ fun SlideShowOverview(
 
         LazyColumn(modifier = modifier, contentPadding = PaddingValues(8.dp), state = state) {
             items(showState.slides.toIndexes()) { index ->
-                val transition = rememberTransition(MutableTransitionState(SlideState.Index(index.state)))
-
                 Box {
                     ScaledBox(
                         targetSize = slideSize,
@@ -107,7 +105,15 @@ fun SlideShowOverview(
                     ) {
                         Surface(modifier = Modifier.fillMaxSize()) {
                             val slide = showState.slides[index.index].content
-                            SlideScope(transition).slide()
+                            SharedTransitionLayout {
+                                AnimatedContent(Unit) {
+                                    SlideScope(
+                                        SlideState.Index(index.state),
+                                        this@AnimatedContent,
+                                        this@SharedTransitionLayout
+                                    ).slide()
+                                }
+                            }
                         }
                     }
 

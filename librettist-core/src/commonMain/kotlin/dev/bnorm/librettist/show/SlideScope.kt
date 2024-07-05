@@ -12,13 +12,17 @@ import androidx.compose.runtime.remember
 class SlideScope<out T>(
     // TODO expose the number of states?
     val transition: Transition<out T>,
-    val animatedContentScope: AnimatedContentScope? = null,
-    val sharedTransitionScope: SharedTransitionScope? = null,
+    val animatedContentScope: AnimatedContentScope,
+    val sharedTransitionScope: SharedTransitionScope,
 )
 
 @Composable
-fun <T> SlideScope(value: T): SlideScope<T> {
-    return SlideScope(updateTransition(value))
+fun <T> SlideScope(
+    value: T,
+    animatedContentScope: AnimatedContentScope,
+    sharedTransitionScope: SharedTransitionScope,
+): SlideScope<T> {
+    return SlideScope(updateTransition(value), animatedContentScope, sharedTransitionScope)
 }
 
 @Composable

@@ -1,7 +1,7 @@
 package dev.bnorm.librettist.show.assist
 
-import androidx.compose.animation.core.MutableTransitionState
-import androidx.compose.animation.core.rememberTransition
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -85,8 +85,15 @@ private fun PreviewSlide(
     val slide = showState.getSlide(index)
     if (slide != null) {
         PreviewSlide(theme, slideSize, modifier) {
-            val transition = rememberTransition(MutableTransitionState(SlideState.Index(index.state)))
-            SlideScope(transition).slide()
+            SharedTransitionLayout {
+                AnimatedContent(Unit) {
+                    SlideScope(
+                        SlideState.Index(index.state),
+                        this@AnimatedContent,
+                        this@SharedTransitionLayout
+                    ).slide()
+                }
+            }
         }
     }
 }
