@@ -1,5 +1,7 @@
 package dev.bnorm.librettist.show
 
+import androidx.compose.animation.AnimatedContentScope
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.animation.core.Transition
 import androidx.compose.animation.core.createChildTransition
 import androidx.compose.animation.core.updateTransition
@@ -10,6 +12,8 @@ import androidx.compose.runtime.remember
 class SlideScope<out T>(
     // TODO expose the number of states?
     val transition: Transition<out T>,
+    val animatedContentScope: AnimatedContentScope? = null,
+    val sharedTransitionScope: SharedTransitionScope? = null,
 )
 
 @Composable

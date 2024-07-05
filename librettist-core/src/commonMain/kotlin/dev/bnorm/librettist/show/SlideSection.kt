@@ -1,5 +1,7 @@
 package dev.bnorm.librettist.show
 
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -41,8 +43,13 @@ fun ShowBuilder.section(
     val section = SlideSection(title)
 
     object : ShowBuilder {
-        override fun slide(states: Int, content: SlideContent<SlideState<Int>>) {
-            upstream.slide(states) {
+        override fun slide(
+            states: Int,
+            enterTransition: EnterTransition,
+            exitTransition: ExitTransition,
+            content: SlideContent<SlideState<Int>>,
+        ) {
+            upstream.slide(states, enterTransition, exitTransition) {
                 CompositionLocalProvider(LocalSlideSection provides section) {
                     content()
                 }

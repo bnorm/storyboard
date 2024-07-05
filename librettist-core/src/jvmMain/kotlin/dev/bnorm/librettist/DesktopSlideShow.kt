@@ -22,7 +22,7 @@ import dev.bnorm.librettist.show.ShowState
 import dev.bnorm.librettist.show.assist.LocalShowAssistState
 import dev.bnorm.librettist.show.assist.ShowAssist
 import dev.bnorm.librettist.show.assist.ShowAssistState
-import dev.bnorm.librettist.show.indices
+import dev.bnorm.librettist.show.toIndexes
 
 @Composable
 fun ApplicationScope.DesktopSlideShow(
@@ -152,7 +152,7 @@ private fun GoToSlide(showState: ShowState, onClose: () -> Unit) {
 
     DialogWindow(onCloseRequest = onClose, title = "Go To Slide") {
         var slide by remember { mutableStateOf("") }
-        val indices = remember(showState) { showState.slides.indices }
+        val indices = remember(showState) { showState.slides.toIndexes() }
 
         fun onKeyEvent(it: KeyEvent): Boolean {
             if (it.key == Key.Enter) {

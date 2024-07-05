@@ -1,13 +1,20 @@
 package dev.bnorm.librettist.show
 
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.runtime.Immutable
 
 fun buildSlides(builder: ShowBuilder.() -> Unit): List<Slide> {
     val slides = buildList {
         object : ShowBuilder {
-            override fun slide(states: Int, content: SlideContent<SlideState<Int>>) {
+            override fun slide(
+                states: Int,
+                enterTransition: EnterTransition,
+                exitTransition: ExitTransition,
+                content: SlideContent<SlideState<Int>>,
+            ) {
                 require(states >= 0)
-                add(Slide(states, content))
+                add(Slide(states, enterTransition, exitTransition, content))
             }
         }.builder()
     }
@@ -16,6 +23,8 @@ fun buildSlides(builder: ShowBuilder.() -> Unit): List<Slide> {
 
 class Slide(
     val states: Int,
+    val enterTransition: EnterTransition,
+    val exitTransition: ExitTransition,
     val content: SlideContent<SlideState<Int>>,
 ) {
     @Immutable
@@ -31,5 +40,5 @@ class Slide(
     }
 }
 
-val List<Slide>.indices: List<Slide.Index>
-    get() = flatMapIndexed { index, slide -> (0..<slide.states).map { Slide.Index(index, it) } }
+fun List<Slide>.toIndexes(): List<Slide.Index> =
+    flatMapIndexed { index, slide -> (0..<slide.states).map { Slide.Index(index, it) } }

@@ -39,9 +39,7 @@ fun SlideShowDisplay(
         modifier = modifier.background(MaterialTheme.colors.background)
     ) {
         Surface(modifier = Modifier.fillMaxSize()) {
-            val transition = showState.rememberAdvancementTransition()
-            val slide = showState.currentSlide
-            SlideScope(transition).slide()
+            showState.Present()
         }
     }
 }
@@ -92,7 +90,7 @@ fun SlideShowOverview(
         }
 
         LazyColumn(modifier = modifier, contentPadding = PaddingValues(8.dp), state = state) {
-            items(showState.slides.indices) { index ->
+            items(showState.slides.toIndexes()) { index ->
                 val transition = rememberTransition(MutableTransitionState(SlideState.Index(index.state)))
 
                 Box {
@@ -103,7 +101,7 @@ fun SlideShowOverview(
                             .aspectRatio(slideSize.width / slideSize.height)
                             .background(MaterialTheme.colors.background)
                             .then(
-                                if (showState.isShowing(index)) Modifier.border(2.dp, Color.Red)
+                                if (showState.index == index) Modifier.border(2.dp, Color.Red)
                                 else Modifier
                             )
                     ) {

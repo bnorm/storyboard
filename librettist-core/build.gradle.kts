@@ -22,6 +22,7 @@ kotlin {
             languageSettings {
                 optIn("androidx.compose.animation.core.ExperimentalTransitionApi")
                 optIn("androidx.compose.animation.ExperimentalAnimationApi")
+                optIn("androidx.compose.animation.ExperimentalSharedTransitionApi")
             }
         }
 

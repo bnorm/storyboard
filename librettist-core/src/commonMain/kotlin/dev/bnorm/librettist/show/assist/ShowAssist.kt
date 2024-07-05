@@ -32,7 +32,7 @@ fun ShowAssist(slideSize: DpSize, theme: ShowTheme, showState: ShowState, showAs
             }
 
             Row(modifier = Modifier.fillMaxWidth()) {
-                val indices = remember(showState) { showState.slides.indices }
+                val indices = remember(showState) { showState.slides.toIndexes() }
                 Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
                     Text("Current Slide")
                     PreviewSlide(showState.index, showState, theme, slideSize)
