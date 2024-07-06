@@ -99,7 +99,7 @@ fun SlideShowOverview(
                             .aspectRatio(slideSize.width / slideSize.height)
                             .background(MaterialTheme.colors.background)
                             .then(
-                                if (showState.index == index) Modifier.border(2.dp, Color.Red)
+                                if (showState.currentIndex == index) Modifier.border(2.dp, Color.Red)
                                 else Modifier
                             )
                     ) {

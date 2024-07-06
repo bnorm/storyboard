@@ -35,12 +35,15 @@ fun ShowAssist(slideSize: DpSize, theme: ShowTheme, showState: ShowState, showAs
                 val indices = remember(showState) { showState.slides.toIndexes() }
                 Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
                     Text("Current Slide")
-                    PreviewSlide(showState.index, showState, theme, slideSize)
+                    PreviewSlide(showState.currentIndex, showState, theme, slideSize)
                 }
                 Spacer(Modifier.width(16.dp))
                 Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
                     Text("Next Slide")
-                    val index = indices.firstOrNull { it > showState.index }
+                    val index = run {
+                        val nextIndex = indices.binarySearch(showState.currentIndex) + 1
+                        if (nextIndex in indices.indices) indices[nextIndex] else null
+                    }
                     if (index != null) {
                         PreviewSlide(index, showState, theme, slideSize)
                     }

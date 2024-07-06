@@ -14,116 +14,109 @@ fun ShowState(builder: ShowBuilder.() -> Unit): ShowState {
 
 @Stable
 class ShowState(val slides: List<Slide>) {
-    private class Node(
-        val slide: Slide,
-        val state: InternalSlideState,
-        val index: Int,
-    ) : Comparable<Node> {
-        var next: Node? = null
-        var prev: Node? = null
-
-        override fun compareTo(other: Node): Int {
-            return compareValues(index, other.index)
-        }
-    }
-
-    private val nodes: List<Node> = buildList {
+    private val nodes: List<InternalSlide> = buildList {
         for ((index, slide) in slides.withIndex()) {
-            add(Node(slide, InternalSlideState(index, slide, index > 0, index < slides.size - 1), index))
+            add(InternalSlide(index, slide, index > 0, index < slides.size - 1))
         }
 
-        var prev: Node? = null
-        for (node in this) {
-            node.prev = prev
-            prev?.next = node
-            prev = node
+        var prev: InternalSlide? = null
+        for (slide in this) {
+            slide.prev = prev
+            prev?.next = slide
+            prev = slide
         }
     }
 
     // This is wrapped in a MutableState to allow setting a new MutableTransitionState when the show
-    // needs to jump to a particular SlideNode without animation or skip the current animation.
+    // needs to jump to a particular slide without animation or skip the current animation.
     // TODO can SeekableTransitionState eventually help?
-    private var currentNode by mutableStateOf(MutableTransitionState(nodes[0]))
+    private var slideState by mutableStateOf(MutableTransitionState(nodes[0]))
 
-    val index: Slide.Index
-        get() = currentNode.currentState.state.currentIndex
+    val currentIndex: Slide.Index
+        get() = slideState.currentState.currentIndex
 
     fun getSlide(index: Slide.Index): SlideContent<SlideState<Int>>? {
-        val node = nodes.find { it.index == index.index } ?: return null
-        return node.slide.content
+        val slide = nodes.find { it.index == index.index } ?: return null
+        return slide.slide.content
     }
 
     fun jumpToSlide(index: Slide.Index) {
-        val node = nodes.find { it.index == index.index } ?: return
-        node.state.jumpToSlide(index)
-        currentNode = MutableTransitionState(node)
+        val slide = nodes.find { it.index == index.index } ?: return
+        slide.jumpToSlide(index)
+        slideState = MutableTransitionState(slide)
     }
 
     fun advance(direction: AdvanceDirection, jump: Boolean = false): Boolean {
-        val targetState = currentNode.targetState
-        if (!currentNode.isIdle) {
-            skip(direction)
+        if (!slideState.isIdle) {
+            when (direction) {
+                AdvanceDirection.Forward ->
+                    skipForward(start = maxOf(slideState.currentState, slideState.targetState))
+
+                AdvanceDirection.Backward ->
+                    skipBackward(start = minOf(slideState.currentState, slideState.targetState))
+            }
             return true
         }
 
-        when (targetState.state.advance(direction, jump)) {
+        val currentSlide = slideState.currentState
+        when (currentSlide.advance(direction, jump)) {
             true -> return true
             false -> {}
             null -> {
-                skip(direction)
+                when (direction) {
+                    AdvanceDirection.Forward ->
+                        skipForward(start = currentSlide.next ?: return false)
+
+                    AdvanceDirection.Backward ->
+                        skipBackward(start = currentSlide.prev ?: return false)
+                }
                 return true
             }
         }
 
-        val nextNode = when (direction) {
-            AdvanceDirection.Forward -> targetState.next ?: return false
-            AdvanceDirection.Backward -> targetState.prev ?: return false
+        val targetSlide = when (direction) {
+            AdvanceDirection.Forward -> currentSlide.next ?: return false
+            AdvanceDirection.Backward -> currentSlide.prev ?: return false
         }
         if (jump) {
             when (direction) {
-                AdvanceDirection.Forward -> nextNode.state.jumpToSlide(nextNode.state.firstIndex)
-                AdvanceDirection.Backward -> nextNode.state.jumpToSlide(nextNode.state.lastIndex)
+                AdvanceDirection.Forward -> targetSlide.jumpToSlide(targetSlide.firstIndex)
+                AdvanceDirection.Backward -> targetSlide.jumpToSlide(targetSlide.lastIndex)
             }
-            currentNode = MutableTransitionState(nextNode)
+            this.slideState = MutableTransitionState(targetSlide)
         } else {
-            nextNode.state.reset(direction)
-            currentNode.targetState = nextNode
+            targetSlide.reset(direction)
+            this.slideState.targetState = targetSlide
         }
 
         return true
     }
 
-    private fun skip(direction: AdvanceDirection) {
-        when (direction) {
-            AdvanceDirection.Forward -> {
-                var next = maxOf(currentNode.currentState, currentNode.targetState)
-                // Jump to the next SlideState.Index node.
-                // Non-SlideState.Index nodes always have a non-null next node.
-                while (next.state.nodes.all { it.state !is SlideState.Index }) {
-                    next = next.next!!
-                }
-                next.state.jumpToSlide(next.state.firstIndex)
-                currentNode = MutableTransitionState(next)
-            }
-
-            AdvanceDirection.Backward -> {
-                var previous = minOf(currentNode.currentState, currentNode.targetState)
-                // Jump to the previous SlideState.Index node.
-                // Non-SlideState.Index nodes always have a non-null prev node.
-                while (previous.state.nodes.all { it.state !is SlideState.Index }) {
-                    previous = previous.prev!!
-                }
-                previous.state.jumpToSlide(previous.state.lastIndex)
-                currentNode = MutableTransitionState(previous)
-            }
+    private fun skipForward(start: InternalSlide) {
+        // Jump to the next SlideState.Index.
+        // Slides without states always have a non-null next slide.
+        var slide = start
+        while (slide.slide.states == 0) {
+            slide = slide.next!!
         }
+        slide.jumpToSlide(slide.firstIndex)
+        slideState = MutableTransitionState(slide)
+    }
+
+    private fun skipBackward(start: InternalSlide) {
+        // Jump to the previous SlideState.Index.
+        // Slides without states always have a non-null prev slide.
+        var slide = start
+        while (slide.slide.states == 0) {
+            slide = slide.prev!!
+        }
+        slide.jumpToSlide(slide.lastIndex)
+        slideState = MutableTransitionState(slide)
     }
 
     @Composable
     fun Present() {
-        val slideNode = currentNode.currentState
-        val slideState = slideNode.state
-        val stableState = currentNode.isIdle && slideState.currentNode.isIdle
+        val stableState = slideState.isIdle && slideState.currentState.currentNode.isIdle
         LaunchedEffect(stableState) {
             if (!stableState) return@LaunchedEffect
             // TODO is there a better way to listen for this situation and make the change
@@ -131,32 +124,33 @@ class ShowState(val slides: List<Slide>) {
             // Automatically advance to the next/previous slide after completing transition to exiting/entering state.
             // This slide state seamlessly transitions from Index -> Exit -> Enter -> Index and the reverse.
             // Entering and Exiting states are always contiguous between slides based on slide node construction.
-            val stateNode = slideState.currentNode.currentState
+            val currentSlide = slideState.currentState
+            val stateNode = currentSlide.currentNode.currentState
             when (stateNode.state) {
                 SlideState.Entering -> {
-                    when (slideState.direction) {
+                    when (currentSlide.direction) {
                         AdvanceDirection.Forward -> {
-                            slideNode.state.currentNode.targetState = stateNode.next!!
+                            currentSlide.currentNode.targetState = stateNode.next!!
                         }
 
                         AdvanceDirection.Backward -> {
-                            val prev = slideNode.prev!!
-                            prev.state.reset(AdvanceDirection.Backward)
-                            currentNode.targetState = prev
+                            val prev = currentSlide.prev!!
+                            prev.reset(AdvanceDirection.Backward)
+                            slideState.targetState = prev
                         }
                     }
                 }
 
                 SlideState.Exiting -> {
-                    when (slideState.direction) {
+                    when (currentSlide.direction) {
                         AdvanceDirection.Forward -> {
-                            val next = slideNode.next!!
-                            next.state.reset(AdvanceDirection.Forward)
-                            currentNode.targetState = next
+                            val next = currentSlide.next!!
+                            next.reset(AdvanceDirection.Forward)
+                            slideState.targetState = next
                         }
 
                         AdvanceDirection.Backward -> {
-                            slideNode.state.currentNode.targetState = stateNode.prev!!
+                            currentSlide.currentNode.targetState = stateNode.prev!!
                         }
                     }
                 }
@@ -166,7 +160,7 @@ class ShowState(val slides: List<Slide>) {
         }
 
         SharedTransitionLayout {
-            rememberTransition(currentNode).AnimatedContent(
+            rememberTransition(slideState).AnimatedContent(
                 transitionSpec = {
                     if (targetState > initialState) {
                         targetState.slide.enterTransition(AdvanceDirection.Forward) togetherWith
@@ -177,17 +171,25 @@ class ShowState(val slides: List<Slide>) {
                     }
                 }
             ) { node ->
-                val content = node.slide.content
-                key(content) {
-                    val stateTransition = rememberTransition(node.state.currentNode).createChildTransition { it.state }
-                    SlideScope(stateTransition, this@AnimatedContent, this@SharedTransitionLayout).content()
+                key(node.index) {
+                    val transition = rememberTransition(node.currentNode).createChildTransition { it.state }
+                    val content = node.slide.content
+                    SlideScope(transition, this@AnimatedContent, this@SharedTransitionLayout).content()
                 }
             }
         }
     }
 }
 
-private class InternalSlideState(val index: Int, val slide: Slide, enter: Boolean, exit: Boolean) {
+private class InternalSlide(
+    val index: Int,
+    val slide: Slide,
+    enter: Boolean,
+    exit: Boolean,
+) : Comparable<InternalSlide> {
+    var next: InternalSlide? = null
+    var prev: InternalSlide? = null
+
     class Node(
         val state: SlideState<Int>,
         val index: Slide.Index,
@@ -200,7 +202,7 @@ private class InternalSlideState(val index: Int, val slide: Slide, enter: Boolea
         }
     }
 
-    val nodes = buildList<Node> {
+    private val nodes = buildList<Node> {
         if (enter) {
             add(Node(SlideState.Entering, Slide.Index(index, 0)))
         }
@@ -222,26 +224,19 @@ private class InternalSlideState(val index: Int, val slide: Slide, enter: Boolea
     var currentNode by mutableStateOf(MutableTransitionState(nodes[0]))
     var direction by mutableStateOf(AdvanceDirection.Forward)
 
+    val firstIndex: Slide.Index = nodes.first().index
+    val lastIndex: Slide.Index = nodes.last().index
     val currentIndex: Slide.Index
         get() = currentNode.currentState.index
 
-    val firstIndex: Slide.Index
-        get() = nodes.first().index
-
-    val lastIndex: Slide.Index
-        get() = nodes.last().index
-
     fun reset(direction: AdvanceDirection) {
-        this.direction = direction
-        this.currentNode = when (direction) {
-            AdvanceDirection.Forward -> {
-                MutableTransitionState(nodes.first())
-            }
-
-            AdvanceDirection.Backward -> {
-                MutableTransitionState(nodes.last())
-            }
+        val node = when (direction) {
+            AdvanceDirection.Forward -> nodes.first()
+            AdvanceDirection.Backward -> nodes.last()
         }
+
+        this.direction = direction
+        this.currentNode = MutableTransitionState(node)
     }
 
     fun jumpToSlide(index: Slide.Index) {
@@ -254,25 +249,15 @@ private class InternalSlideState(val index: Int, val slide: Slide, enter: Boolea
         this.direction = direction
 
         if (!currentNode.isIdle) {
-            currentNode = when (direction) {
-                AdvanceDirection.Forward -> {
-                    var next = maxOf(currentNode.currentState, currentNode.targetState)
-                    // Jump to the next SlideState.Index node.
-                    while (next.state !is SlideState.Index) {
-                        next = next.next ?: return null
-                    }
-                    MutableTransitionState(next)
-                }
+            currentNode = MutableTransitionState(
+                when (direction) {
+                    AdvanceDirection.Forward ->
+                        navForward(start = maxOf(currentNode.currentState, currentNode.targetState)) ?: return null
 
-                AdvanceDirection.Backward -> {
-                    var previous = minOf(currentNode.currentState, currentNode.targetState)
-                    // Jump to the previous SlideState.Index node.
-                    while (previous.state !is SlideState.Index) {
-                        previous = previous.prev ?: return null
-                    }
-                    MutableTransitionState(previous)
+                    AdvanceDirection.Backward ->
+                        navBackward(start = minOf(currentNode.currentState, currentNode.targetState)) ?: return null
                 }
-            }
+            )
 
             return true
         }
@@ -288,5 +273,31 @@ private class InternalSlideState(val index: Int, val slide: Slide, enter: Boolea
         }
 
         return true
+    }
+
+    private fun navForward(start: Node): Node? {
+        // Jump to the next SlideState.Index node.
+        var node = start
+        while (node.state !is SlideState.Index) {
+            node = node.next ?: return null
+        }
+        return node
+    }
+
+    private fun navBackward(start: Node): Node? {
+        // Jump to the previous SlideState.Index node.
+        var node = start
+        while (node.state !is SlideState.Index) {
+            node = node.prev ?: return null
+        }
+        return node
+    }
+
+    override fun compareTo(other: InternalSlide): Int {
+        return compareValues(index, other.index)
+    }
+
+    override fun toString(): String {
+        return "InternalSlide(index=$index)"
     }
 }
