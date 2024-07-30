@@ -40,10 +40,12 @@ class ShowState(val slides: List<Slide>) {
         return slide.slide.content
     }
 
-    fun jumpToSlide(index: Slide.Index) {
-        val slide = nodes.find { it.index == index.index } ?: return
-        slide.jumpToSlide(index)
+    fun jumpToSlide(index: Slide.Index): Boolean {
+        val slide = nodes.find { it.index == index.index } ?: return false
+        if (!slide.jumpToSlide(index)) return false
+
         slideState = MutableTransitionState(slide)
+        return true
     }
 
     fun advance(direction: AdvanceDirection, jump: Boolean = false): Boolean {
@@ -239,9 +241,10 @@ private class InternalSlide(
         this.currentNode = MutableTransitionState(node)
     }
 
-    fun jumpToSlide(index: Slide.Index) {
-        val node = nodes.find { it.state is SlideState.Index && it.index == index } ?: return
+    fun jumpToSlide(index: Slide.Index): Boolean {
+        val node = nodes.find { it.state is SlideState.Index && it.index == index } ?: return false
         currentNode = MutableTransitionState(node)
+        return true
     }
 
     // TODO tri-state boolean => enum?

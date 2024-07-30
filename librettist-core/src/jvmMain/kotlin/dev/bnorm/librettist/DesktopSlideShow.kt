@@ -1,10 +1,12 @@
 package dev.bnorm.librettist
 
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.animation.*
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.TextField
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -14,15 +16,11 @@ import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.input.key.*
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.DpSize
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.*
-import dev.bnorm.librettist.show.AdvanceDirection
-import dev.bnorm.librettist.show.ShowBuilder
-import dev.bnorm.librettist.show.ShowState
+import dev.bnorm.librettist.show.*
 import dev.bnorm.librettist.show.assist.LocalShowAssistState
 import dev.bnorm.librettist.show.assist.ShowAssist
 import dev.bnorm.librettist.show.assist.ShowAssistState
-import dev.bnorm.librettist.show.toIndexes
 
 @Composable
 fun ApplicationScope.DesktopSlideShow(
@@ -31,43 +29,31 @@ fun ApplicationScope.DesktopSlideShow(
     slideSize: DpSize = DEFAULT_SLIDE_SIZE,
     builder: ShowBuilder.() -> Unit,
 ) {
-    val windowState = remember { WindowState(size = DpSize(1000.dp, 800.dp)) }
+    val windowState = remember { WindowState() }
     val showState = remember(builder) { ShowState(builder) }
     val showAssistState = remember { ShowAssistState() }
     var goToSlide by remember { mutableStateOf(false) }
+    var showOverview by remember { mutableStateOf(false) }
 
-    var keyHeld = false
     fun handleKeyEvent(event: KeyEvent): Boolean {
-        // TODO rate-limit holding down the key?
-        if (event.type == KeyEventType.KeyDown) {
-            val wasHeld = keyHeld
-            keyHeld = true
-
-            when (event.key) {
-                Key.DirectionRight,
-                Key.Enter,
-                Key.Spacebar,
-                -> return showState.advance(AdvanceDirection.Forward, jump = wasHeld)
-
-                Key.DirectionLeft,
-                Key.Backspace,
-                -> return showState.advance(AdvanceDirection.Backward, jump = wasHeld)
-            }
-        }
-
-        // TODO handle some other keys?
-        //  - navigating to specific slides?
         if (event.type == KeyEventType.KeyUp) {
-            keyHeld = false
-
             when (event.key) {
-                Key.Escape -> if (windowState.placement == WindowPlacement.Fullscreen) {
-                    windowState.placement = WindowPlacement.Floating
+                Key.Escape -> {
+                    showOverview = !showOverview
                     return true
                 }
 
-                Key.F -> if (windowState.placement != WindowPlacement.Fullscreen && event.isCtrlPressed && event.isMetaPressed) {
-                    windowState.placement = WindowPlacement.Fullscreen
+                Key.Enter -> if (showOverview) {
+                    showOverview = false
+                    return true
+                }
+
+                Key.F -> if (event.isCtrlPressed && event.isMetaPressed) {
+                    windowState.placement = when (windowState.placement) {
+                        WindowPlacement.Floating -> WindowPlacement.Fullscreen
+                        WindowPlacement.Maximized -> WindowPlacement.Fullscreen
+                        WindowPlacement.Fullscreen -> WindowPlacement.Floating // TODO go back to float or max?
+                    }
                     return true
                 }
             }
@@ -84,7 +70,11 @@ fun ApplicationScope.DesktopSlideShow(
                     // TODO keynote seems to create a new window which fades in over the entire screen
                     //  - is this a better experience then converting the window to full screen?
                     //  - would *just* the overview be shown when note in full screen?
-                    windowState.placement = WindowPlacement.Fullscreen
+                    windowState.placement = when (windowState.placement) {
+                        WindowPlacement.Floating -> WindowPlacement.Fullscreen
+                        WindowPlacement.Maximized -> WindowPlacement.Fullscreen
+                        WindowPlacement.Fullscreen -> WindowPlacement.Floating // TODO go back to float or max?
+                    }
                 }
                 Item(text = "Jump To Slide", shortcut = KeyShortcut(Key.J, meta = true)) {
                     goToSlide = true
@@ -106,27 +96,7 @@ fun ApplicationScope.DesktopSlideShow(
     ) {
         ShowMenu()
 
-        CompositionLocalProvider(LocalShowAssistState provides showAssistState) {
-            ShowTheme(theme) {
-                Row(modifier = Modifier.fillMaxSize()) {
-                    val state = rememberLazyListState()
-                    if (windowState.placement != WindowPlacement.Fullscreen) {
-                        SlideShowOverview(
-                            showState = showState,
-                            slideSize = slideSize,
-                            modifier = Modifier.weight(0.2f),
-                            state = state
-                        )
-                    }
-
-                    SlideShowDisplay(
-                        showState = showState,
-                        slideSize = slideSize,
-                        modifier = Modifier.weight(0.8f).fillMaxHeight()
-                    )
-                }
-            }
-        }
+        Show(showState, slideSize, theme, showOverview, showAssistState)
     }
 
     if (showAssistState.visible) {
@@ -143,6 +113,53 @@ fun ApplicationScope.DesktopSlideShow(
 
     if (goToSlide) {
         GoToSlide(showState, onClose = { goToSlide = false })
+    }
+}
+
+@Composable
+private fun Show(
+    showState: ShowState,
+    slideSize: DpSize,
+    theme: ShowTheme,
+    showOverview: Boolean,
+    showAssistState: ShowAssistState?,
+) {
+    CompositionLocalProvider(LocalShowAssistState provides showAssistState) {
+        ShowTheme(theme) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colors.background)
+                    .focusRequester(rememberFocusRequester()).focusTarget()
+                    .run { if (showOverview) onOverviewNavigation(showState) else onShowNavigation(showState) }
+            ) {
+                SharedTransitionLayout {
+                    AnimatedContent(
+                        targetState = showOverview,
+                        transitionSpec = { fadeIn(tween(300)) togetherWith fadeOut(tween(300)) }
+                    ) { showOverview ->
+                        if (showOverview) {
+                            ShowOverview(
+                                showState = showState,
+                                slideSize = slideSize,
+                                sharedTransitionScope = this@SharedTransitionLayout,
+                                animatedVisibilityScope = this@AnimatedContent,
+                                modifier = Modifier.fillMaxSize(),
+                            )
+                        } else {
+                            SlideShowDisplay(
+                                showState = showState,
+                                slideSize = slideSize,
+                                modifier = Modifier.sharedElement(
+                                    state = rememberSharedContentState(key = "slide:${showState.currentIndex}"),
+                                    animatedVisibilityScope = this@AnimatedContent
+                                ).fillMaxSize(),
+                            )
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 

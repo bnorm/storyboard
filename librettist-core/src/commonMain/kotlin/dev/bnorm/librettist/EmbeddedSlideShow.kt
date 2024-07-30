@@ -1,35 +1,16 @@
 package dev.bnorm.librettist
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.*
-import androidx.compose.material.Icon
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.ArrowForward
-import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material.MaterialTheme
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusTarget
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.input.key.*
 import androidx.compose.ui.unit.DpSize
-import androidx.compose.ui.unit.dp
-import dev.bnorm.librettist.show.AdvanceDirection
-import dev.bnorm.librettist.show.ShowBuilder
-import dev.bnorm.librettist.show.ShowState
-import dev.bnorm.librettist.show.toIndexes
-import kotlinx.coroutines.delay
-import kotlin.time.Duration.Companion.seconds
-import kotlin.time.TimeSource
+import dev.bnorm.librettist.show.*
 
 @Composable
 fun EmbeddedSlideShow(
@@ -37,6 +18,7 @@ fun EmbeddedSlideShow(
     slideSize: DpSize = DEFAULT_SLIDE_SIZE,
     showIndicators: Boolean = true,
     startSlide: Int = 0,
+    modifier: Modifier = Modifier,
     builder: ShowBuilder.() -> Unit,
 ) {
     val showState = remember(builder, startSlide) {
@@ -45,118 +27,23 @@ fun EmbeddedSlideShow(
             state.jumpToSlide(indices[startSlide.coerceIn(0, indices.size - 1)])
         }
     }
-    var visibleIndicators by remember(showIndicators) { mutableStateOf(showIndicators) }
-    var lastAdvancement by remember { mutableStateOf(TimeSource.Monotonic.markNow()) }
 
-    if (showIndicators && !visibleIndicators) {
-        LaunchedEffect(lastAdvancement) {
-            delay(10.seconds)
-            visibleIndicators = true
-        }
-    }
-
-    fun advance(direction: AdvanceDirection, jump: Boolean): Boolean {
-        if (showState.advance(direction, jump)) {
-            visibleIndicators = false
-            lastAdvancement = TimeSource.Monotonic.markNow()
-            return true
-        } else {
-            return false
-        }
-    }
-
-    var keyHeld = false
-    fun handleKeyEvent(event: KeyEvent): Boolean {
-        // TODO rate-limit holding down the key?
-        if (event.type == KeyEventType.KeyDown) {
-            val wasHeld = keyHeld
-            keyHeld = true
-
-            when (event.key) {
-                Key.DirectionRight,
-                Key.Enter,
-                Key.Spacebar,
-                -> return advance(AdvanceDirection.Forward, jump = wasHeld)
-
-                Key.DirectionLeft,
-                Key.Backspace,
-                -> return advance(AdvanceDirection.Backward, jump = wasHeld)
-            }
-        }
-
-        if (event.type == KeyEventType.KeyUp) {
-            keyHeld = false
-        }
-
-        return false
-    }
-
-    val focusRequester = remember { FocusRequester() }
-    ShowTheme(theme) {
-        Box(modifier = Modifier.focusRequester(focusRequester).focusTarget().onKeyEvent(::handleKeyEvent)) {
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colors.background)
+            .focusRequester(rememberFocusRequester()).focusTarget()
+            .onShowNavigation(showState)
+    ) {
+        ShowTheme(theme) {
             SlideShowDisplay(
                 showState = showState,
                 slideSize = slideSize,
                 modifier = Modifier.fillMaxSize()
             )
 
-            MouseNavigationIndicators(onAdvancement = { advance(it, jump = false) }, visibleIndicators)
-        }
-    }
-
-    LaunchedEffect(Unit) {
-        focusRequester.requestFocus()
-    }
-}
-
-@Composable
-private fun MouseNavigationIndicators(onAdvancement: (AdvanceDirection) -> Unit, visibleIndicators: Boolean = true) {
-    val interactionSource = remember { MutableInteractionSource() }
-
-    Row(modifier = Modifier.fillMaxSize().clip(RectangleShape)) {
-        Box(
-            modifier = Modifier.fillMaxHeight().weight(20f)
-                .clickable(interactionSource, indication = null) {
-                    onAdvancement(AdvanceDirection.Backward)
-                }
-        ) {
-            this@Row.AnimatedVisibility(
-                visible = visibleIndicators,
-                enter = slideInHorizontally { -it },
-                exit = slideOutHorizontally { -it },
-            ) {
-                Box(modifier = Modifier.fillMaxSize().background(Color.DarkGray.copy(alpha = 0.25f))) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "",
-                        tint = Color.White.copy(alpha = 0.5f),
-                        modifier = Modifier.size(125.dp).align(Alignment.Center),
-                    )
-                }
-            }
-        }
-
-        Spacer(Modifier.weight(60f))
-
-        Box(
-            modifier = Modifier.fillMaxHeight().weight(20f)
-                .clickable(interactionSource, indication = null) {
-                    onAdvancement(AdvanceDirection.Forward)
-                }
-        ) {
-            this@Row.AnimatedVisibility(
-                visible = visibleIndicators,
-                enter = slideInHorizontally { it },
-                exit = slideOutHorizontally { it },
-            ) {
-                Box(modifier = Modifier.fillMaxSize().background(Color.DarkGray.copy(alpha = 0.25f))) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                        contentDescription = "",
-                        tint = Color.White.copy(alpha = 0.5f),
-                        modifier = Modifier.size(125.dp).align(Alignment.Center),
-                    )
-                }
+            if (showIndicators) {
+                MouseNavigationIndicators(showState)
             }
         }
     }
