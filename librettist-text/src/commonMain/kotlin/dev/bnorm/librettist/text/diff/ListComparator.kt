@@ -1,10 +1,8 @@
 package org.apache.commons.text.diff
 
-import androidx.compose.ui.text.AnnotatedString
-
-class AnnotatedStringsComparator(
-    private val left: AnnotatedString,
-    private val right: AnnotatedString
+class ListComparator<T>(
+    private val left: List<T>,
+    private val right: List<T>
 ) {
     private class Snake(
         val start: Int,
@@ -17,14 +15,14 @@ class AnnotatedStringsComparator(
     private val vUp: IntArray
 
     init {
-        val size = left.length + right.length + 2
+        val size = left.size + right.size + 2
         vDown = IntArray(size)
         vUp = IntArray(size)
     }
 
     private fun buildScript(
         start1: Int, end1: Int, start2: Int, end2: Int,
-        script: EditScript<AnnotatedString>
+        script: EditScript<List<T>>
     ) {
         val middle = getMiddleSnake(start1, end1, start2, end2)
 
@@ -32,8 +30,8 @@ class AnnotatedStringsComparator(
             var i = start1
             var j = start2
             while (i < end1 || j < end2) {
-                val leftSequence by lazy { left.subSequence(i, i + 1) }
-                val rightSequence by lazy { right.subSequence(j, j + 1) }
+                val leftSequence by lazy { left.subList(i, i + 1) }
+                val rightSequence by lazy { right.subList(j, j + 1) }
                 if (i < end1 && j < end2 && leftSequence == rightSequence) {
                     script.append(KeepCommand(leftSequence))
                     ++i
@@ -53,7 +51,7 @@ class AnnotatedStringsComparator(
                 script
             )
             for (i in middle.start until middle.end) {
-                script.append(KeepCommand(left.subSequence(i, i + 1)))
+                script.append(KeepCommand(left.subList(i, i + 1)))
             }
             buildScript(
                 middle.end, end1,
@@ -178,10 +176,10 @@ class AnnotatedStringsComparator(
         throw IllegalStateException("Internal Error")
     }
 
-    val script: EditScript<AnnotatedString>
+    val script: EditScript<List<T>>
         get() {
-            val script: EditScript<AnnotatedString> = EditScript()
-            buildScript(0, left.length, 0, right.length, script)
+            val script: EditScript<List<T>> = EditScript()
+            buildScript(0, left.size, 0, right.size, script)
             return script
         }
 }
