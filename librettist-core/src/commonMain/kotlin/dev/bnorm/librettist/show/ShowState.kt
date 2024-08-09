@@ -212,7 +212,7 @@ private class InternalSlide(
             add(Node(SlideState.Index(it), Slide.Index(index, it)))
         }
         if (exit) {
-            add(Node(SlideState.Exiting, Slide.Index(index, slide.states - 1)))
+            add(Node(SlideState.Exiting, Slide.Index(index, maxOf(slide.states - 1, 0))))
         }
 
         var prev: Node? = null

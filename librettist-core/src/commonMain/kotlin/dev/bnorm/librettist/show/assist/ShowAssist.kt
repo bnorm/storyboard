@@ -1,7 +1,5 @@
 package dev.bnorm.librettist.show.assist
 
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -15,63 +13,63 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import dev.bnorm.librettist.ScaledBox
 import dev.bnorm.librettist.ShowTheme
-import dev.bnorm.librettist.show.*
+import dev.bnorm.librettist.show.ShowState
+import dev.bnorm.librettist.show.Slide
+import dev.bnorm.librettist.show.toIndexes
+import dev.bnorm.librettist.slide.SlidePreview
 import kotlinx.coroutines.delay
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.TimeMark
 import kotlin.time.TimeSource
 
 @Composable
-fun ShowAssist(slideSize: DpSize, theme: ShowTheme, showState: ShowState, showAssistState: ShowAssistState) {
-    MaterialTheme {
-        Column {
-            Row(horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth()) {
-                PresentationClock()
-            }
+fun ShowAssist(slideSize: DpSize, theme: ShowTheme, showState: ShowState, showAssistState: ShowAssistState, modifier: Modifier = Modifier) {
+    Column(modifier) {
+        Row(horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth()) {
+            PresentationClock()
+        }
 
-            Row(modifier = Modifier.fillMaxWidth()) {
-                val indices = remember(showState) { showState.slides.toIndexes() }
-                Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text("Current Slide")
-                    PreviewSlide(showState.currentIndex, showState, theme, slideSize)
+        Row(modifier = Modifier.fillMaxWidth()) {
+            val indices = remember(showState) { showState.slides.toIndexes() }
+            Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
+                Text("Current Slide")
+                PreviewSlide(showState.currentIndex, showState, theme, slideSize)
+            }
+            Spacer(Modifier.width(16.dp))
+            Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
+                Text("Next Slide")
+                val index = run {
+                    val nextIndex = indices.binarySearch(showState.currentIndex) + 1
+                    if (nextIndex in indices.indices) indices[nextIndex] else null
                 }
-                Spacer(Modifier.width(16.dp))
-                Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text("Next Slide")
-                    val index = run {
-                        val nextIndex = indices.binarySearch(showState.currentIndex) + 1
-                        if (nextIndex in indices.indices) indices[nextIndex] else null
-                    }
-                    if (index != null) {
-                        PreviewSlide(index, showState, theme, slideSize)
-                    }
+                if (index != null) {
+                    PreviewSlide(index, showState, theme, slideSize)
                 }
             }
+        }
 
-            // TODO how can we do a preview of the next slide?
-            //  - we would really like to have a preview of the next **advancement**
-            //  - can we render the show like an export to create the previews without animations?
+        // TODO how can we do a preview of the next slide?
+        //  - we would really like to have a preview of the next **advancement**
+        //  - can we render the show like an export to create the previews without animations?
 
-            if (showAssistState.tabs.isNotEmpty()) {
-                var state by remember { mutableStateOf(0) }
-                Scaffold(
-                    topBar = {
-                        TabRow(selectedTabIndex = state) {
-                            showAssistState.tabs.forEachIndexed { index, tab ->
-                                Tab(
-                                    text = { Text(tab.name) },
-                                    selected = state == index,
-                                    onClick = { state = index }
-                                )
-                            }
+        if (showAssistState.tabs.isNotEmpty()) {
+            var state by remember { mutableStateOf(0) }
+            Scaffold(
+                topBar = {
+                    TabRow(selectedTabIndex = state) {
+                        showAssistState.tabs.forEachIndexed { index, tab ->
+                            Tab(
+                                text = { Text(tab.name) },
+                                selected = state == index,
+                                onClick = { state = index }
+                            )
                         }
-                    },
-                ) {
-                    val tab = showAssistState.tabs[state]
-                    tab.content()
-                }
+                    }
+                },
+            ) {
+                val tab = showAssistState.tabs[state]
+                tab.content()
             }
         }
     }
@@ -87,41 +85,15 @@ private fun PreviewSlide(
 ) {
     val slide = showState.getSlide(index)
     if (slide != null) {
-        PreviewSlide(theme, slideSize, modifier) {
-            SharedTransitionLayout {
-                AnimatedContent(Unit) {
-                    SlideScope(
-                        SlideState.Index(index.state),
-                        this@AnimatedContent,
-                        this@SharedTransitionLayout
-                    ).slide()
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun PreviewSlide(
-    theme: ShowTheme,
-    slideSize: DpSize,
-    modifier: Modifier = Modifier,
-    content: @Composable () -> Unit,
-) {
-    Box(modifier) {
-        CompositionLocalProvider(LocalShowAssistState provides null) {
-            ShowTheme(theme) {
-                ScaledBox(
-                    targetSize = slideSize,
-                    modifier = Modifier.fillMaxWidth()
-                        .aspectRatio(slideSize.width / slideSize.height)
-                        .background(MaterialTheme.colors.background)
-                ) {
-                    Surface(modifier = Modifier.fillMaxSize()) {
-                        content()
-                    }
-                }
-            }
+        ShowTheme(theme) {
+            SlidePreview(
+                state = index.state,
+                slideSize = slideSize,
+                modifier = modifier
+                    .fillMaxWidth()
+                    .aspectRatio(slideSize.width / slideSize.height),
+                content = slide
+            )
         }
     }
 }

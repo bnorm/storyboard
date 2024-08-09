@@ -28,9 +28,9 @@ val LocalShowAssistState = compositionLocalOf<ShowAssistState?> { null }
 
 @Composable
 fun ShowAssistTab(name: String, content: @Composable () -> Unit) {
-    val tabContent = rememberUpdatedState(content)
     val state = LocalShowAssistState.current
     if (state != null) {
+        val tabContent = rememberUpdatedState(content)
         DisposableEffect(tabContent) {
             val tab = ShowAssistState.Tab(name, tabContent.value)
             state.addTab(tab)

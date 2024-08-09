@@ -10,7 +10,6 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.TextField
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.input.key.*
@@ -96,7 +95,17 @@ fun ApplicationScope.DesktopSlideShow(
     ) {
         ShowMenu()
 
-        Show(showState, slideSize, theme, showOverview, showAssistState)
+        CompositionLocalProvider(LocalShowAssistState provides showAssistState) {
+            Show(
+                showState = showState,
+                slideSize = slideSize,
+                theme = theme,
+                showOverview = showOverview,
+                modifier = Modifier
+                    .focusRequester(rememberFocusRequester()).focusTarget()
+                    .run { if (showOverview) onOverviewNavigation(showState) else onShowNavigation(showState) },
+            )
+        }
     }
 
     if (showAssistState.visible) {
@@ -107,7 +116,15 @@ fun ApplicationScope.DesktopSlideShow(
         ) {
             ShowMenu()
 
-            ShowAssist(slideSize, theme, showState, showAssistState)
+            ShowAssist(
+                slideSize = slideSize,
+                theme = theme,
+                showState = showState,
+                showAssistState = showAssistState,
+                modifier = Modifier
+                    .focusRequester(rememberFocusRequester()).focusTarget()
+                    .run { if (showOverview) onOverviewNavigation(showState) else onShowNavigation(showState) },
+            )
         }
     }
 
@@ -122,40 +139,36 @@ private fun Show(
     slideSize: DpSize,
     theme: ShowTheme,
     showOverview: Boolean,
-    showAssistState: ShowAssistState?,
+    modifier: Modifier = Modifier,
 ) {
-    CompositionLocalProvider(LocalShowAssistState provides showAssistState) {
-        ShowTheme(theme) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(MaterialTheme.colors.background)
-                    .focusRequester(rememberFocusRequester()).focusTarget()
-                    .run { if (showOverview) onOverviewNavigation(showState) else onShowNavigation(showState) }
-            ) {
-                SharedTransitionLayout {
-                    AnimatedContent(
-                        targetState = showOverview,
-                        transitionSpec = { fadeIn(tween(300)) togetherWith fadeOut(tween(300)) }
-                    ) { showOverview ->
-                        if (showOverview) {
-                            ShowOverview(
-                                showState = showState,
-                                slideSize = slideSize,
-                                sharedTransitionScope = this@SharedTransitionLayout,
-                                animatedVisibilityScope = this@AnimatedContent,
-                                modifier = Modifier.fillMaxSize(),
-                            )
-                        } else {
-                            SlideShowDisplay(
-                                showState = showState,
-                                slideSize = slideSize,
-                                modifier = Modifier.sharedElement(
-                                    state = rememberSharedContentState(key = "slide:${showState.currentIndex}"),
-                                    animatedVisibilityScope = this@AnimatedContent
-                                ).fillMaxSize(),
-                            )
-                        }
+    ShowTheme(theme) {
+        Box(
+            modifier = modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colors.background)
+        ) {
+            SharedTransitionLayout {
+                AnimatedContent(
+                    targetState = showOverview,
+                    transitionSpec = { fadeIn(tween(300)) togetherWith fadeOut(tween(300)) }
+                ) { showOverview ->
+                    if (showOverview) {
+                        ShowOverview(
+                            showState = showState,
+                            slideSize = slideSize,
+                            sharedTransitionScope = this@SharedTransitionLayout,
+                            animatedVisibilityScope = this@AnimatedContent,
+                            modifier = Modifier.fillMaxSize(),
+                        )
+                    } else {
+                        SlideShowDisplay(
+                            showState = showState,
+                            slideSize = slideSize,
+                            modifier = Modifier.sharedElement(
+                                state = rememberSharedContentState(key = "slide:current"),
+                                animatedVisibilityScope = this@AnimatedContent
+                            ).fillMaxSize(),
+                        )
                     }
                 }
             }
@@ -165,8 +178,6 @@ private fun Show(
 
 @Composable
 private fun GoToSlide(showState: ShowState, onClose: () -> Unit) {
-    val focusRequester = remember { FocusRequester() }
-
     DialogWindow(onCloseRequest = onClose, title = "Go To Slide") {
         var slide by remember { mutableStateOf("") }
         val indices = remember(showState) { showState.slides.toIndexes() }
@@ -189,11 +200,7 @@ private fun GoToSlide(showState: ShowState, onClose: () -> Unit) {
             onValueChange = { slide = it.trim() },
             isError = slide.toIntOrNull() == null,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-            modifier = Modifier.focusTarget().focusRequester(focusRequester).onKeyEvent(::onKeyEvent)
+            modifier = Modifier.focusTarget().focusRequester(rememberFocusRequester()).onKeyEvent(::onKeyEvent)
         )
-    }
-
-    LaunchedEffect(Unit) {
-        focusRequester.requestFocus()
     }
 }

@@ -11,16 +11,17 @@ import androidx.compose.foundation.lazy.*
 import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.MaterialTheme
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.key.*
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalUriHandler
-import androidx.compose.ui.platform.UriHandler
 import androidx.compose.ui.unit.*
-import dev.bnorm.librettist.show.assist.LocalShowAssistState
 import dev.bnorm.librettist.slide.SlidePreview
 
 @Composable
@@ -38,73 +39,67 @@ fun ShowOverview(
         showState.slides.toIndexes().groupBy { it.index }.entries.toList()
     }
 
-    val noopUriHandler = object : UriHandler {
-        override fun openUri(uri: String) {
+    BoxWithConstraints(modifier = modifier) {
+        val boxWithConstraintsScope = this
+        val itemSize = boxWithConstraintsScope.toItemSize(slideSize)
+        val verticalPaddingDp = (boxWithConstraintsScope.maxHeight - itemSize.height).coerceAtLeast(0.dp) / 2
+
+        val hState = remember {
+            val horizontalPaddingDp = (boxWithConstraintsScope.maxWidth - itemSize.width).coerceAtLeast(0.dp) / 2
+            val horizontalScrollOffset = with(density) { horizontalPaddingDp.toPx() }.toInt()
+            val index = indexes.binarySearch { compareValues(it.key, currentSlide.index) }
+            LazyListState(index, -horizontalScrollOffset)
         }
-    }
-    CompositionLocalProvider(LocalShowAssistState provides null, LocalUriHandler provides noopUriHandler) {
-        BoxWithConstraints(modifier = modifier) {
-            val boxWithConstraintsScope = this
-            val itemSize = boxWithConstraintsScope.toItemSize(slideSize)
-            val verticalPaddingDp = (boxWithConstraintsScope.maxHeight - itemSize.height).coerceAtLeast(0.dp) / 2
+        LaunchedEffect(currentSlide.index) {
+            val index = indexes.binarySearch { compareValues(it.key, currentSlide.index) }
+            if (index < 0) return@LaunchedEffect
+            val horizontalPaddingDp = (boxWithConstraintsScope.maxWidth - itemSize.width).coerceAtLeast(0.dp) / 2
+            val horizontalScrollOffset = with(density) { horizontalPaddingDp.toPx() }.toInt()
+            hState.animateScrollToItem(index, -horizontalScrollOffset)
+        }
 
-            val hState = remember {
-                val horizontalPaddingDp = (boxWithConstraintsScope.maxWidth - itemSize.width).coerceAtLeast(0.dp) / 2
-                val horizontalScrollOffset = with(density) { horizontalPaddingDp.toPx() }.toInt()
-                val index = indexes.binarySearch { compareValues(it.key, currentSlide.index) }
-                LazyListState(index, -horizontalScrollOffset)
-            }
-            LaunchedEffect(currentSlide.index) {
-                val index = indexes.binarySearch { compareValues(it.key, currentSlide.index) }
-                if (index < 0) return@LaunchedEffect
-                val horizontalPaddingDp = (boxWithConstraintsScope.maxWidth - itemSize.width).coerceAtLeast(0.dp) / 2
-                val horizontalScrollOffset = with(density) { horizontalPaddingDp.toPx() }.toInt()
-                hState.animateScrollToItem(index, -horizontalScrollOffset)
-            }
-
-            LazyRow(
-                state = hState,
-                modifier = Modifier.fillMaxSize()
-            ) {
-                items(indexes) { (index, states) ->
-                    Box {
-                        val vState = rememberLazyListState(if (currentSlide.index == index) currentSlide.state else 0)
-                        if (currentSlide.index == index && states.size > 1) {
-                            LaunchedEffect(currentSlide) {
-                                vState.animateScrollToItem(currentSlide.state)
-                            }
+        LazyRow(
+            state = hState,
+            modifier = Modifier.fillMaxSize()
+        ) {
+            items(indexes) { (index, states) ->
+                Box {
+                    val vState = rememberLazyListState(if (currentSlide.index == index) currentSlide.state else 0)
+                    if (currentSlide.index == index && states.size > 1) {
+                        LaunchedEffect(currentSlide) {
+                            vState.animateScrollToItem(currentSlide.state)
                         }
+                    }
 
-                        LazyColumn(
-                            state = vState,
-                            userScrollEnabled = states.size > 1,
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            contentPadding = PaddingValues(vertical = verticalPaddingDp),
-                            modifier = Modifier.fillMaxHeight()
-                        ) {
-                            items(states) { state ->
-                                OverviewSlidePreview(
-                                    showState = showState,
-                                    index = state,
-                                    slideSize = slideSize,
-                                    sharedTransitionScope = sharedTransitionScope,
-                                    animatedVisibilityScope = animatedVisibilityScope,
-                                    modifier = Modifier.height(itemSize.height),
-                                    onClick = { showState.jumpToSlide(state) },
-                                )
-                            }
+                    LazyColumn(
+                        state = vState,
+                        userScrollEnabled = states.size > 1,
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        contentPadding = PaddingValues(vertical = verticalPaddingDp),
+                        modifier = Modifier.fillMaxHeight()
+                    ) {
+                        items(states) { state ->
+                            OverviewSlidePreview(
+                                showState = showState,
+                                index = state,
+                                slideSize = slideSize,
+                                sharedTransitionScope = sharedTransitionScope,
+                                animatedVisibilityScope = animatedVisibilityScope,
+                                modifier = Modifier.height(itemSize.height),
+                                onClick = { showState.jumpToSlide(state) },
+                            )
                         }
                     }
                 }
             }
-
-            HorizontalScrollbar(
-                adapter = rememberScrollbarAdapter(hState),
-                modifier = Modifier.fillMaxWidth()
-                    .align(Alignment.BottomCenter)
-                    .padding(bottom = 8.dp)
-            )
         }
+
+        HorizontalScrollbar(
+            adapter = rememberScrollbarAdapter(hState),
+            modifier = Modifier.fillMaxWidth()
+                .align(Alignment.BottomCenter)
+                .padding(bottom = 8.dp)
+        )
     }
 }
 
@@ -118,7 +113,8 @@ private fun OverviewSlidePreview(
     modifier: Modifier = Modifier,
     onClick: () -> Unit,
 ) {
-    val alpha by animateFloatAsState(if (showState.currentIndex == index) 1f else 0f)
+    val isCurrentSlide = showState.currentIndex == index
+    val alpha by animateFloatAsState(if (isCurrentSlide) 1f else 0f)
     Box(
         modifier
             .padding(4.dp)
@@ -127,14 +123,19 @@ private fun OverviewSlidePreview(
             .aspectRatio(slideSize.width / slideSize.height)
     ) {
         with(sharedTransitionScope) {
+            val sharedElementModifier = when (isCurrentSlide) {
+                false -> Modifier
+                true -> Modifier.sharedElement(
+                    state = rememberSharedContentState(key = "slide:current"),
+                    animatedVisibilityScope = animatedVisibilityScope,
+                )
+            }
+
             SlidePreview(
                 slide = remember(showState, index) { showState.slides[index.index] },
                 state = index.state,
-                size = slideSize,
-                modifier = Modifier.sharedElement(
-                    state = rememberSharedContentState(key = "slide:$index"),
-                    animatedVisibilityScope = animatedVisibilityScope,
-                ).matchParentSize()
+                slideSize = slideSize,
+                modifier = sharedElementModifier.matchParentSize()
             )
         }
 
@@ -166,5 +167,47 @@ private fun BoxWithConstraintsScope.toItemSize(
         DpSize(height = height, width = height * aspectRatio)
     } else {
         DpSize(height = width / aspectRatio, width = width)
+    }
+}
+
+fun Modifier.onOverviewNavigation(showState: ShowState): Modifier {
+    return onPreviewKeyEvent { event ->
+        val currentSlide = showState.currentIndex
+        val indexes = showState.slides.toIndexes().groupBy { it.index }.entries.toList()
+
+        if (event.type == KeyEventType.KeyDown) {
+            val index = when (event.key) {
+                Key.DirectionRight -> {
+                    val i = indexes.binarySearch { compareValues(it.key, currentSlide.index) }
+                    val next = indexes[(i + 1).coerceIn(indexes.indices)].key
+                    Slide.Index(next, 0)
+                }
+
+                Key.DirectionLeft -> {
+                    val i = indexes.binarySearch { compareValues(it.key, currentSlide.index) }
+                    val next = indexes[(i - 1).coerceIn(indexes.indices)].key
+                    Slide.Index(next, 0)
+                }
+
+                Key.DirectionDown -> {
+                    val state = currentSlide.state
+                    val next = (state + 1)
+                    Slide.Index(currentSlide.index, next)
+                }
+
+                Key.DirectionUp -> {
+                    val state = currentSlide.state
+                    val next = (state - 1)
+                    Slide.Index(currentSlide.index, next)
+                }
+
+                else -> return@onPreviewKeyEvent false
+            }
+
+            showState.jumpToSlide(index)
+            return@onPreviewKeyEvent true
+        }
+
+        return@onPreviewKeyEvent false
     }
 }
