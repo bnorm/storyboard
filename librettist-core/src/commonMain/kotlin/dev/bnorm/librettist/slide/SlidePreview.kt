@@ -12,10 +12,7 @@ import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.UriHandler
 import androidx.compose.ui.unit.DpSize
 import dev.bnorm.librettist.ScaledBox
-import dev.bnorm.librettist.show.Slide
-import dev.bnorm.librettist.show.SlideContent
-import dev.bnorm.librettist.show.SlideScope
-import dev.bnorm.librettist.show.SlideState
+import dev.bnorm.librettist.show.*
 import dev.bnorm.librettist.show.assist.LocalShowAssistState
 
 @Composable
@@ -51,6 +48,7 @@ fun <T> SlidePreview(
                         key(state) {
                             val scope = SlideScope(
                                 SlideState.Index(state),
+                                AdvanceDirection.Forward,
                                 this@AnimatedContent,
                                 this@SharedTransitionLayout
                             )

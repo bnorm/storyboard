@@ -176,7 +176,8 @@ class ShowState(val slides: List<Slide>) {
                 key(node.index) {
                     val transition = rememberTransition(node.currentNode).createChildTransition { it.state }
                     val content = node.slide.content
-                    SlideScope(transition, this@AnimatedContent, this@SharedTransitionLayout).content()
+                    val direction = node.direction
+                    SlideScope(transition, direction, this@AnimatedContent, this@SharedTransitionLayout).content()
                 }
             }
         }

@@ -3,6 +3,7 @@ package dev.bnorm.librettist.show
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.movableContentOf
 
 fun buildSlides(builder: ShowBuilder.() -> Unit): List<Slide> {
     val slides = buildList {
@@ -14,7 +15,8 @@ fun buildSlides(builder: ShowBuilder.() -> Unit): List<Slide> {
                 content: SlideContent<SlideState<Int>>,
             ) {
                 require(states >= 0)
-                add(Slide(states, enterTransition, exitTransition, content))
+                val movable = movableContentOf<SlideScope<SlideState<Int>>> { content(it) }
+                add(Slide(states, enterTransition, exitTransition, movable))
             }
         }.builder()
     }
