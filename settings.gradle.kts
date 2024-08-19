@@ -23,7 +23,8 @@ pluginManagement {
     }
 }
 
-rootProject.name = "librettist"
+rootProject.name = "storyboard"
 
-include(":librettist-core")
-include(":librettist-text")
+include(":storyboard-core")
+include(":storyboard-easel")
+include(":storyboard-text")

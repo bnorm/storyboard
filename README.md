@@ -1,12 +1,10 @@
-# Librettist
+# Storyboard
 
-[Compose Multiplatform](https://github.com/JetBrains/compose-multiplatform) library for writing presentation slide
-shows.
+Library for building presentations using [Compose Multiplatform][compose].
 
-> ## li·bret·tist
->
-> /ləˈbredəst/<br>
-> _noun_
+> ## sto·ry·board
 > 
-> a person who writes the text of an opera or other long vocal work.<br>
-> _"the opera's librettists borrowed freely from the original play"_
+> A sequence of drawings, typically with some directions and dialogue, 
+> representing the shots planned for a movie or television production.
+
+[compose]: https://www.jetbrains.com/lp/compose-multiplatform
