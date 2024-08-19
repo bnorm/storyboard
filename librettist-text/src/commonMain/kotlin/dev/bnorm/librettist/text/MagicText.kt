@@ -12,9 +12,11 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.AnnotatedString
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.collectLatest
 
 @Composable
 fun MagicText(
@@ -31,18 +33,19 @@ fun MagicText(
     val textFlow = remember { MutableStateFlow(text) }
     textFlow.value = text
 
-    val initialValue = remember { listOf<SharedText?>(SharedText(text)) } // null == newline
+    val initialValue = remember { text.toLines() } // null == newline
     val transitionState = remember { SeekableTransitionState(initialValue) }
     LaunchedEffect(Unit) {
-        var previous: AnnotatedString? = null
-        textFlow.collect { next ->
-            previous?.also { previous ->
+        var current: AnnotatedString? = null
+        textFlow.collectLatest { next ->
+            val previous = current
+            current = next
+            if (previous != null) {
                 val result = diff(previous, next)
                 checkNoRepeatedKeys(result)
                 transitionState.snapTo(result.toLines(after = false)) // Re-render the previous text, split up based on diff with the next text.
                 transitionState.animateTo(result.toLines(after = true)) // Render the next text, split up based on diff with the previous text.
             }
-            previous = next
         }
     }
 
@@ -101,10 +104,10 @@ private fun MagicTextInternal(
                 }
             }
 
-            Column(modifier) {
+            Column(modifier, horizontalAlignment = Alignment.Start) {
                 val iterator = parts.iterator()
                 while (iterator.hasNext()) {
-                    Row {
+                    Row(verticalAlignment = Alignment.Bottom) {
                         while (iterator.hasNext()) {
                             val sharedText = iterator.next() ?: break
                             Text(sharedText.text, sharedText.toModifier())
@@ -134,6 +137,15 @@ private fun List<MagicTextDiff>.toLines(after: Boolean): List<SharedText?> {
                 if (i > 0) add(null)
                 add(SharedText(split, part.before != part.after, part.key?.let { "$it-${subKey++}" }))
             }
+        }
+    }
+}
+
+private fun AnnotatedString.toLines(): List<SharedText?> {
+    return buildList {
+        for ((i, split) in split('\n').withIndex()) {
+            if (i > 0) add(null) // null == newline
+            add(SharedText(split))
         }
     }
 }
