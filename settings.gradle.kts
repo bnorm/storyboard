@@ -13,7 +13,7 @@ pluginManagement {
 
         kotlin("multiplatform") version kotlinVersion
         kotlin("plugin.compose") version kotlinVersion
-        id("org.jetbrains.compose") version "1.7.0-alpha01"
+        id("org.jetbrains.compose") version "1.7.0-dev1756"
     }
 
     dependencyResolutionManagement {

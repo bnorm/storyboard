@@ -16,6 +16,7 @@ import dev.bnorm.storyboard.easel.notes.StoryboardNotes
 import dev.bnorm.storyboard.easel.notes.StoryboardNotesWindow
 
 fun DesktopStoryboard(
+    title: String,
     storyboard: Storyboard,
     notes: StoryboardNotes = StoryboardNotes(),
     windowState: WindowState = WindowState(),
@@ -44,7 +45,7 @@ fun DesktopStoryboard(
     application {
         MaterialTheme(colors = darkColors()) {
             CompositionLocalProvider(LocalStoryboardNotes provides notes) {
-                StoryboardWindow(storyboard, "Sample Storyboard", { menuBar() }, windowState)
+                StoryboardWindow(storyboard, title, { menuBar() }, windowState)
             }
         }
 
