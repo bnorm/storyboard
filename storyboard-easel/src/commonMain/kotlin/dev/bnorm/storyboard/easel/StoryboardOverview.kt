@@ -9,13 +9,12 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.*
@@ -33,38 +32,46 @@ import kotlinx.collections.immutable.toImmutableList
 @Composable
 fun StoryboardOverview(
     storyboard: Storyboard,
-    onExitOverview: () -> Unit = {},
+    onExitOverview: (Storyboard.Frame) -> Unit = {},
     sharedTransitionScope: SharedTransitionScope,
     animatedVisibilityScope: AnimatedContentScope,
     modifier: Modifier = Modifier,
 ) {
-    val density = LocalDensity.current
-
-    val currentFrame = storyboard.currentFrame
     val overview = remember(storyboard) { StoryboardOverview.of(storyboard) }
+    StoryboardOverview(
+        overview = overview,
+        onExitOverview = onExitOverview,
+        sharedTransitionScope = sharedTransitionScope,
+        animatedVisibilityScope = animatedVisibilityScope,
+        modifier = modifier,
+    )
+}
 
-    BoxWithConstraints(modifier = modifier.onOverviewNavigation(storyboard, overview)) {
+@Composable
+fun StoryboardOverview(
+    overview: StoryboardOverview,
+    onExitOverview: (Storyboard.Frame) -> Unit = {},
+    sharedTransitionScope: SharedTransitionScope,
+    animatedVisibilityScope: AnimatedContentScope,
+    modifier: Modifier = Modifier,
+) {
+    BoxWithConstraints(modifier = modifier.onOverviewNavigation(overview, onExitOverview)) {
         val boxWithConstraintsScope = this
-        val itemSize = boxWithConstraintsScope.toItemSize(storyboard.size)
+        val itemSize = boxWithConstraintsScope.toItemSize(overview.storyboard.size)
         val verticalPaddingDp = (boxWithConstraintsScope.maxHeight - itemSize.height).coerceAtLeast(0.dp) / 2
         val horizontalPaddingDp = (boxWithConstraintsScope.maxWidth - itemSize.width).coerceAtLeast(0.dp) / 2
-        val horizontalScrollOffset = with(density) { horizontalPaddingDp.toPx() }
+        val horizontalScrollOffset = with(LocalDensity.current) { horizontalPaddingDp.toPx() }
 
-        val hIndex = remember(currentFrame.slideIndex) {
-            overview.columns.binarySearch { compareValues(it.index, currentFrame.slideIndex) }.coerceAtLeast(0)
-        }
+        val hIndex = overview.currentColumnIndex
         val hState = rememberLazyListState(hIndex, -horizontalScrollOffset.toInt())
-        LaunchedEffect(currentFrame.slideIndex) { hState.animateScrollToItem(hIndex, -horizontalScrollOffset.toInt()) }
+        LaunchedEffect(hIndex) { hState.animateScrollToItem(hIndex, -horizontalScrollOffset.toInt()) }
 
         LazyRow(
             state = hState,
             modifier = Modifier.fillMaxSize()
         ) {
-            items(overview.columns) { column ->
-                val vIndex = rememberSaveable(column.slide.currentIndex) {
-                    column.items.binarySearch { compareValues(it.frame.stateIndex, column.slide.currentIndex) }
-                        .coerceAtLeast(0)
-                }
+            itemsIndexed(overview.columns) { columnIndex, column ->
+                val vIndex = column.currentItemIndex
                 val vState = rememberLazyListState(vIndex)
                 LaunchedEffect(vIndex) { vState.animateScrollToItem(vIndex) }
 
@@ -75,8 +82,9 @@ fun StoryboardOverview(
                     contentPadding = PaddingValues(vertical = verticalPaddingDp),
                     modifier = Modifier.fillMaxHeight()
                 ) {
-                    items(column.items) { item ->
-                        val isCurrentFrame = currentFrame == item.frame
+                    itemsIndexed(column.items) { itemIndex, item ->
+                        val isCurrentFrame =
+                            overview.currentColumnIndex == columnIndex && column.currentItemIndex == itemIndex
                         val alpha by animateFloatAsState(if (isCurrentFrame) 1f else 0f)
                         Box(
                             Modifier.height(itemSize.height)
@@ -87,7 +95,7 @@ fun StoryboardOverview(
                                     RoundedCornerShape(6.dp)
                                 )
                                 .padding(8.dp)
-                                .aspectRatio(storyboard.size.width / storyboard.size.height)
+                                .aspectRatio(overview.storyboard.size.width / overview.storyboard.size.height)
                         ) {
                             val sharedElementModifier = when (isCurrentFrame) {
                                 false -> Modifier
@@ -102,8 +110,8 @@ fun StoryboardOverview(
                             PreviewSlide(
                                 slide = column.slide,
                                 index = item.frame.stateIndex,
-                                size = storyboard.size,
-                                decorator = storyboard.decorator,
+                                size = overview.storyboard.size,
+                                decorator = overview.storyboard.decorator,
                                 modifier = sharedElementModifier
                             )
 
@@ -115,8 +123,8 @@ fun StoryboardOverview(
                                     .clickable(
                                         interactionSource = null, indication = null, // disable ripple effect
                                         onClick = {
-                                            if (isCurrentFrame) onExitOverview()
-                                            else storyboard.jumpTo(item.frame.slideIndex, item.frame.stateIndex)
+                                            if (isCurrentFrame) onExitOverview(item.frame)
+                                            else overview.jumpTo(columnIndex, itemIndex)
                                         }
                                     )
                             )
@@ -135,15 +143,36 @@ fun StoryboardOverview(
     }
 }
 
-private class StoryboardOverview private constructor(
+class StoryboardOverview private constructor(
+    val storyboard: Storyboard,
     val columns: ImmutableList<Column>,
+    currentColumnIndex: Int,
 ) {
+    var currentColumnIndex by mutableStateOf(currentColumnIndex)
+    val currentItem: Item
+        get() = columns[currentColumnIndex].let { it.items[it.currentItemIndex] }
+
+    fun jumpTo(columnIndex: Int, itemIndex: Int) {
+        val coercedColumnIndex = columnIndex.coerceIn(columns.indices)
+        currentColumnIndex = coercedColumnIndex
+        val column = columns[coercedColumnIndex]
+        column.currentItemIndex = itemIndex.coerceIn(column.items.indices)
+    }
+
+    fun jumpTo(columnIndex: Int) {
+        val coercedColumnIndex = columnIndex.coerceIn(columns.indices)
+        currentColumnIndex = coercedColumnIndex
+    }
+
     @Immutable
     class Column(
         val slide: Slide<*>,
         val index: Int,
         val items: ImmutableList<Item>,
-    )
+        currentItemIndex: Int,
+    ) {
+        var currentItemIndex by mutableStateOf(currentItemIndex)
+    }
 
     @Immutable
     class Item(
@@ -152,24 +181,41 @@ private class StoryboardOverview private constructor(
 
     companion object {
         fun of(storyboard: Storyboard): StoryboardOverview {
+            val currentFrame = storyboard.currentFrame
+
+            val columns = storyboard.slides
+                .mapIndexed { slideIndex, slide ->
+                    val items = slide.states
+                        .mapIndexedNotNull { stateIndex, _ ->
+                            Item(
+                                frame = Storyboard.Frame(slideIndex, stateIndex)
+                            )
+                        }
+                        .toImmutableList()
+
+                    Column(
+                        slide = slide,
+                        index = slideIndex,
+                        items = items,
+                        currentItemIndex = when {
+                            currentFrame.slideIndex > slideIndex -> items.size - 1
+                            currentFrame.slideIndex < slideIndex -> 0
+                            else -> items.binarySearch { compareValues(it.frame.stateIndex, currentFrame.stateIndex) }
+                                .coerceAtLeast(0)
+                        },
+                    )
+                }
+                .filter { it.items.isNotEmpty() }
+                .toImmutableList()
+
+            val columnIndex =
+                columns.binarySearch { compareValues(it.index, currentFrame.slideIndex) }
+                    .coerceAtLeast(0)
+
             return StoryboardOverview(
-                columns = storyboard.slides
-                    .mapIndexed { slideIndex, slide ->
-                        Column(
-                            slide = slide,
-                            index = slideIndex,
-                            items = slide.states
-                                .mapIndexedNotNull { stateIndex, state ->
-                                    if (state.transitional) null
-                                    else Item(
-                                        frame = Storyboard.Frame(slideIndex, stateIndex)
-                                    )
-                                }
-                                .toImmutableList(),
-                        )
-                    }
-                    .filter { it.items.isNotEmpty() }
-                    .toImmutableList()
+                storyboard = storyboard,
+                columns = columns,
+                currentColumnIndex = columnIndex,
             )
         }
     }
@@ -195,33 +241,43 @@ private fun BoxWithConstraintsScope.toItemSize(
 }
 
 @Composable
-private fun Modifier.onOverviewNavigation(storyboard: Storyboard, overview: StoryboardOverview): Modifier {
+private fun Modifier.onOverviewNavigation(
+    overview: StoryboardOverview,
+    onExitOverview: (Storyboard.Frame) -> Unit,
+): Modifier {
     // TODO handle transitional slides
     fun handle(event: KeyEvent): Boolean {
-        val currentFrame = storyboard.currentFrame
         if (event.type == KeyEventType.KeyDown) {
-            return when (event.key) {
+            val currentColumnIndex = overview.currentColumnIndex
+            when (event.key) {
+                Key.Enter -> {
+                    onExitOverview(overview.currentItem.frame)
+                    return true
+                }
+
                 Key.DirectionRight -> {
-                    val columnIndex = overview.columns.binarySearch { compareValues(it.index, currentFrame.slideIndex) }
-                    val column = overview.columns[(columnIndex + 1).coerceIn(overview.columns.indices)]
-                    storyboard.jumpTo(column.index)
+                    overview.jumpTo(currentColumnIndex + 1)
+                    return true
                 }
 
                 Key.DirectionLeft -> {
-                    val columnIndex = overview.columns.binarySearch { compareValues(it.index, currentFrame.slideIndex) }
-                    val column = overview.columns[(columnIndex - 1).coerceIn(overview.columns.indices)]
-                    storyboard.jumpTo(column.index)
+                    overview.jumpTo(currentColumnIndex - 1)
+                    return true
                 }
 
                 Key.DirectionDown -> {
-                    storyboard.jumpTo(currentFrame.slideIndex, currentFrame.stateIndex + 1)
+                    val column = overview.columns[currentColumnIndex]
+                    overview.jumpTo(currentColumnIndex, column.currentItemIndex + 1)
+                    return true
                 }
 
                 Key.DirectionUp -> {
-                    storyboard.jumpTo(currentFrame.slideIndex, currentFrame.stateIndex - 1)
+                    val column = overview.columns[currentColumnIndex]
+                    overview.jumpTo(currentColumnIndex, column.currentItemIndex - 1)
+                    return true
                 }
 
-                else -> false
+                else -> return false
             }
         }
 

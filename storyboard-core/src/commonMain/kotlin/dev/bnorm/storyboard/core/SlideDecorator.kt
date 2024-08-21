@@ -26,7 +26,7 @@ private class DecoratedStoryboardBuilder(
     private val decorator: SlideDecorator,
 ) : StoryboardBuilder {
     override fun <T> slide(
-        states: List<Slide.State<T>>,
+        states: List<T>,
         enterTransition: (AdvanceDirection) -> EnterTransition,
         exitTransition: (AdvanceDirection) -> ExitTransition,
         content: SlideContent<T>,

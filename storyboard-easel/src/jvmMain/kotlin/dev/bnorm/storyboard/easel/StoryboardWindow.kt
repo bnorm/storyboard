@@ -13,31 +13,16 @@ import dev.bnorm.storyboard.core.Storyboard
 fun ApplicationScope.StoryboardWindow(
     storyboard: Storyboard,
     title: String = "Untitled",
+    menuBar: (@Composable MenuBarScope.() -> Unit)? = null,
     windowState: WindowState = rememberWindowState(),
 ) {
-    fun handleKeyEvent(event: KeyEvent): Boolean {
-        if (event.type == KeyEventType.KeyUp) {
-            when (event.key) {
-                Key.F -> if (event.isCtrlPressed && event.isMetaPressed) {
-                    windowState.placement = when (windowState.placement) {
-                        WindowPlacement.Floating -> WindowPlacement.Fullscreen
-                        WindowPlacement.Maximized -> WindowPlacement.Fullscreen
-                        WindowPlacement.Fullscreen -> WindowPlacement.Floating // TODO go back to float or max?
-                    }
-                    return true
-                }
-            }
-        }
-
-        return false
-    }
-
     Window(
         onCloseRequest = ::exitApplication,
         state = windowState,
         title = title,
-        onPreviewKeyEvent = ::handleKeyEvent,
     ) {
+        if (menuBar != null) MenuBar(menuBar)
+
         Storyboard(
             storyboard = storyboard,
             modifier = Modifier.fillMaxSize()

@@ -2,9 +2,12 @@
 
 package dev.bnorm.storyboard.easel
 
-import androidx.compose.animation.*
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.Transition
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import dev.bnorm.storyboard.core.AdvanceDirection
@@ -17,12 +20,11 @@ fun Transition<*>.isIdle(): Boolean =
     targetState == currentState && !isRunning
 
 @Composable
-inline fun AnimatedVisibilityScope.LaunchedIdleEffect(
+inline fun SlideScope<*>.LaunchedIdleEffect(
     vararg keys: Any?,
     crossinline block: suspend CoroutineScope.() -> Unit,
 ) {
-
-    val idle = transition.isIdle()
+    val idle = animatedVisibilityScope.transition.isIdle()
     LaunchedEffect(idle, *keys) {
         if (!idle) return@LaunchedEffect
         block()

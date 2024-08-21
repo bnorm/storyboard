@@ -1,6 +1,7 @@
-package dev.bnorm.librettist.show.assist
+package dev.bnorm.storyboard.easel.notes
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
@@ -9,9 +10,12 @@ import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.PointerIcon
+import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import dev.bnorm.storyboard.core.AdvanceDirection
 import dev.bnorm.storyboard.core.Storyboard
 import dev.bnorm.storyboard.ui.PreviewSlide
 import kotlinx.coroutines.delay
@@ -20,13 +24,13 @@ import kotlin.time.TimeMark
 import kotlin.time.TimeSource
 
 @Composable
-fun ShowAssist(storyboard: Storyboard, showAssistState: ShowAssistState, modifier: Modifier = Modifier) {
-    Column(modifier) {
+fun StoryboardNotes(storyboard: Storyboard, notes: StoryboardNotes, modifier: Modifier = Modifier) {
+    Column(modifier.padding(16.dp)) {
         Row(horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth()) {
-            PresentationClock()
+            StoryboardClock()
         }
 
-        Row(modifier = Modifier.fillMaxWidth()) {
+        Row(modifier = Modifier.fillMaxWidth().padding(top = 16.dp)) {
             val frames = remember(storyboard) { storyboard.frames }
             Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
                 Text("Current Slide")
@@ -35,12 +39,21 @@ fun ShowAssist(storyboard: Storyboard, showAssistState: ShowAssistState, modifie
             Spacer(Modifier.width(16.dp))
             Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
                 Text("Next Slide")
-                val frame = run {
-                    val nextIndex = frames.binarySearch(storyboard.currentFrame) + 1
+                val nextFrame = run {
+                    val searchIndex = frames.binarySearch(storyboard.currentFrame)
+                    val currentIndex = when {
+                        searchIndex >= 0 -> searchIndex
+                        else -> when (storyboard.direction) {
+                            AdvanceDirection.Forward -> -(searchIndex - 1)
+                            AdvanceDirection.Backward -> -searchIndex
+                        }
+
+                    }
+                    val nextIndex = currentIndex + 1
                     if (nextIndex in frames.indices) frames[nextIndex] else null
                 }
-                if (frame != null) {
-                    PreviewSlide(frame, storyboard)
+                if (nextFrame != null) {
+                    PreviewSlide(nextFrame, storyboard)
                 }
             }
         }
@@ -49,14 +62,14 @@ fun ShowAssist(storyboard: Storyboard, showAssistState: ShowAssistState, modifie
         //  - we would really like to have a preview of the next **advancement**
         //  - can we render the show like an export to create the previews without animations?
 
-        if (showAssistState.tabs.isNotEmpty()) {
+        if (notes.tabs.isNotEmpty()) {
             var state by remember { mutableStateOf(0) }
             Scaffold(
                 topBar = {
                     TabRow(selectedTabIndex = state) {
-                        showAssistState.tabs.forEachIndexed { index, tab ->
+                        notes.tabs.forEachIndexed { index, tab ->
                             Tab(
-                                text = { Text(tab.name) },
+                                text = { Text(tab.title) },
                                 selected = state == index,
                                 onClick = { state = index }
                             )
@@ -64,7 +77,7 @@ fun ShowAssist(storyboard: Storyboard, showAssistState: ShowAssistState, modifie
                     }
                 },
             ) {
-                val tab = showAssistState.tabs[state]
+                val tab = notes.tabs[state]
                 tab.content()
             }
         }
@@ -77,19 +90,33 @@ private fun PreviewSlide(
     storyboard: Storyboard,
     modifier: Modifier = Modifier,
 ) {
-    PreviewSlide(
-        slide = storyboard.slides[frame.slideIndex],
-        index = frame.stateIndex,
-        size = storyboard.size,
-        decorator = storyboard.decorator,
+    Box(
         modifier = modifier
             .fillMaxWidth()
             .aspectRatio(storyboard.size.width / storyboard.size.height),
-    )
+    ) {
+        PreviewSlide(
+            slide = storyboard.slides[frame.slideIndex],
+            index = frame.stateIndex,
+            size = storyboard.size,
+            decorator = storyboard.decorator,
+        )
+
+        // Cover the slide content with a clickable modifier
+        // to disable interaction while in overview.
+        Box(
+            modifier = Modifier.fillMaxSize()
+                .pointerHoverIcon(PointerIcon.Hand)
+                .clickable(
+                    interactionSource = null, indication = null, // disable ripple effect
+                    onClick = { storyboard.jumpTo(frame) }
+                )
+        )
+    }
 }
 
 @Composable
-fun PresentationClock(timeSource: TimeSource = TimeSource.Monotonic) {
+fun StoryboardClock(timeSource: TimeSource = TimeSource.Monotonic) {
     var start by remember { mutableStateOf<TimeMark?>(null) }
     var display by remember { mutableStateOf("00h 00m 00s") }
 

@@ -15,7 +15,9 @@ class SlideSection(
     val title: @Composable () -> Unit,
 ) {
     companion object {
-        val Empty = SlideSection {}
+        val Empty = SlideSection(
+            title = {},
+        )
 
         val title: @Composable () -> Unit
             @Composable

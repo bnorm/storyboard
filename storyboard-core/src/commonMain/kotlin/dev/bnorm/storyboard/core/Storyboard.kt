@@ -2,14 +2,17 @@ package dev.bnorm.storyboard.core
 
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
-import androidx.compose.animation.core.MutableTransitionState
+import androidx.compose.animation.core.SeekableTransitionState
 import androidx.compose.runtime.*
-import androidx.compose.runtime.snapshots.Snapshot.Companion.withMutableSnapshot
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import dev.bnorm.storyboard.core.internal.SlideNode
+import dev.bnorm.storyboard.core.internal.SlideNode.Companion.toNodes
 import kotlinx.collections.immutable.ImmutableList
-import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.collectLatest
 
 @Stable
 class Storyboard private constructor(
@@ -37,9 +40,9 @@ class Storyboard private constructor(
             decorator: SlideDecorator = SlideDecorator.None,
             block: StoryboardBuilder.() -> Unit,
         ): Storyboard {
-            val slides = persistentListOf<LinkedSlide<*>>().builder()
-            StoryboardBuilderImpl(slides).block()
-            return Storyboard(slides.build(), size, decorator)
+            val builder = StoryboardBuilderImpl()
+            builder.block()
+            return Storyboard(builder.build().toImmutableList(), size, decorator)
         }
     }
 
@@ -47,63 +50,92 @@ class Storyboard private constructor(
         List(slide.states.size) { stateIndex -> Frame(slideIndex, stateIndex) }
     }.toImmutableList()
 
-    internal var node by mutableStateOf(MutableTransitionState(slides.first() as LinkedSlide<*>))
+    private val nodes = slides.toNodes()
+    internal var node by mutableStateOf(SeekableTransitionState(nodes.first()))
         private set
 
     var direction by mutableStateOf(AdvanceDirection.Forward)
         private set
 
-    val currentFrame: Frame get() = node.currentState.let { Frame(it.slideIndex, it.currentIndex) }
+    val currentFrame: Frame
+        get() = node.currentState.let { it.frames[it.stateIndex.currentState] }
 
-    fun advance(direction: AdvanceDirection, jump: Boolean = false): Boolean = withMutableSnapshot {
+    fun advance(direction: AdvanceDirection, jump: Boolean = false): Boolean =
+        events.tryEmit(Event.Advance(direction, jump))
+
+    fun jumpTo(frame: Frame): Boolean {
+        if (frame.slideIndex !in nodes.indices) return false
+
+        val newNode = nodes[frame.slideIndex]
+        if (!newNode.jumpTo(frame.stateIndex)) return false
+
+        val targetState = node.targetState
+        this.direction = when (newNode == targetState) {
+            true -> (frame.stateIndex > targetState.stateIndex.currentState).toDirection()
+            false -> (newNode.slideIndex > targetState.slideIndex).toDirection()
+        }
+
+        node = SeekableTransitionState(newNode)
+        return true
+    }
+
+    private sealed class Event {
+        data class Advance(val direction: AdvanceDirection, val jump: Boolean) : Event()
+    }
+
+    internal suspend fun handleEvents() {
+        events.collectLatest { event ->
+            when (event) {
+                is Event.Advance -> eventAdvance(event.direction, event.jump)
+            }
+        }
+    }
+
+    private val events = MutableSharedFlow<Event>(
+        extraBufferCapacity = 1,
+        onBufferOverflow = BufferOverflow.DROP_OLDEST,
+    )
+
+    private suspend fun eventAdvance(direction: AdvanceDirection, jump: Boolean) {
         this.direction = direction
+        var shouldJump = jump
 
-        if (node.targetState.advance(direction)) {
-            if (jump || !node.isIdle) node = MutableTransitionState(node.targetState)
-            return@withMutableSnapshot true // Make sure to apply changes!
+        val currentState = node.currentState
+        val targetState = node.targetState
+        if (currentState != targetState) {
+            // Current and target nodes are different:
+            // 1. Pick the current node based on the advancement direction.
+            // 2. Switch to a jump to skip the current transition.
+            val newNode = when (direction) {
+                AdvanceDirection.Forward -> minOf(currentState, targetState).next() ?: return
+                AdvanceDirection.Backward -> maxOf(currentState, targetState).previous() ?: return
+            }
+            node.snapTo(newNode)
+            shouldJump = true
         }
 
-        val newNode = when (direction) {
-            AdvanceDirection.Forward -> node.targetState.nextSlide() ?: return false // Does not apply changes!
-            AdvanceDirection.Backward -> node.targetState.prevSlide() ?: return false // Does not apply changes!
+        while (true) {
+            // Advance the current node to the next state.
+            val currentNode = node.currentState
+            when (currentNode.advance(direction, shouldJump)) {
+                // Advancement is complete.
+                SlideNode.AdvanceResult.Complete -> return
+
+                // Advancement requires node transition as well.
+                SlideNode.AdvanceResult.Jumped -> shouldJump = true
+                SlideNode.AdvanceResult.Incomplete -> {}
+            }
+
+            // Advance the storyboard to the next node.
+            val newNode = when (direction) {
+                AdvanceDirection.Forward -> currentNode.next() ?: return
+                AdvanceDirection.Backward -> currentNode.previous() ?: return
+            }
+            when (shouldJump) {
+                true -> node.snapTo(newNode)
+                false -> node.animateTo(newNode)
+            }
         }
-
-        when (jump) {
-            true -> node = MutableTransitionState(newNode)
-            false -> node.targetState = newNode
-        }
-        return@withMutableSnapshot true // Make sure to apply changes!
-    }
-
-    // TODO deprecate and remove?
-    fun jumpTo(slide: Slide<*>, index: Int = slide.currentIndex): Boolean = withMutableSnapshot {
-        val newNode = slide as LinkedSlide<*>
-        if (index !in newNode.states.indices) return false // Does not apply changes!
-
-        this.direction = when (newNode == node.targetState) {
-            true -> (index > node.targetState.currentIndex).toDirection()
-            false -> (newNode > node.targetState).toDirection()
-        }
-
-        newNode.jumpTo(index)
-        node = MutableTransitionState(newNode)
-        return@withMutableSnapshot true // Make sure to apply changes!
-    }
-
-    fun jumpTo(slideIndex: Int, stateIndex: Int? = null): Boolean = withMutableSnapshot {
-        if (slideIndex !in slides.indices) return false // Does not apply changes!
-        val newNode = slides[slideIndex] as LinkedSlide<*>
-        val stateIndex = stateIndex ?: newNode.currentIndex
-        if (stateIndex !in newNode.states.indices) return false // Does not apply changes!
-
-        this.direction = when (newNode == node.targetState) {
-            true -> (stateIndex > node.targetState.currentIndex).toDirection()
-            false -> (newNode > node.targetState).toDirection()
-        }
-
-        newNode.jumpTo(stateIndex)
-        node = MutableTransitionState(newNode)
-        return@withMutableSnapshot true // Make sure to apply changes!
     }
 
     private fun Boolean.toDirection(): AdvanceDirection = when (this) {
@@ -112,72 +144,26 @@ class Storyboard private constructor(
     }
 }
 
-@Stable
-internal class LinkedSlide<T>(
-    internal val slideIndex: Int,
-    override val states: ImmutableList<Slide.State<T>>,
-    override val enterTransition: (AdvanceDirection) -> EnterTransition,
-    override val exitTransition: (AdvanceDirection) -> ExitTransition,
-    override val content: SlideContent<T>,
-) : Slide<T> {
-    internal var next: LinkedSlide<*>? = null
-    internal var prev: LinkedSlide<*>? = null
+private class StoryboardBuilderImpl : StoryboardBuilder {
+    private val slides = mutableListOf<Slide<*>>()
 
-    override var currentIndex by mutableStateOf(0)
-        private set
-
-    fun advance(direction: AdvanceDirection): Boolean {
-        val newIndex = when (direction) {
-            AdvanceDirection.Forward -> currentIndex + 1
-            AdvanceDirection.Backward -> currentIndex - 1
-        }
-        if (newIndex !in states.indices) return false
-        currentIndex = newIndex
-        return true
-    }
-
-    fun jumpTo(index: Int) {
-        require(index in states.indices)
-        this.currentIndex = index
-    }
-
-    fun nextSlide(): LinkedSlide<*>? {
-        return next?.also { it.jumpTo(0) }
-    }
-
-    fun prevSlide(): LinkedSlide<*>? {
-        return prev?.also { it.jumpTo(it.states.lastIndex) }
-    }
-
-    override fun compareTo(other: Slide<*>): Int {
-        return compareValues(slideIndex, (other as LinkedSlide<*>).slideIndex)
-    }
-}
-
-private class StoryboardBuilderImpl(
-    private val slides: MutableList<LinkedSlide<*>>,
-) : StoryboardBuilder {
     override fun <T> slide(
-        states: List<Slide.State<T>>,
+        states: List<T>,
         enterTransition: (AdvanceDirection) -> EnterTransition,
         exitTransition: (AdvanceDirection) -> ExitTransition,
         content: SlideContent<T>,
     ): Slide<T> {
-        val slide = LinkedSlide(
-            slideIndex = slides.size,
+        val slide = Slide(
             states = states.toImmutableList(),
             enterTransition = enterTransition,
             exitTransition = exitTransition,
             content = content,
         )
-        val prev = slides.lastOrNull()
-        if (prev != null) {
-            slide.prev = prev
-            prev.next = slide
-        }
         slides.add(slide)
         return slide
     }
-}
 
-// ---- TODO put this somewhere else
+    fun build(): List<Slide<*>> {
+        return slides
+    }
+}

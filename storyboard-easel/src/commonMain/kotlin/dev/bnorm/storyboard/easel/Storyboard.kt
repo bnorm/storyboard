@@ -11,41 +11,33 @@ import androidx.compose.ui.input.key.*
 import dev.bnorm.storyboard.core.AdvanceDirection
 import dev.bnorm.storyboard.core.Storyboard
 import dev.bnorm.storyboard.easel.internal.requestFocus
-import dev.bnorm.storyboard.ui.StoryboardSlide
 
 @Composable
 fun Storyboard(storyboard: Storyboard, modifier: Modifier = Modifier) {
     val holder = rememberSaveableStateHolder()
-    var visibleOverview by remember { mutableStateOf(false) }
+    var showOverview by remember { mutableStateOf(false) }
 
     fun handleKeyEvent(event: KeyEvent): Boolean {
-        if (event.type == KeyEventType.KeyUp) {
-            when (event.key) {
-                Key.Escape -> {
-                    visibleOverview = !visibleOverview
-                    return true
-                }
-
-                Key.Enter -> if (visibleOverview) {
-                    visibleOverview = false
-                    return true
-                }
-            }
+        if (event.type == KeyEventType.KeyUp && event.key == Key.Escape) {
+            showOverview = true
+            return true
         }
-
         return false
     }
 
-    Box(modifier = modifier.onPreviewKeyEvent { handleKeyEvent(it) }) {
+    Box(modifier = modifier) {
         SharedTransitionLayout {
             AnimatedContent(
-                targetState = visibleOverview,
+                targetState = showOverview,
                 transitionSpec = { fadeIn(tween(300)) togetherWith fadeOut(tween(300)) }
-            ) {
-                if (it) {
+            ) { isOverview ->
+                if (isOverview) {
                     StoryboardOverview(
                         storyboard = storyboard,
-                        onExitOverview = { visibleOverview = false },
+                        onExitOverview = {
+                            storyboard.jumpTo(it)
+                            showOverview = false
+                        },
                         sharedTransitionScope = this@SharedTransitionLayout,
                         animatedVisibilityScope = this@AnimatedContent,
                         modifier = Modifier.fillMaxSize(),
@@ -61,7 +53,8 @@ fun Storyboard(storyboard: Storyboard, modifier: Modifier = Modifier) {
                                     animatedVisibilityScope = this@AnimatedContent
                                 )
                                 .requestFocus()
-                                .onStoryboardNavigation(storyboard = storyboard),
+                                .onStoryboardNavigation(storyboard = storyboard)
+                                .onKeyEvent { handleKeyEvent(it) },
                         )
                     }
                 }

@@ -23,7 +23,9 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.PointerEventType
+import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.onPointerEvent
+import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.unit.dp
 import dev.bnorm.storyboard.core.AdvanceDirection
 import dev.bnorm.storyboard.core.Storyboard
@@ -140,11 +142,13 @@ private fun IconButton(
 ) {
     IconButton(
         onClick = onClick,
-        enabled = enabled
+        enabled = enabled,
     ) {
         Icon(
             imageVector = icon,
             contentDescription = text,
+            modifier = Modifier
+                .pointerHoverIcon(PointerIcon.Hand),
         )
     }
 }
