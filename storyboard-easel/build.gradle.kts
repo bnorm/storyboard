@@ -32,5 +32,11 @@ kotlin {
                 api(compose.material)
             }
         }
+
+        jvmMain {
+            dependencies {
+                implementation("org.apache.pdfbox:pdfbox:3.0.1")
+            }
+        }
     }
 }

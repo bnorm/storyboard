@@ -79,7 +79,28 @@ fun <T> PreviewSlide(
     decorator: SlideDecorator = SlideDecorator.None,
     modifier: Modifier = Modifier,
 ) {
-    PreviewSlide(slide.states[index], slide.content, size, decorator, modifier)
+    PreviewSlide(
+        state = slide.states[index],
+        content = slide.content,
+        size = size,
+        decorator = decorator,
+        modifier = modifier
+    )
+}
+
+@Composable
+fun PreviewSlide(
+    storyboard: Storyboard,
+    frame: Storyboard.Frame,
+    modifier: Modifier = Modifier,
+) {
+    PreviewSlide(
+        slide = storyboard.slides[frame.slideIndex],
+        index = frame.stateIndex,
+        size = storyboard.size,
+        decorator = storyboard.decorator,
+        modifier = modifier,
+    )
 }
 
 @Composable

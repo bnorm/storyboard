@@ -108,10 +108,8 @@ fun StoryboardOverview(
                             }
 
                             PreviewSlide(
-                                slide = column.slide,
-                                index = item.frame.stateIndex,
-                                size = overview.storyboard.size,
-                                decorator = overview.storyboard.decorator,
+                                storyboard = overview.storyboard,
+                                frame = item.frame,
                                 modifier = sharedElementModifier
                             )
 

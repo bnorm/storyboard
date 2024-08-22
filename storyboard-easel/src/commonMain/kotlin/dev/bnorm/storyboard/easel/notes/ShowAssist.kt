@@ -34,7 +34,7 @@ fun StoryboardNotes(storyboard: Storyboard, notes: StoryboardNotes, modifier: Mo
             val frames = remember(storyboard) { storyboard.frames }
             Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
                 Text("Current Slide")
-                PreviewSlide(storyboard.currentFrame, storyboard)
+                ClickablePreviewSlide(storyboard, storyboard.currentFrame)
             }
             Spacer(Modifier.width(16.dp))
             Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
@@ -53,7 +53,7 @@ fun StoryboardNotes(storyboard: Storyboard, notes: StoryboardNotes, modifier: Mo
                     if (nextIndex in frames.indices) frames[nextIndex] else null
                 }
                 if (nextFrame != null) {
-                    PreviewSlide(nextFrame, storyboard)
+                    ClickablePreviewSlide(storyboard, nextFrame)
                 }
             }
         }
@@ -85,21 +85,18 @@ fun StoryboardNotes(storyboard: Storyboard, notes: StoryboardNotes, modifier: Mo
 }
 
 @Composable
-private fun PreviewSlide(
-    frame: Storyboard.Frame,
+private fun ClickablePreviewSlide(
     storyboard: Storyboard,
+    frame: Storyboard.Frame,
     modifier: Modifier = Modifier,
 ) {
     Box(
         modifier = modifier
-            .fillMaxWidth()
             .aspectRatio(storyboard.size.width / storyboard.size.height),
     ) {
         PreviewSlide(
-            slide = storyboard.slides[frame.slideIndex],
-            index = frame.stateIndex,
-            size = storyboard.size,
-            decorator = storyboard.decorator,
+            storyboard = storyboard,
+            frame = frame,
         )
 
         // Cover the slide content with a clickable modifier
