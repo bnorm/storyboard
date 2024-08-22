@@ -131,15 +131,6 @@ private fun <T> rememberScope(
     sharedTransitionScope: SharedTransitionScope,
 ): StoryboardSlideScope<T> {
     val transition = rememberTransition(node.stateIndex)
-    DisposableEffect(transition) {
-        onDispose {
-            // TODO fix a bug in Compose where the transition is not cleaned up properly.
-            // Fixed in recent versions of Jetpack Compose; but not yet in Compose Multiplatform.
-            @Suppress("INVISIBLE_MEMBER", "INVISIBLE_REFERENCE")
-            transition.onDisposed()
-        }
-    }
-
     val stateTransition = transition.createChildTransition { node.states[it] }
     return remember(storyboard, node, stateTransition, animatedContentScope, sharedTransitionScope) {
         StoryboardSlideScope(

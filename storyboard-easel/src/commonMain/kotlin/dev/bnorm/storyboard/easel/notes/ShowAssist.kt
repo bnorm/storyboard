@@ -25,60 +25,62 @@ import kotlin.time.TimeSource
 
 @Composable
 fun StoryboardNotes(storyboard: Storyboard, notes: StoryboardNotes, modifier: Modifier = Modifier) {
-    Column(modifier.padding(16.dp)) {
-        Row(horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth()) {
-            StoryboardClock()
-        }
-
-        Row(modifier = Modifier.fillMaxWidth().padding(top = 16.dp)) {
-            val frames = remember(storyboard) { storyboard.frames }
-            Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
-                Text("Current Slide")
-                ClickablePreviewSlide(storyboard, storyboard.currentFrame)
+    Surface(modifier = Modifier.fillMaxSize()) {
+        Column(modifier.padding(16.dp)) {
+            Row(horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth()) {
+                StoryboardClock()
             }
-            Spacer(Modifier.width(16.dp))
-            Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
-                Text("Next Slide")
-                val nextFrame = run {
-                    val searchIndex = frames.binarySearch(storyboard.currentFrame)
-                    val currentIndex = when {
-                        searchIndex >= 0 -> searchIndex
-                        else -> when (storyboard.direction) {
-                            AdvanceDirection.Forward -> -(searchIndex - 1)
-                            AdvanceDirection.Backward -> -searchIndex
-                        }
 
-                    }
-                    val nextIndex = currentIndex + 1
-                    if (nextIndex in frames.indices) frames[nextIndex] else null
+            Row(modifier = Modifier.fillMaxWidth().padding(top = 16.dp)) {
+                val frames = remember(storyboard) { storyboard.frames }
+                Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text("Current Slide")
+                    ClickablePreviewSlide(storyboard, storyboard.currentFrame)
                 }
-                if (nextFrame != null) {
-                    ClickablePreviewSlide(storyboard, nextFrame)
+                Spacer(Modifier.width(16.dp))
+                Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text("Next Slide")
+                    val nextFrame = run {
+                        val searchIndex = frames.binarySearch(storyboard.currentFrame)
+                        val currentIndex = when {
+                            searchIndex >= 0 -> searchIndex
+                            else -> when (storyboard.direction) {
+                                AdvanceDirection.Forward -> -(searchIndex - 1)
+                                AdvanceDirection.Backward -> -searchIndex
+                            }
+
+                        }
+                        val nextIndex = currentIndex + 1
+                        if (nextIndex in frames.indices) frames[nextIndex] else null
+                    }
+                    if (nextFrame != null) {
+                        ClickablePreviewSlide(storyboard, nextFrame)
+                    }
                 }
             }
-        }
 
-        // TODO how can we do a preview of the next slide?
-        //  - we would really like to have a preview of the next **advancement**
-        //  - can we render the show like an export to create the previews without animations?
+            // TODO how can we do a preview of the next slide?
+            //  - we would really like to have a preview of the next **advancement**
+            //  - can we render the show like an export to create the previews without animations?
 
-        if (notes.tabs.isNotEmpty()) {
-            var state by remember { mutableStateOf(0) }
-            Scaffold(
-                topBar = {
-                    TabRow(selectedTabIndex = state) {
-                        notes.tabs.forEachIndexed { index, tab ->
-                            Tab(
-                                text = { Text(tab.title) },
-                                selected = state == index,
-                                onClick = { state = index }
-                            )
+            if (notes.tabs.isNotEmpty()) {
+                var state by remember { mutableStateOf(0) }
+                Scaffold(
+                    topBar = {
+                        TabRow(selectedTabIndex = state) {
+                            notes.tabs.forEachIndexed { index, tab ->
+                                Tab(
+                                    text = { Text(tab.title) },
+                                    selected = state == index,
+                                    onClick = { state = index }
+                                )
+                            }
                         }
-                    }
-                },
-            ) {
-                val tab = notes.tabs[state]
-                tab.content()
+                    },
+                ) {
+                    val tab = notes.tabs[state]
+                    tab.content()
+                }
             }
         }
     }

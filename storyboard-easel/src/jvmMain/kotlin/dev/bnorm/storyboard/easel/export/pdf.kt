@@ -10,11 +10,12 @@ import org.apache.pdfbox.pdmodel.common.PDRectangle
 import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject
 import org.jetbrains.skia.EncodedImageFormat
 import org.jetbrains.skia.Image
-import java.io.File
+import java.nio.file.Path
+import java.nio.file.Paths
 
 fun exportAsPdf(
     storyboard: Storyboard,
-    file: File,
+    path: Path = Paths.get("${storyboard.name}.pdf"),
     width: Int = storyboard.size.width.value.toInt(),
     height: Int = storyboard.size.height.value.toInt(),
 ) {
@@ -28,7 +29,7 @@ fun exportAsPdf(
         createPage(image, page, doc, width, height)
     }
 
-    doc.save(file)
+    doc.save(path.toFile())
     doc.close()
 }
 

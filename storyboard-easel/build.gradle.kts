@@ -2,6 +2,7 @@ import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 
 plugins {
     kotlin("multiplatform")
+    kotlin("plugin.serialization")
     kotlin("plugin.compose")
     id("org.jetbrains.compose")
 }
@@ -30,6 +31,8 @@ kotlin {
                 api(project(":storyboard-core"))
                 api(compose.ui)
                 api(compose.material)
+
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.1")
             }
         }
 
