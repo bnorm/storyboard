@@ -110,7 +110,7 @@ private fun SlideWrapper(
     modifier: Modifier = Modifier,
     content: @Composable SharedTransitionScope.() -> Unit,
 ) {
-    Box(contentAlignment = Alignment.Center, modifier = modifier) {
+    Box(contentAlignment = Alignment.Center, modifier = modifier.fillMaxSize()) {
         FixedSize(size = size) {
             decorator.decorate {
                 Surface {
