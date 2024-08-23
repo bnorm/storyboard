@@ -31,3 +31,5 @@ rootProject.name = "storyboard"
 include(":storyboard-core")
 include(":storyboard-easel")
 include(":storyboard-text")
+
+include(":examples:basic")

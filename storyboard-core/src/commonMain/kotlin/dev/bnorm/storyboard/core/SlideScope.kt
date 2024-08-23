@@ -4,6 +4,7 @@ import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.animation.core.Transition
 import androidx.compose.runtime.Stable
+import dev.bnorm.storyboard.core.SlideState.*
 import kotlinx.collections.immutable.ImmutableList
 
 @Stable
@@ -14,6 +15,14 @@ sealed interface SlideScope<out T> {
 
     val animatedVisibilityScope: AnimatedVisibilityScope
     val sharedTransitionScope: SharedTransitionScope
+
+    fun <R : @UnsafeVariance T> SlideState<R>.toState(): T {
+        return when (this) {
+            Start -> states.first()
+            End -> states.last()
+            is Value -> value
+        }
+    }
 }
 
 internal class PreviewSlideScope<T>(
