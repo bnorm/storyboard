@@ -9,11 +9,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import dev.bnorm.storyboard.core.StoryboardBuilder
 import dev.bnorm.storyboard.core.slide
+import dev.bnorm.storyboard.easel.notes.NotesTab
 import dev.bnorm.storyboard.easel.template.Body
 import dev.bnorm.storyboard.easel.template.Title
 
 fun StoryboardBuilder.NavigationSlide() = slide(
-    stateCount = 4,
+    stateCount = 5,
 ) {
     Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
         Title { Text("Navigation") }
@@ -23,11 +24,16 @@ fun StoryboardBuilder.NavigationSlide() = slide(
                 Text("After slide gains focus, advance with arrow keys.")
                 if (currentState >= 1) Text("    • Slides can also be advanced with the mouse.")
                 if (currentState >= 3) Text("    • Press 'Esc' to see overview! (arrows to navigate and 'Enter' to open slide)")
+                if (currentState >= 4) Text("    • Press F2 to see next slide preview and notes. (Desktop only!)")
             }
 
             if (currentState >= 2) {
                 Text("Down here!", style = MaterialTheme.typography.h6, modifier = Modifier.align(Alignment.BottomEnd))
             }
         }
+    }
+
+    NotesTab("Notes") {
+        Text("Hello! I'm a note!")
     }
 }

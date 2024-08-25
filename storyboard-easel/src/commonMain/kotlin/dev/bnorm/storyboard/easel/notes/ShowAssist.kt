@@ -10,6 +10,7 @@ import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.text.font.FontFamily
@@ -17,6 +18,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.bnorm.storyboard.core.AdvanceDirection
 import dev.bnorm.storyboard.core.Storyboard
+import dev.bnorm.storyboard.easel.internal.aspectRatio
 import dev.bnorm.storyboard.ui.SlidePreview
 import kotlinx.coroutines.delay
 import kotlin.time.Duration.Companion.milliseconds
@@ -36,6 +38,7 @@ fun StoryboardNotes(storyboard: Storyboard, notes: StoryboardNotes, modifier: Mo
                 Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
                     Text("Current Slide")
                     ClickableSlidePreview(storyboard, storyboard.currentFrame)
+                    SlideAnimationProgressIndicator(storyboard)
                 }
                 Spacer(Modifier.width(16.dp))
                 Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
@@ -93,7 +96,7 @@ private fun ClickableSlidePreview(
     modifier: Modifier = Modifier,
 ) {
     // TODO share with StoryboardOverview?
-    Box(modifier = modifier) {
+    Box(modifier.aspectRatio(storyboard.size.aspectRatio)) {
         SlidePreview(
             storyboard = storyboard,
             frame = frame,
@@ -109,6 +112,18 @@ private fun ClickableSlidePreview(
                     onClick = { storyboard.jumpTo(frame) }
                 )
         )
+    }
+}
+
+@Composable
+private fun SlideAnimationProgressIndicator(storyboard: Storyboard) {
+    Row {
+        val advancementProgress = storyboard.advancementProgress
+        val color = if (advancementProgress == 1f) Color.Green else Color.Red
+        Spacer(Modifier.height(2.dp).weight(advancementProgress).background(color))
+        if (advancementProgress < 1f) {
+            Spacer(Modifier.weight(1f - advancementProgress))
+        }
     }
 }
 

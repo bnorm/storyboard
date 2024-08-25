@@ -62,6 +62,11 @@ class Storyboard private constructor(
     val currentFrame: Frame
         get() = node.currentState.let { it.frames[it.stateIndex.currentState] }
 
+    val advancementProgress: Float
+        get() = node.fraction.takeIf { it != 0.0f }
+            ?: node.currentState.stateIndex.fraction.takeIf { it != 0.0f }
+            ?: 1f
+
     fun advance(direction: AdvanceDirection, jump: Boolean = false): Boolean =
         events.tryEmit(Event.Advance(direction, jump))
 
