@@ -2,7 +2,7 @@ package dev.bnorm.storyboard.easel
 
 import androidx.compose.animation.AnimatedContentScope
 import androidx.compose.animation.SharedTransitionScope
-import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.HorizontalScrollbar
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -17,6 +17,7 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.*
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
@@ -24,8 +25,9 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.*
 import dev.bnorm.storyboard.core.Slide
 import dev.bnorm.storyboard.core.Storyboard
+import dev.bnorm.storyboard.easel.internal.aspectRatio
 import dev.bnorm.storyboard.easel.internal.requestFocus
-import dev.bnorm.storyboard.ui.PreviewSlide
+import dev.bnorm.storyboard.ui.SlidePreview
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 
@@ -55,7 +57,7 @@ fun StoryboardOverview(
     animatedVisibilityScope: AnimatedContentScope,
     modifier: Modifier = Modifier,
 ) {
-    BoxWithConstraints(modifier = modifier.onOverviewNavigation(overview, onExitOverview)) {
+    BoxWithConstraints(modifier = modifier.onOverviewNavigation(overview, onExitOverview, animatedVisibilityScope)) {
         val boxWithConstraintsScope = this
         val itemSize = boxWithConstraintsScope.toItemSize(overview.storyboard.size)
         val verticalPaddingDp = (boxWithConstraintsScope.maxHeight - itemSize.height).coerceAtLeast(0.dp) / 2
@@ -71,6 +73,7 @@ fun StoryboardOverview(
             modifier = Modifier.fillMaxSize()
         ) {
             itemsIndexed(overview.columns) { columnIndex, column ->
+                val isCurrentColumn = overview.currentColumnIndex == columnIndex
                 val vIndex = column.currentItemIndex
                 val vState = rememberLazyListState(vIndex)
                 LaunchedEffect(vIndex) { vState.animateScrollToItem(vIndex) }
@@ -78,36 +81,31 @@ fun StoryboardOverview(
                 LazyColumn(
                     state = vState,
                     userScrollEnabled = column.items.size > 1,
-                    horizontalAlignment = Alignment.CenterHorizontally,
                     contentPadding = PaddingValues(vertical = verticalPaddingDp),
                     modifier = Modifier.fillMaxHeight()
                 ) {
                     itemsIndexed(column.items) { itemIndex, item ->
-                        val isCurrentFrame =
-                            overview.currentColumnIndex == columnIndex && column.currentItemIndex == itemIndex
-                        val alpha by animateFloatAsState(if (isCurrentFrame) 1f else 0f)
+                        val isCurrentItem = isCurrentColumn && column.currentItemIndex == itemIndex
+                        val targetColor = if (isCurrentItem) MaterialTheme.colors.primary else Color.Transparent
+                        val currentColor by animateColorAsState(targetColor)
                         Box(
                             Modifier.height(itemSize.height)
                                 .padding(4.dp)
-                                .border(
-                                    2.dp,
-                                    MaterialTheme.colors.primary.copy(alpha = alpha),
-                                    RoundedCornerShape(6.dp)
-                                )
+                                .border(2.dp, currentColor, RoundedCornerShape(6.dp))
                                 .padding(8.dp)
-                                .aspectRatio(overview.storyboard.size.width / overview.storyboard.size.height)
+                                .aspectRatio(overview.storyboard.size.aspectRatio)
                         ) {
-                            val sharedElementModifier = when (isCurrentFrame) {
+                            val sharedElementModifier = when (isCurrentItem) {
                                 false -> Modifier
-                                true -> with(receiver = sharedTransitionScope) {
-                                    Modifier.sharedBounds(
-                                        sharedContentState = rememberSharedContentState(key = OverviewCurrentSlide),
+                                true -> with(sharedTransitionScope) {
+                                    Modifier.sharedElement(
+                                        rememberSharedContentState(OverviewCurrentSlide),
                                         animatedVisibilityScope = animatedVisibilityScope,
                                     )
                                 }
                             }
 
-                            PreviewSlide(
+                            SlidePreview(
                                 storyboard = overview.storyboard,
                                 frame = item.frame,
                                 modifier = sharedElementModifier
@@ -121,7 +119,7 @@ fun StoryboardOverview(
                                     .clickable(
                                         interactionSource = null, indication = null, // disable ripple effect
                                         onClick = {
-                                            if (isCurrentFrame) onExitOverview(item.frame)
+                                            if (isCurrentItem) onExitOverview(item.frame)
                                             else overview.jumpTo(columnIndex, itemIndex)
                                         }
                                     )
@@ -219,7 +217,7 @@ class StoryboardOverview private constructor(
     }
 }
 
-internal val OverviewCurrentSlide = Any()
+internal object OverviewCurrentSlide
 
 private fun BoxWithConstraintsScope.toItemSize(
     size: DpSize,
@@ -227,7 +225,7 @@ private fun BoxWithConstraintsScope.toItemSize(
     min: Dp = 150.dp,
     max: Dp = 250.dp,
 ): DpSize {
-    val aspectRatio = size.width / size.height
+    val aspectRatio = size.aspectRatio
     val height = (scale * maxHeight).coerceIn(min, max)
     val width = (scale * maxWidth).coerceIn(min, max)
 
@@ -242,9 +240,13 @@ private fun BoxWithConstraintsScope.toItemSize(
 private fun Modifier.onOverviewNavigation(
     overview: StoryboardOverview,
     onExitOverview: (Storyboard.Frame) -> Unit,
+    animatedVisibilityScope: AnimatedContentScope,
 ): Modifier {
-    // TODO handle transitional slides
+    // TODO handle transitional slides? render with alpha = 0.5f ?
     fun handle(event: KeyEvent): Boolean {
+        // Disable navigation until enter/exit animation is complete
+        if (animatedVisibilityScope.transition.isRunning) return false
+
         if (event.type == KeyEventType.KeyDown) {
             val currentColumnIndex = overview.currentColumnIndex
             when (event.key) {

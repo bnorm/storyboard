@@ -4,77 +4,88 @@ package dev.bnorm.storyboard.easel
 
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
-import androidx.compose.animation.core.Transition
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import dev.bnorm.storyboard.core.AdvanceDirection
 import dev.bnorm.storyboard.core.SlideScope
-import kotlinx.coroutines.CoroutineScope
+import dev.bnorm.storyboard.core.SlideState
 import kotlin.experimental.ExperimentalTypeInference
 import kotlin.jvm.JvmName
 
-fun Transition<*>.isIdle(): Boolean =
-    targetState == currentState && !isRunning
+/**
+ * Storyboard animations may have to deal with at least two separate things:
+ *
+ *  1. Visibility (enter, exit) - very similar to standard Compose animation.
+ *  2. Direction (forward, backward) - which way is the Storyboard advancing.
+ *
+ * For example, consider a simple left-to-right animation of an element within a
+ * slide: when the slide advances forward, the element will need to enter from
+ * the left and then exit to the right. When the slide advances backwards, the
+ * element will need to enter from the right and exit to the left.
+ *
+ * To help simplify a common situation like this, Storyboard considers two
+ * edges: start and end. The start is when the element needs to enter from the
+ * left when advancing forwards and exit to the left when advancing backwards.
+ * The end is when the element needs to exit to the right when advancing
+ * forwards and enter from the right when advancing backwards.
+ *
+ * ```text
+ * [     ] --{Enter}-> [     ] ---{Exit}-> [     ] // Forwards
+ * [ n-1 ]   (START)   [  n  ]    (END)    [ n+1 ]
+ * [     ] <-{Exit}--- [     ] <-{Enter}-- [     ] // Backwards
+ * ```
+ *
+ * This distinction is a mirror of the [SlideScope.state] of a slide, which has
+ * a [SlideState.Start] as the first element and a [SlideState.End] as the last
+ * element, to help manage transitions between slides.
+ */
+@Suppress("unused")
+private object FileKDoc
 
-@Composable
-inline fun SlideScope<*>.LaunchedIdleEffect(
-    vararg keys: Any?,
-    crossinline block: suspend CoroutineScope.() -> Unit,
-) {
-    val idle = animatedVisibilityScope.transition.isIdle()
-    LaunchedEffect(idle, *keys) {
-        if (!idle) return@LaunchedEffect
-        block()
-    }
+inline fun AdvanceDirection.enter(
+    start: () -> EnterTransition = { EnterTransition.None },
+    end: () -> EnterTransition = { EnterTransition.None },
+): EnterTransition = when (this) {
+    AdvanceDirection.Forward -> start()
+    AdvanceDirection.Backward -> end()
 }
 
-val SlideEnter: (AdvanceDirection) -> EnterTransition = { direction ->
-    slideInHorizontally(animationSpec = tween(durationMillis = 750)) {
-        if (direction == AdvanceDirection.Forward) it else -it
-    }
+inline fun AdvanceDirection.exit(
+    start: () -> ExitTransition = { ExitTransition.None },
+    end: () -> ExitTransition = { ExitTransition.None },
+): ExitTransition = when (this) {
+    AdvanceDirection.Forward -> end()
+    AdvanceDirection.Backward -> start()
 }
 
-val SlideExit: (AdvanceDirection) -> ExitTransition = { direction ->
-    slideOutHorizontally(animationSpec = tween(durationMillis = 750)) {
-        if (direction == AdvanceDirection.Forward) -it else it
-    }
-}
+inline fun SlideScope<*>.enter(
+    start: () -> EnterTransition = { EnterTransition.None },
+    end: () -> EnterTransition = { EnterTransition.None },
+): EnterTransition = direction.enter(start, end)
+
+inline fun SlideScope<*>.exit(
+    start: () -> ExitTransition = { ExitTransition.None },
+    end: () -> ExitTransition = { ExitTransition.None },
+): ExitTransition = direction.exit(start, end)
 
 @OverloadResolutionByLambdaReturnType
-@JvmName("onSlideEnter_EnterTransition")
-inline fun SlideScope<*>.onSlideEnter(
-    animation: () -> EnterTransition,
-): EnterTransition = when (direction) {
-    AdvanceDirection.Forward -> animation()
-    AdvanceDirection.Backward -> EnterTransition.None
-}
+@JvmName("onStart_EnterTransition")
+inline fun onStart(
+    crossinline animation: (AdvanceDirection) -> EnterTransition,
+): (AdvanceDirection) -> EnterTransition = { it.enter(start = { animation(it) }) }
 
 @OverloadResolutionByLambdaReturnType
-@JvmName("onSlideEnter_ExitTransition")
-inline fun SlideScope<*>.onSlideEnter(
-    animation: () -> ExitTransition,
-): ExitTransition = when (direction) {
-    AdvanceDirection.Forward -> ExitTransition.None
-    AdvanceDirection.Backward -> animation()
-}
+@JvmName("onStart_ExitTransition")
+inline fun onStart(
+    crossinline animation: (AdvanceDirection) -> ExitTransition,
+): (AdvanceDirection) -> ExitTransition = { it.exit(start = { animation(it) }) }
 
 @OverloadResolutionByLambdaReturnType
-@JvmName("onSlideExit_EnterTransition")
-inline fun SlideScope<*>.onSlideExit(
-    animation: () -> EnterTransition,
-): EnterTransition = when (direction) {
-    AdvanceDirection.Forward -> EnterTransition.None
-    AdvanceDirection.Backward -> animation()
-}
+@JvmName("onEnd_EnterTransition")
+inline fun onEnd(
+    crossinline animation: (AdvanceDirection) -> EnterTransition,
+): (AdvanceDirection) -> EnterTransition = { it.enter(end = { animation(it) }) }
 
 @OverloadResolutionByLambdaReturnType
-@JvmName("onSlideExit_ExitTransition")
-inline fun SlideScope<*>.onSlideExit(
-    animation: () -> ExitTransition,
-): ExitTransition = when (direction) {
-    AdvanceDirection.Forward -> animation()
-    AdvanceDirection.Backward -> ExitTransition.None
-}
+@JvmName("onEnd_ExitTransition")
+inline fun onEnd(
+    crossinline animation: (AdvanceDirection) -> ExitTransition,
+): (AdvanceDirection) -> ExitTransition = { it.exit(end = { animation(it) }) }

@@ -48,8 +48,8 @@ fun Storyboard(storyboard: Storyboard, modifier: Modifier = Modifier) {
                             storyboard = storyboard,
                             modifier = Modifier
                                 .fillMaxSize()
-                                .sharedBounds(
-                                    sharedContentState = rememberSharedContentState(key = OverviewCurrentSlide),
+                                .sharedElement(
+                                    rememberSharedContentState(OverviewCurrentSlide),
                                     animatedVisibilityScope = this@AnimatedContent
                                 )
                                 .requestFocus()

@@ -2,7 +2,7 @@ package dev.bnorm.storyboard.easel.export
 
 import androidx.compose.ui.renderComposeScene
 import dev.bnorm.storyboard.core.Storyboard
-import dev.bnorm.storyboard.ui.PreviewSlide
+import dev.bnorm.storyboard.ui.SlidePreview
 import org.apache.pdfbox.pdmodel.PDDocument
 import org.apache.pdfbox.pdmodel.PDPage
 import org.apache.pdfbox.pdmodel.PDPageContentStream
@@ -23,7 +23,7 @@ fun exportAsPdf(
 
     for ((page, frame) in storyboard.frames.withIndex()) {
         val image = renderComposeScene(width, height) {
-            PreviewSlide(storyboard, frame)
+            SlidePreview(storyboard, frame)
         }
 
         createPage(image, page, doc, width, height)

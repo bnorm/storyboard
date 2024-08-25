@@ -17,7 +17,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.bnorm.storyboard.core.AdvanceDirection
 import dev.bnorm.storyboard.core.Storyboard
-import dev.bnorm.storyboard.ui.PreviewSlide
+import dev.bnorm.storyboard.ui.SlidePreview
 import kotlinx.coroutines.delay
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.TimeMark
@@ -35,7 +35,7 @@ fun StoryboardNotes(storyboard: Storyboard, notes: StoryboardNotes, modifier: Mo
                 val frames = remember(storyboard) { storyboard.frames }
                 Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
                     Text("Current Slide")
-                    ClickablePreviewSlide(storyboard, storyboard.currentFrame)
+                    ClickableSlidePreview(storyboard, storyboard.currentFrame)
                 }
                 Spacer(Modifier.width(16.dp))
                 Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
@@ -54,7 +54,7 @@ fun StoryboardNotes(storyboard: Storyboard, notes: StoryboardNotes, modifier: Mo
                         if (nextIndex in frames.indices) frames[nextIndex] else null
                     }
                     if (nextFrame != null) {
-                        ClickablePreviewSlide(storyboard, nextFrame)
+                        ClickableSlidePreview(storyboard, nextFrame)
                     }
                 }
             }
@@ -87,16 +87,14 @@ fun StoryboardNotes(storyboard: Storyboard, notes: StoryboardNotes, modifier: Mo
 }
 
 @Composable
-private fun ClickablePreviewSlide(
+private fun ClickableSlidePreview(
     storyboard: Storyboard,
     frame: Storyboard.Frame,
     modifier: Modifier = Modifier,
 ) {
-    Box(
-        modifier = modifier
-            .aspectRatio(storyboard.size.width / storyboard.size.height),
-    ) {
-        PreviewSlide(
+    // TODO share with StoryboardOverview?
+    Box(modifier = modifier) {
+        SlidePreview(
             storyboard = storyboard,
             frame = frame,
         )

@@ -3,7 +3,6 @@ package dev.bnorm.storyboard.ui
 import androidx.compose.animation.*
 import androidx.compose.animation.core.createChildTransition
 import androidx.compose.animation.core.rememberTransition
-import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.Surface
@@ -14,7 +13,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.DpSize
 import dev.bnorm.storyboard.core.*
 import dev.bnorm.storyboard.core.internal.SlideNode
-import kotlinx.collections.immutable.persistentListOf
 
 @Composable
 fun StoryboardSlide(storyboard: Storyboard, modifier: Modifier = Modifier) {
@@ -47,64 +45,7 @@ fun StoryboardSlide(storyboard: Storyboard, modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun <T> PreviewSlide(
-    state: T,
-    content: SlideContent<T>,
-    size: DpSize,
-    decorator: SlideDecorator = SlideDecorator.None,
-    modifier: Modifier = Modifier,
-) {
-    SlideWrapper(size, decorator, modifier) {
-        AnimatedVisibility(true) {
-            Box(Modifier.fillMaxSize()) {
-                key(state, content) {
-                    val scope = PreviewSlideScope(
-                        states = persistentListOf(state),
-                        transition = updateTransition(SlideState.Value<T>(state)),
-                        animatedVisibilityScope = this@AnimatedVisibility,
-                        sharedTransitionScope = this@SlideWrapper
-                    )
-                    content(scope)
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun <T> PreviewSlide(
-    slide: Slide<T>,
-    index: Int,
-    size: DpSize,
-    decorator: SlideDecorator = SlideDecorator.None,
-    modifier: Modifier = Modifier,
-) {
-    PreviewSlide(
-        state = slide.states[index],
-        content = slide.content,
-        size = size,
-        decorator = decorator,
-        modifier = modifier
-    )
-}
-
-@Composable
-fun PreviewSlide(
-    storyboard: Storyboard,
-    frame: Storyboard.Frame,
-    modifier: Modifier = Modifier,
-) {
-    PreviewSlide(
-        slide = storyboard.slides[frame.slideIndex],
-        index = frame.stateIndex,
-        size = storyboard.size,
-        decorator = storyboard.decorator,
-        modifier = modifier,
-    )
-}
-
-@Composable
-private fun SlideWrapper(
+internal fun SlideWrapper(
     size: DpSize,
     decorator: SlideDecorator,
     modifier: Modifier = Modifier,
@@ -136,7 +77,7 @@ private fun <T> rememberScope(
         StoryboardSlideScope(
             storyboard = storyboard,
             states = node.slide.states,
-            transition = stateTransition,
+            state = stateTransition,
             animatedVisibilityScope = animatedContentScope,
             sharedTransitionScope = sharedTransitionScope
         )

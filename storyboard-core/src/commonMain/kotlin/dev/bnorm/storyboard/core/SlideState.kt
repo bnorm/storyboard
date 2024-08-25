@@ -9,7 +9,6 @@ sealed class SlideState<out T> {
     class Value<out T>(val value: T) : SlideState<T>()
 }
 
-
 fun <R, T> SlideState<T>.map(transform: (T) -> R): SlideState<R> {
     return when (this) {
         Start -> Start
@@ -23,7 +22,7 @@ fun <R, T> SlideState<T>.map(transform: (T) -> R): SlideState<R> {
  * representation for [SlideState.Start], and [end] is the default representation for
  * [SlideState.End].
  */
-fun <T> SlideState<T>.toValue(start: T, end: T): T {
+fun <T> SlideState<T>.toState(start: T, end: T): T {
     return when (this) {
         Start -> start
         End -> end
@@ -37,7 +36,7 @@ fun <T> SlideState<T>.toValue(start: T, end: T): T {
  * [SlideState.End].
  */
 fun SlideState<Int>.toInt(start: Int = Int.MIN_VALUE, end: Int = Int.MAX_VALUE): Int {
-    return toValue(start, end)
+    return toState(start, end)
 }
 
 /**
@@ -46,5 +45,5 @@ fun SlideState<Int>.toInt(start: Int = Int.MIN_VALUE, end: Int = Int.MAX_VALUE):
  * [SlideState.End].
  */
 fun SlideState<Boolean>.toBoolean(start: Boolean = false, end: Boolean = true): Boolean {
-    return toValue(start, end)
+    return toState(start, end)
 }

@@ -45,6 +45,7 @@ fun StoryboardOverlay(
         visible = state.visible,
         enter = fadeIn(), exit = fadeOut()
     ) {
+        // TODO keep overlay only ever over the slide? aspectRatio(storyboard.size.aspectRatio)
         val alpha by animateFloatAsState(if (state.inside) 0.75f else 0.25f)
         Box(
             modifier = Modifier

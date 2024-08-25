@@ -8,15 +8,19 @@ import dev.bnorm.storyboard.core.SlideState.*
 import kotlinx.collections.immutable.ImmutableList
 
 @Stable
-sealed interface SlideScope<out T> {
+sealed interface SlideScope<T> : AnimatedVisibilityScope, SharedTransitionScope {
     val states: ImmutableList<T>
-    val transition: Transition<out SlideState<T>>
+    val state: Transition<out SlideState<T>>
+
     val direction: AdvanceDirection
+    val currentState: T
+        get() {
+            require(states.isNotEmpty()) { "implicit conversion to state requires non-empty states" }
+            return state.currentState.toState()
+        }
 
-    val animatedVisibilityScope: AnimatedVisibilityScope
-    val sharedTransitionScope: SharedTransitionScope
-
-    fun <R : @UnsafeVariance T> SlideState<R>.toState(): T {
+    fun <R : T> SlideState<R>.toState(): T {
+        require(states.isNotEmpty()) { "implicit conversion to state requires non-empty states" }
         return when (this) {
             Start -> states.first()
             End -> states.last()
@@ -27,19 +31,23 @@ sealed interface SlideScope<out T> {
 
 internal class PreviewSlideScope<T>(
     override val states: ImmutableList<T>,
-    override val transition: Transition<out SlideState<T>>,
-    override val animatedVisibilityScope: AnimatedVisibilityScope,
-    override val sharedTransitionScope: SharedTransitionScope,
-) : SlideScope<T> {
+    override val state: Transition<out SlideState<T>>,
+    animatedVisibilityScope: AnimatedVisibilityScope,
+    sharedTransitionScope: SharedTransitionScope,
+) : SlideScope<T>,
+    AnimatedVisibilityScope by animatedVisibilityScope,
+    SharedTransitionScope by sharedTransitionScope {
     override val direction: AdvanceDirection get() = AdvanceDirection.Forward
 }
 
 internal class StoryboardSlideScope<T>(
     private val storyboard: Storyboard,
     override val states: ImmutableList<T>,
-    override val transition: Transition<out SlideState<T>>,
-    override val animatedVisibilityScope: AnimatedVisibilityScope,
-    override val sharedTransitionScope: SharedTransitionScope,
-) : SlideScope<T> {
+    override val state: Transition<out SlideState<T>>,
+    animatedVisibilityScope: AnimatedVisibilityScope,
+    sharedTransitionScope: SharedTransitionScope,
+) : SlideScope<T>,
+    AnimatedVisibilityScope by animatedVisibilityScope,
+    SharedTransitionScope by sharedTransitionScope {
     override val direction: AdvanceDirection get() = storyboard.direction
 }

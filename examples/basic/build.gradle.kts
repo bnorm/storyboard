@@ -21,19 +21,19 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
-                api(project(":storyboard-core"))
-                api(project(":storyboard-easel"))
-                api(project(":storyboard-text"))
+                implementation(project(":storyboard-core"))
+                implementation(project(":storyboard-easel"))
+                implementation(project(":storyboard-text"))
 
                 implementation(compose.runtime)
                 implementation(compose.foundation)
                 implementation(compose.material)
-                api(compose.components.resources)
+                implementation(compose.components.resources)
             }
         }
         jvmMain {
             dependencies {
-                api(compose.desktop.currentOs)
+                implementation(compose.desktop.currentOs)
             }
         }
     }
