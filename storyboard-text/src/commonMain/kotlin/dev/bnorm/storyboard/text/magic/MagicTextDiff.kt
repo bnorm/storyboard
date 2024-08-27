@@ -42,41 +42,75 @@ fun diff(before: List<AnnotatedString>, after: List<AnnotatedString>): List<Magi
     var beforeOffset = 0
     var afterOffset = 0
     return buildList {
+        fun add(
+            beforeSize: Int,
+            afterSize: Int,
+            keyed: Boolean,
+        ) {
+            val minSize = minOf(beforeSize, afterSize)
+            val maxSize = maxOf(beforeSize, afterSize)
+            for (i in 0..<minSize) {
+                add(
+                    MagicTextDiff(
+                        before = before[beforeOffset + i],
+                        after = after[afterOffset + i],
+                        key = if (keyed) nextKey() else null,
+                    )
+                )
+            }
+
+            if (maxSize > minSize) {
+                val empty = AnnotatedString("")
+                if (maxSize == beforeSize) {
+                    for (i in minSize..<maxSize) {
+                        add(
+                            MagicTextDiff(
+                                before = before[beforeOffset + i],
+                                after = empty,
+                                key = null,
+                            )
+                        )
+                    }
+                } else {
+                    for (i in minSize..<maxSize) {
+                        add(
+                            MagicTextDiff(
+                                before = empty,
+                                after = after[afterOffset + i],
+                                key = null,
+                            )
+                        )
+                    }
+                }
+            }
+
+            beforeOffset += beforeSize
+            afterOffset += afterSize
+        }
+
         ListComparator(before.map { it.text }, after.map { it.text }).script.visit(
             ReplacementsFinder { skipped, from, to ->
                 if (skipped > 0) {
                     add(
-                        MagicTextDiff(
-                            before = before.merge(beforeOffset, beforeOffset + skipped),
-                            after = after.merge(afterOffset, afterOffset + skipped),
-                            key = nextKey()
-                        )
+                        beforeSize = skipped,
+                        afterSize = skipped,
+                        keyed = true,
                     )
-                    beforeOffset += skipped
-                    afterOffset += skipped
                 }
 
                 add(
-                    MagicTextDiff(
-                        before = before.merge(beforeOffset, beforeOffset + from.size),
-                        after = after.merge(afterOffset, afterOffset + to.size),
-                        key = null,
-                    )
+                    beforeSize = from.size,
+                    afterSize = to.size,
+                    keyed = false,
                 )
-                beforeOffset += from.size
-                afterOffset += to.size
             }
         )
 
-        if (beforeOffset < before.size) {
-            add(
-                MagicTextDiff(
-                    before = before.merge(beforeOffset),
-                    after = after.merge(afterOffset),
-                    key = nextKey()
-                )
-            )
-        }
+        add(
+            beforeSize = before.size - beforeOffset,
+            afterSize = after.size - afterOffset,
+            keyed = true,
+        )
     }
 }
 

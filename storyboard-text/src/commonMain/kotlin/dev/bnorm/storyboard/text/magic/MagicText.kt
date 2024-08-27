@@ -2,21 +2,19 @@ package dev.bnorm.storyboard.text.magic
 
 import androidx.compose.animation.*
 import androidx.compose.animation.core.AnimationConstants.DefaultDurationMillis
-import androidx.compose.animation.core.SeekableTransitionState
 import androidx.compose.animation.core.Transition
-import androidx.compose.animation.core.rememberTransition
+import androidx.compose.animation.core.createChildTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.AnnotatedString
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.collectLatest
 
 @Composable
 fun MagicText(
@@ -26,31 +24,62 @@ fun MagicText(
     moveDurationMillis: Int = DefaultDurationMillis,
     fadeDurationMillis: Int = moveDurationMillis / 2,
     // Can be used to provide a custom diff equation.
-    diff: (before: AnnotatedString, after: AnnotatedString) -> List<MagicTextDiff> = { before, after ->
-        diff(before.toWords(), after.toWords())
-    },
+    diff: (before: List<AnnotatedString>, after: List<AnnotatedString>) -> List<MagicTextDiff> = ::diff,
 ) {
-    val textFlow = remember { MutableStateFlow(text) }
-    textFlow.value = text
+    val words = remember(text) { text.toWords() }
+    val transition = updateTransition(words)
+    MagicText(transition, modifier, moveDurationMillis, fadeDurationMillis, diff)
+}
 
-    val initialValue = remember { text.toLines() } // null == newline
-    val transitionState = remember { SeekableTransitionState(initialValue) }
-    LaunchedEffect(Unit) {
-        var current: AnnotatedString? = null
-        textFlow.collectLatest { next ->
-            val previous = current
-            current = next
-            if (previous != null) {
-                val result = diff(previous, next)
-                checkNoRepeatedKeys(result)
-                transitionState.snapTo(result.toLines(after = false)) // Re-render the previous text, split up based on diff with the next text.
-                transitionState.animateTo(result.toLines(after = true)) // Render the next text, split up based on diff with the previous text.
+@Composable
+fun MagicText(
+    tokenizedText: List<AnnotatedString>,
+    modifier: Modifier = Modifier,
+    // Used to time FadeOut -> Move -> FadeIn animations.
+    moveDurationMillis: Int = DefaultDurationMillis,
+    fadeDurationMillis: Int = moveDurationMillis / 2,
+    // Can be used to provide a custom diff equation.
+    diff: (before: List<AnnotatedString>, after: List<AnnotatedString>) -> List<MagicTextDiff> = ::diff,
+) {
+    val transition = updateTransition(tokenizedText)
+    MagicText(transition, modifier, moveDurationMillis, fadeDurationMillis, diff)
+}
+
+@Composable
+fun MagicText(
+    transition: Transition<List<AnnotatedString>>,
+    modifier: Modifier = Modifier,
+    // Used to time FadeOut -> Move -> FadeIn animations.
+    moveDurationMillis: Int = DefaultDurationMillis,
+    fadeDurationMillis: Int = moveDurationMillis / 2,
+    // Can be used to provide a custom diff equation.
+    diff: (before: List<AnnotatedString>, after: List<AnnotatedString>) -> List<MagicTextDiff> = ::diff,
+) {
+    // Keyed on current and target state, so a new transition is created with each new segment.
+    // This allows re-rendering of the previous text with the new transition keys.
+    val currentState = transition.currentState
+    val targetState = transition.targetState
+    key(currentState, targetState) { // TODO does this need to be keyed on currentState?
+
+        // TODO instead of List<Pair<*, *>>, could this be a special data structure?
+        val sharedText = remember {
+            when (currentState == targetState) {
+                true -> listOf(currentState to currentState.toLines()) // null == newline
+
+                false -> {
+                    val result = diff(currentState, targetState)
+                    checkNoRepeatedKeys(result)
+                    listOf(
+                        currentState to result.toLines(after = false), // Re-render the previous text, split up based on diff with the next text.
+                        targetState to result.toLines(after = true), // Render the next text, split up based on diff with the previous text.
+                    )
+                }
             }
         }
-    }
 
-    val transition = rememberTransition(transitionState)
-    MagicTextInternal(transition, modifier, fadeDurationMillis, moveDurationMillis)
+        val child = transition.createChildTransition { text -> sharedText.first { text === it.first }.second }
+        MagicTextInternal(child, modifier, fadeDurationMillis, moveDurationMillis)
+    }
 }
 
 private data class SharedText(
@@ -88,7 +117,6 @@ private fun MagicTextInternal(
                         animatedVisibilityScope = this@AnimatedContent,
                         enter = fadeIn(tween(moveDuration, delayMillis = fadeDuration)),
                         exit = fadeOut(tween(moveDuration, delayMillis = fadeDuration)),
-                        resizeMode = SharedTransitionScope.ResizeMode.RemeasureToBounds,
                         boundsTransform = { _, _ ->
                             tween(moveDuration, delayMillis = fadeDuration)
                         },
@@ -135,18 +163,22 @@ private fun List<MagicTextDiff>.toLines(after: Boolean): List<SharedText?> {
         for (part in this@toLines) {
             val text = if (after) part.after else part.before
             for ((i, split) in text.split('\n').withIndex()) {
-                if (i > 0) add(null)
+                if (i > 0) add(null) // null == newline
+                if (split.isEmpty()) continue
                 add(SharedText(split, part.before != part.after, part.key?.let { "$it-${subKey++}" }))
             }
         }
     }
 }
 
-private fun AnnotatedString.toLines(): List<SharedText?> {
+private fun List<AnnotatedString>.toLines(): List<SharedText?> {
     return buildList {
-        for ((i, split) in split('\n').withIndex()) {
-            if (i > 0) add(null) // null == newline
-            add(SharedText(split))
+        for (part in this@toLines) {
+            for ((i, split) in part.split('\n').withIndex()) {
+                if (i > 0) add(null) // null == newline
+                if (split.isEmpty()) continue
+                add(SharedText(split))
+            }
         }
     }
 }
