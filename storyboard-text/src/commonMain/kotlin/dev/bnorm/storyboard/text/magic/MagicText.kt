@@ -67,7 +67,7 @@ private fun MagicTextInternal(
     fadeDuration: Int,
     moveDuration: Int,
 ) {
-    SharedTransitionLayout {
+    SharedTransitionLayout(modifier) {
         transition.AnimatedContent(
             transitionSpec = { EnterTransition.None togetherWith ExitTransition.None },
         ) { parts ->
@@ -88,6 +88,7 @@ private fun MagicTextInternal(
                         animatedVisibilityScope = this@AnimatedContent,
                         enter = fadeIn(tween(moveDuration, delayMillis = fadeDuration)),
                         exit = fadeOut(tween(moveDuration, delayMillis = fadeDuration)),
+                        resizeMode = SharedTransitionScope.ResizeMode.RemeasureToBounds,
                         boundsTransform = { _, _ ->
                             tween(moveDuration, delayMillis = fadeDuration)
                         },
@@ -104,13 +105,13 @@ private fun MagicTextInternal(
                 }
             }
 
-            Column(modifier, horizontalAlignment = Alignment.Start) {
+            Column(horizontalAlignment = Alignment.Start) {
                 val iterator = parts.iterator()
                 while (iterator.hasNext()) {
-                    Row(verticalAlignment = Alignment.Bottom) {
+                    Row {
                         while (iterator.hasNext()) {
                             val sharedText = iterator.next() ?: break
-                            Text(sharedText.text, sharedText.toModifier())
+                            Text(sharedText.text, sharedText.toModifier().alignByBaseline())
                         }
                     }
                 }

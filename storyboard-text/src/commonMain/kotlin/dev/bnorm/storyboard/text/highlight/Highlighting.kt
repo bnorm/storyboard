@@ -6,9 +6,6 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.text.SpanStyle
-import kotlinx.collections.immutable.ImmutableMap
-import kotlinx.collections.immutable.persistentMapOf
-import kotlinx.collections.immutable.toImmutableMap
 
 @Immutable
 class Highlighting private constructor(
@@ -24,12 +21,7 @@ class Highlighting private constructor(
     val staticFunctionCall: SpanStyle,
     val extensionFunctionCall: SpanStyle,
     val typeParameters: SpanStyle,
-
-    // Language specific extensions
-    val extensions: ImmutableMap<String, Highlighting>,
 ) {
-    fun get(extension: String): Highlighting = extensions[extension] ?: this
-
     companion object {
         val current: Highlighting
             @Composable
@@ -53,7 +45,6 @@ class Highlighting private constructor(
                     staticFunctionCall = base,
                     extensionFunctionCall = base,
                     typeParameters = base,
-                    extensions = persistentMapOf()
                 )
             ).apply(builder).build()
         }
@@ -73,8 +64,6 @@ class Highlighting private constructor(
         var extensionFunctionCall: SpanStyle = base.extensionFunctionCall
         var typeParameters: SpanStyle = base.typeParameters
 
-        val extensions: MutableMap<String, Highlighting> = base.extensions.toMutableMap()
-
         fun build(): Highlighting {
             return Highlighting(
                 simple = simple,
@@ -89,7 +78,6 @@ class Highlighting private constructor(
                 staticFunctionCall = staticFunctionCall,
                 extensionFunctionCall = extensionFunctionCall,
                 typeParameters = typeParameters,
-                extensions = extensions.toImmutableMap(),
             )
         }
     }

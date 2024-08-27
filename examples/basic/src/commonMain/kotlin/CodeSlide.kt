@@ -14,7 +14,6 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.dp
-import dev.bnorm.librettist.text.buildKotlinCodeString
 import dev.bnorm.storyboard.core.StoryboardBuilder
 import dev.bnorm.storyboard.core.slide
 import dev.bnorm.storyboard.easel.template.Body
@@ -22,6 +21,8 @@ import dev.bnorm.storyboard.easel.template.SlideRtlEnter
 import dev.bnorm.storyboard.easel.template.SlideRtlExit
 import dev.bnorm.storyboard.easel.template.Title
 import dev.bnorm.storyboard.text.highlight.Highlighting
+import dev.bnorm.storyboard.text.highlight.Language
+import dev.bnorm.storyboard.text.highlight.highlight
 import dev.bnorm.storyboard.text.magic.MagicText
 
 data class CodeSlideState(
@@ -39,39 +40,49 @@ fun StoryboardBuilder.CodeSlide() = slide(
     CodeSlideState(
         description = "We can render Kotlin code!",
         code = {
-            """
-                fun main() {}
-            """.trimIndent().toCode()
+            rememberHighlighting(
+                """
+                    fun main() {}
+                """.trimIndent()
+            )
         },
     ),
     CodeSlideState(
         description = "We can transform Kotlin code!",
         code = {
-            """
-                fun main() {
-                    println()
-                }
-            """.trimIndent().toCode()
+            rememberHighlighting(
+                """
+                    fun main() {
+                        // Print a newline
+                        println()
+                    }
+                """.trimIndent()
+            )
         },
     ),
     CodeSlideState(
         description = "What is this, magic?!",
         code = {
-            """
-                fun main() {
-                    println("Hello, World!")
-                }
-            """.trimIndent().toCode().focusOn("\"Hello, World!\"")
+            rememberHighlighting(
+                """
+                    fun main() {
+                        // Print a string
+                        println("Hello, World!")
+                    }
+                """.trimIndent()
+            ).focusOn("\"Hello, World!\"")
         },
     ),
     CodeSlideState(
         description = "Cool!",
         code = {
-            """
-                fun main() {
-                    println("Hello, World!")
-                }
-            """.trimIndent().toCode()
+            rememberHighlighting(
+                """
+                    fun main() {
+                        println("Hello, World!")
+                    }
+                """.trimIndent()
+            )
         },
     ),
     enterTransition = SlideRtlEnter,
@@ -111,21 +122,23 @@ fun StoryboardBuilder.CodeSlide() = slide(
 }
 
 @Composable
-private fun String.toCode(
-    identifierType: (Highlighting, String) -> SpanStyle? = { _, _ -> null },
+private fun rememberHighlighting(
+    text: String,
+    identifierStyle: (Highlighting, String) -> SpanStyle? = { _, _ -> null },
 ): AnnotatedString {
     val highlighting = Highlighting.current
-    return rememberSaveable(highlighting, this) {
-        buildKotlinCodeString(
-            text = this,
-            codeStyle = highlighting,
-            identifierType = {
-                identifierType(highlighting, it) ?: when (it) {
+    return rememberSaveable(highlighting, text) {
+        text.highlight(
+            highlighting = highlighting,
+            language = Language.Kotlin,
+            identifierStyle = {
+                identifierStyle(highlighting, it) ?: when (it) {
                     "main" -> highlighting.functionDeclaration
                     "println" -> highlighting.staticFunctionCall
                     else -> null
                 }
-            })
+            },
+        )
     }
 }
 

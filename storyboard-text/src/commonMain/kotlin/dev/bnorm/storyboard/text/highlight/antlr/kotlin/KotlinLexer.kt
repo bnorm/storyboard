@@ -1,5 +1,5 @@
-// Generated from /Users/brian/code/bnorm/presenter/antlr/antlr/KotlinLexer.g4 by ANTLR 4.13.1
-package dev.bnorm.librettist.text.antlr.kotlin
+// Generated from /Users/brian/code/bnorm/deck.bnorm.dev/storyboard/storyboard-text/antlr/kotlin/KotlinLexer.g4 by ANTLR 4.13.1
+package dev.bnorm.storyboard.text.highlight.antlr.kotlin
 
 import org.antlr.v4.kotlinruntime.*
 import org.antlr.v4.kotlinruntime.atn.*
