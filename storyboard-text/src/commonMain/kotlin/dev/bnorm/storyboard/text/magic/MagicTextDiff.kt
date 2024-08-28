@@ -1,9 +1,12 @@
 package dev.bnorm.storyboard.text.magic
 
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.buildAnnotatedString
-import org.apache.commons.text.diff.ListComparator
-import org.apache.commons.text.diff.ReplacementsFinder
+import io.github.petertrr.diffutils.algorithm.myers.MyersDiff
+import io.github.petertrr.diffutils.diff
+import io.github.petertrr.diffutils.patch.ChangeDelta
+import io.github.petertrr.diffutils.patch.DeleteDelta
+import io.github.petertrr.diffutils.patch.EqualDelta
+import io.github.petertrr.diffutils.patch.InsertDelta
 
 data class MagicTextDiff(
     val before: AnnotatedString,
@@ -34,91 +37,64 @@ fun AnnotatedString.toWords(): List<AnnotatedString> {
     }
 }
 
+private val EMPTY_ANNOTATED_STRING = AnnotatedString("")
+
 // Calculate diff of tokenized AnnotatedStrings.
-fun diff(before: List<AnnotatedString>, after: List<AnnotatedString>): List<MagicTextDiff> {
+internal fun diff(before: List<AnnotatedString>, after: List<AnnotatedString>): List<MagicTextDiff> {
     var index = 1
     fun nextKey() = "stable:${index++}"
 
-    var beforeOffset = 0
-    var afterOffset = 0
     return buildList {
-        fun add(
-            beforeSize: Int,
-            afterSize: Int,
-            keyed: Boolean,
-        ) {
-            val minSize = minOf(beforeSize, afterSize)
-            val maxSize = maxOf(beforeSize, afterSize)
-            for (i in 0..<minSize) {
-                add(
-                    MagicTextDiff(
-                        before = before[beforeOffset + i],
-                        after = after[afterOffset + i],
-                        key = if (keyed) nextKey() else null,
-                    )
-                )
-            }
 
-            if (maxSize > minSize) {
-                val empty = AnnotatedString("")
-                if (maxSize == beforeSize) {
-                    for (i in minSize..<maxSize) {
-                        add(
-                            MagicTextDiff(
-                                before = before[beforeOffset + i],
-                                after = empty,
-                                key = null,
-                            )
-                        )
-                    }
-                } else {
-                    for (i in minSize..<maxSize) {
-                        add(
-                            MagicTextDiff(
-                                before = empty,
-                                after = after[afterOffset + i],
-                                key = null,
-                            )
-                        )
-                    }
+        // Calculate diff based on just the text value of the string tokens.
+        val deltas = diff(
+            source = before.map { it.text },
+            target = after.map { it.text },
+            algorithm = MyersDiff(),
+            includeEqualParts = true,
+        ).deltas
+
+        // Reconstitute the diff using the annotated strings.
+        deltas.forEach { delta ->
+            val beforeDiff = List(delta.source.lines.size) { i -> before[delta.source.position + i] }
+            val afterDiff = List(delta.target.lines.size) { i -> after[delta.target.position + i] }
+
+            fun delete() {
+                for (element in beforeDiff) {
+                    add(MagicTextDiff(before = element, after = EMPTY_ANNOTATED_STRING))
                 }
             }
 
-            beforeOffset += beforeSize
-            afterOffset += afterSize
+            fun insert() {
+                for (element in afterDiff) {
+                    add(MagicTextDiff(before = EMPTY_ANNOTATED_STRING, after = element))
+                }
+            }
+
+            when (delta) {
+                is DeleteDelta<*> -> {
+                    require(afterDiff.isEmpty())
+                    delete()
+                }
+
+                is InsertDelta<*> -> {
+                    require(beforeDiff.isEmpty())
+                    insert()
+                }
+
+                is ChangeDelta<*> -> {
+                    // Treat a change like a delete and insert since there isn't any difference.
+                    delete()
+                    insert()
+                }
+
+                is EqualDelta<*> -> {
+                    require(beforeDiff.size == afterDiff.size)
+                    for (i in beforeDiff.indices) {
+                        add(MagicTextDiff(before = beforeDiff[i], after = afterDiff[i], key = nextKey()))
+                    }
+                }
+            }
         }
-
-        ListComparator(before.map { it.text }, after.map { it.text }).script.visit(
-            ReplacementsFinder { skipped, from, to ->
-                if (skipped > 0) {
-                    add(
-                        beforeSize = skipped,
-                        afterSize = skipped,
-                        keyed = true,
-                    )
-                }
-
-                add(
-                    beforeSize = from.size,
-                    afterSize = to.size,
-                    keyed = false,
-                )
-            }
-        )
-
-        add(
-            beforeSize = before.size - beforeOffset,
-            afterSize = after.size - afterOffset,
-            keyed = true,
-        )
-    }
-}
-
-private fun List<AnnotatedString>.merge(
-    fromIndex: Int = 0,
-    toIndex: Int = size,
-): AnnotatedString = buildAnnotatedString {
-    for (str in subList(fromIndex, toIndex)) {
-        append(str)
     }
 }

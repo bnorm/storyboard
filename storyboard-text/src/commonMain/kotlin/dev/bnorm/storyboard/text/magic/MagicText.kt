@@ -61,15 +61,15 @@ fun MagicText(
     val targetState = transition.targetState
     key(currentState, targetState) { // TODO does this need to be keyed on currentState?
 
-        // TODO instead of List<Pair<*, *>>, could this be a special data structure?
+        // TODO instead of Map<*, *>, could this be a special data structure?
         val sharedText = remember {
             when (currentState == targetState) {
-                true -> listOf(currentState to currentState.toLines()) // null == newline
+                true -> mapOf(currentState to currentState.toLines()) // null == newline
 
                 false -> {
                     val result = diff(currentState, targetState)
                     checkNoRepeatedKeys(result)
-                    listOf(
+                    mapOf(
                         currentState to result.toLines(after = false), // Re-render the previous text, split up based on diff with the next text.
                         targetState to result.toLines(after = true), // Render the next text, split up based on diff with the previous text.
                     )
@@ -77,7 +77,7 @@ fun MagicText(
             }
         }
 
-        val child = transition.createChildTransition { text -> sharedText.first { text === it.first }.second }
+        val child = transition.createChildTransition { text -> sharedText.getValue(text) }
         MagicTextInternal(child, modifier, fadeDurationMillis, moveDurationMillis)
     }
 }
@@ -96,8 +96,9 @@ private fun MagicTextInternal(
     fadeDuration: Int,
     moveDuration: Int,
 ) {
-    SharedTransitionLayout(modifier) {
+    SharedTransitionLayout {
         transition.AnimatedContent(
+            modifier = modifier,
             transitionSpec = { EnterTransition.None togetherWith ExitTransition.None },
         ) { parts ->
 
@@ -162,9 +163,9 @@ private fun List<MagicTextDiff>.toLines(after: Boolean): List<SharedText?> {
         var subKey = 1
         for (part in this@toLines) {
             val text = if (after) part.after else part.before
+            if (text.isEmpty()) continue
             for ((i, split) in text.split('\n').withIndex()) {
                 if (i > 0) add(null) // null == newline
-                if (split.isEmpty()) continue
                 add(SharedText(split, part.before != part.after, part.key?.let { "$it-${subKey++}" }))
             }
         }
@@ -176,7 +177,6 @@ private fun List<AnnotatedString>.toLines(): List<SharedText?> {
         for (part in this@toLines) {
             for ((i, split) in part.split('\n').withIndex()) {
                 if (i > 0) add(null) // null == newline
-                if (split.isEmpty()) continue
                 add(SharedText(split))
             }
         }

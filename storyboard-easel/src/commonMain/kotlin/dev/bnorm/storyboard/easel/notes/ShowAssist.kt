@@ -43,7 +43,7 @@ fun StoryboardNotes(storyboard: Storyboard, notes: StoryboardNotes, modifier: Mo
                 Spacer(Modifier.width(16.dp))
                 Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
                     Text("Next Slide")
-                    val nextFrame = run {
+                    val nextFrame by derivedStateOf {
                         val searchIndex = frames.binarySearch(storyboard.currentFrame)
                         val currentIndex = when {
                             searchIndex >= 0 -> searchIndex
@@ -51,13 +51,12 @@ fun StoryboardNotes(storyboard: Storyboard, notes: StoryboardNotes, modifier: Mo
                                 AdvanceDirection.Forward -> -(searchIndex - 1)
                                 AdvanceDirection.Backward -> -searchIndex
                             }
-
                         }
                         val nextIndex = currentIndex + 1
                         if (nextIndex in frames.indices) frames[nextIndex] else null
                     }
-                    if (nextFrame != null) {
-                        ClickableSlidePreview(storyboard, nextFrame)
+                    nextFrame?.let {
+                        ClickableSlidePreview(storyboard, it)
                     }
                 }
             }

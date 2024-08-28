@@ -62,9 +62,7 @@ internal class SlideNode<T> private constructor(
                 }
             }
         }
-
     }
-
 
     enum class AdvanceResult {
         Complete,
