@@ -13,6 +13,43 @@ fun interface SlideDecorator {
     }
 }
 
+operator fun SlideDecorator.plus(other: SlideDecorator): SlideDecorator {
+    val self = this
+    return when (SlideDecorator.None) {
+        other -> self
+        self -> other
+        else -> CompositeSlideDecorator(decorators = buildList {
+            when (self) {
+                is CompositeSlideDecorator -> addAll(self.decorators)
+                else -> add(self)
+            }
+            when (other) {
+                is CompositeSlideDecorator -> addAll(other.decorators)
+                else -> add(other)
+            }
+        })
+    }
+}
+
+private class CompositeSlideDecorator(
+    val decorators: List<SlideDecorator>
+) : SlideDecorator {
+
+    @Composable
+    override fun decorate(content: @Composable () -> Unit) {
+        @Composable
+        fun recurse(i: Int) {
+            if (i == decorators.size) {
+                content()
+            } else {
+                decorators[i].decorate { recurse(i + 1) }
+            }
+        }
+
+        recurse(0)
+    }
+}
+
 @StoryboardBuilderDsl
 fun StoryboardBuilder.decorated(
     decorator: SlideDecorator,
