@@ -8,6 +8,7 @@ import androidx.compose.material.Divider
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
@@ -19,9 +20,10 @@ import androidx.compose.ui.unit.sp
 import dev.bnorm.storyboard.core.StoryboardBuilder
 import dev.bnorm.storyboard.core.slide
 import dev.bnorm.storyboard.easel.template.Body
-import dev.bnorm.storyboard.easel.template.SlideRtlEnter
-import dev.bnorm.storyboard.easel.template.SlideRtlExit
-import dev.bnorm.storyboard.easel.template.Title
+import dev.bnorm.storyboard.easel.template.Header
+import dev.bnorm.storyboard.easel.template.SlideEnter
+import dev.bnorm.storyboard.easel.template.SlideExit
+import dev.bnorm.storyboard.example.shared.JetBrainsMono
 import dev.bnorm.storyboard.text.highlight.Highlighting
 import dev.bnorm.storyboard.text.highlight.Language
 import dev.bnorm.storyboard.text.highlight.highlight
@@ -82,8 +84,8 @@ fun StoryboardBuilder.CodeSlide() = slide(
             )
         },
     ),
-    enterTransition = SlideRtlEnter,
-    exitTransition = SlideRtlExit,
+    enterTransition = SlideEnter(alignment = Alignment.CenterEnd),
+    exitTransition = SlideExit(alignment = Alignment.CenterEnd),
 ) {
     val jetBrainsMono = JetBrainsMono
     val highlighting = Highlighting.build {
@@ -103,7 +105,7 @@ fun StoryboardBuilder.CodeSlide() = slide(
 
     Highlighting(highlighting) {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-            Title { Text("Code Slide") }
+            Header { Text("Code Slide") }
             Divider(color = MaterialTheme.colors.primary)
             Body {
                 Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
@@ -111,7 +113,9 @@ fun StoryboardBuilder.CodeSlide() = slide(
                     Text(currentState.description)
 
                     @OptIn(ExperimentalTransitionApi::class)
-                    val code = state.createChildTransition { it.toState().code.invoke() }
+                    val code = state.createChildTransition {
+                        it.toState().code.invoke()
+                    }
                     MagicText(code, modifier = Modifier.fillMaxSize())
                 }
             }

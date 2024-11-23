@@ -8,7 +8,6 @@ import dev.bnorm.storyboard.core.AdvanceDirection
 import dev.bnorm.storyboard.core.SlideScope
 import dev.bnorm.storyboard.core.SlideState
 import kotlin.experimental.ExperimentalTypeInference
-import kotlin.jvm.JvmName
 
 /**
  * Storyboard animations may have to deal with at least two separate things:
@@ -66,26 +65,22 @@ inline fun SlideScope<*>.exit(
     end: () -> ExitTransition = { ExitTransition.None },
 ): ExitTransition = direction.exit(start, end)
 
-@OverloadResolutionByLambdaReturnType
-@JvmName("onStart_EnterTransition")
-inline fun onStart(
-    crossinline animation: (AdvanceDirection) -> EnterTransition,
-): (AdvanceDirection) -> EnterTransition = { it.enter(start = { animation(it) }) }
+inline fun enter(
+    crossinline start: (AdvanceDirection) -> EnterTransition = { EnterTransition.None },
+    crossinline end: (AdvanceDirection) -> EnterTransition = { EnterTransition.None },
+): (AdvanceDirection) -> EnterTransition = { direction ->
+    direction.enter(
+        { start(direction) },
+        { end(direction) },
+    )
+}
 
-@OverloadResolutionByLambdaReturnType
-@JvmName("onStart_ExitTransition")
-inline fun onStart(
-    crossinline animation: (AdvanceDirection) -> ExitTransition,
-): (AdvanceDirection) -> ExitTransition = { it.exit(start = { animation(it) }) }
-
-@OverloadResolutionByLambdaReturnType
-@JvmName("onEnd_EnterTransition")
-inline fun onEnd(
-    crossinline animation: (AdvanceDirection) -> EnterTransition,
-): (AdvanceDirection) -> EnterTransition = { it.enter(end = { animation(it) }) }
-
-@OverloadResolutionByLambdaReturnType
-@JvmName("onEnd_ExitTransition")
-inline fun onEnd(
-    crossinline animation: (AdvanceDirection) -> ExitTransition,
-): (AdvanceDirection) -> ExitTransition = { it.exit(end = { animation(it) }) }
+inline fun exit(
+    crossinline start: (AdvanceDirection) -> ExitTransition = { ExitTransition.None },
+    crossinline end: (AdvanceDirection) -> ExitTransition = { ExitTransition.None },
+): (AdvanceDirection) -> ExitTransition = { direction ->
+    direction.exit(
+        { start(direction) },
+        { end(direction) },
+    )
+}

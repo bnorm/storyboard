@@ -25,8 +25,6 @@ kotlin {
                 implementation(project(":storyboard-easel"))
                 implementation(project(":storyboard-text"))
 
-                implementation(project(":examples:shared"))
-
                 implementation(compose.runtime)
                 implementation(compose.foundation)
                 implementation(compose.material)
@@ -43,10 +41,4 @@ kotlin {
 
 compose {
     resources.publicResClass = true
-    desktop.application.mainClass = "Main_desktopKt"
-}
-
-tasks.register<Sync>("site") {
-    from(tasks.named("wasmJsBrowserDistribution"))
-    into(rootProject.layout.buildDirectory.dir("_site/example/${project.name}"))
 }

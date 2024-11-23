@@ -1,8 +1,10 @@
+package dev.bnorm.storyboard.example.shared
+
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
-import dev.bnorm.storyboard.example.basic.generated.resources.*
+import dev.bnorm.storyboard.example.shared.generated.resources.*
 import org.jetbrains.compose.resources.Font
 
 val JetBrainsMono

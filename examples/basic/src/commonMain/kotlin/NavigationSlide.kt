@@ -11,13 +11,13 @@ import dev.bnorm.storyboard.core.StoryboardBuilder
 import dev.bnorm.storyboard.core.slide
 import dev.bnorm.storyboard.easel.notes.NotesTab
 import dev.bnorm.storyboard.easel.template.Body
-import dev.bnorm.storyboard.easel.template.Title
+import dev.bnorm.storyboard.easel.template.Header
 
 fun StoryboardBuilder.NavigationSlide() = slide(
     stateCount = 5,
 ) {
     Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-        Title { Text("Navigation") }
+        Header { Text("Navigation") }
         Divider(color = MaterialTheme.colors.primary)
         Body {
             Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {

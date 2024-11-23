@@ -9,12 +9,12 @@ pluginManagement {
     }
 
     plugins {
-        val kotlinVersion = "2.0.20"
+        val kotlinVersion = "2.0.21"
 
         kotlin("multiplatform") version kotlinVersion
         kotlin("plugin.serialization") version kotlinVersion
         kotlin("plugin.compose") version kotlinVersion
-        id("org.jetbrains.compose") version "1.7.0-alpha03"
+        id("org.jetbrains.compose") version "1.7.1"
     }
 
     dependencyResolutionManagement {
@@ -33,3 +33,4 @@ include(":storyboard-easel")
 include(":storyboard-text")
 
 include(":examples:basic")
+include(":examples:shared")

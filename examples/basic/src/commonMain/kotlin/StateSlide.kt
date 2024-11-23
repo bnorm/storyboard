@@ -14,7 +14,7 @@ import dev.bnorm.storyboard.core.SlideState
 import dev.bnorm.storyboard.core.StoryboardBuilder
 import dev.bnorm.storyboard.core.slide
 import dev.bnorm.storyboard.easel.template.Body
-import dev.bnorm.storyboard.easel.template.Title
+import dev.bnorm.storyboard.easel.template.Header
 
 class StateSlideState(
     val index: Int,
@@ -55,7 +55,7 @@ fun StoryboardBuilder.StateSlide() = slide(
         val currentState = currentState
         val index = currentState.index
 
-        Title { Text(currentState.title) }
+        Header { Text(currentState.title) }
         Divider(color = MaterialTheme.colors.primary)
         Body {
             state.AnimatedVisibility(

@@ -13,22 +13,21 @@ import dev.bnorm.storyboard.core.StoryboardBuilder
 import dev.bnorm.storyboard.core.slide
 import dev.bnorm.storyboard.easel.enter
 import dev.bnorm.storyboard.easel.exit
-import dev.bnorm.storyboard.easel.onEnd
-import dev.bnorm.storyboard.easel.template.SlideRtlEnter
-import dev.bnorm.storyboard.easel.template.SlideRtlExit
-import dev.bnorm.storyboard.easel.template.Title
+import dev.bnorm.storyboard.easel.template.Header
+import dev.bnorm.storyboard.easel.template.SlideEnter
+import dev.bnorm.storyboard.easel.template.SlideExit
 import kotlin.math.roundToInt
 
 fun StoryboardBuilder.AnimationSlide() = slide(
     stateCount = 6,
-    enterTransition = onEnd(SlideRtlEnter),
-    exitTransition = onEnd(SlideRtlExit),
+    enterTransition = enter(end = SlideEnter(alignment = Alignment.CenterEnd)),
+    exitTransition = exit(end = SlideExit(alignment = Alignment.CenterEnd)),
 ) {
     @OptIn(ExperimentalTransitionApi::class)
     val state = state.createChildTransition { it.toState() }
 
     Column(verticalArrangement = Arrangement.spacedBy(16.dp), modifier = Modifier.padding(16.dp)) {
-        Title { Text("Animation") }
+        Header { Text("Animation") }
         Divider(color = MaterialTheme.colors.primary)
     }
 
@@ -44,7 +43,7 @@ fun StoryboardBuilder.AnimationSlide() = slide(
             ),
             exit = fadeOut(),
             modifier = Modifier.align(Alignment.Center),
-            content = { Text("Things can appear!", style = MaterialTheme.typography.h1) },
+            content = { Text("Things can appear!", style = MaterialTheme.typography.h4) },
         )
 
         state.AnimatedVisibility(
@@ -65,7 +64,7 @@ fun StoryboardBuilder.AnimationSlide() = slide(
                 end = { slideOutHorizontally { halfWidth + it / 2 } },
             ) + fadeOut(),
             modifier = Modifier.align(Alignment.Center),
-            content = { Text("Things can move!", style = MaterialTheme.typography.h1) },
+            content = { Text("Things can move!", style = MaterialTheme.typography.h4) },
         )
 
         state.AnimatedVisibility(
@@ -85,7 +84,7 @@ fun StoryboardBuilder.AnimationSlide() = slide(
             modifier = Modifier.align(Alignment.Center),
         ) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text("All using Compose animation!", style = MaterialTheme.typography.h1)
+                Text("All using Compose animation!", style = MaterialTheme.typography.h4)
 
                 state.AnimatedVisibility(
                     visible = { it >= 4 },
@@ -93,14 +92,14 @@ fun StoryboardBuilder.AnimationSlide() = slide(
                     exit = fadeOut() + shrinkVertically(),
                 ) {
                     Row {
-                        Text("With lots of configuration.", style = MaterialTheme.typography.h3)
+                        Text("With lots of configuration.", style = MaterialTheme.typography.h4)
 
                         state.AnimatedVisibility(
                             visible = { it >= 5 },
                             enter = fadeIn() + expandHorizontally(),
                             exit = fadeOut() + shrinkHorizontally(),
                         ) {
-                            Text(" Like, a lot.", style = MaterialTheme.typography.h3)
+                            Text(" Like, a lot.", style = MaterialTheme.typography.h4)
                         }
                     }
                 }

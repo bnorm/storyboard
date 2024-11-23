@@ -2,7 +2,6 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Typography
 import androidx.compose.material.darkColors
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
 import dev.bnorm.storyboard.core.SlideDecorator
 import dev.bnorm.storyboard.core.Storyboard
 
@@ -29,15 +28,7 @@ private val theme = SlideDecorator { content ->
         secondary = Color(0xFFFDB60D),
     )
 
-    val typography = Typography().run {
-        copy(
-            h1 = h3.copy(fontWeight = FontWeight.Light),
-            h2 = h4.copy(fontWeight = FontWeight.Light),
-            h3 = h5.copy(fontWeight = FontWeight.Normal),
-            h4 = h6.copy(fontWeight = FontWeight.Normal),
-            h5 = h6.copy(fontWeight = FontWeight.Normal),
-        )
-    }
+    val typography = Typography()
 
     MaterialTheme(colors, typography) {
         content()
