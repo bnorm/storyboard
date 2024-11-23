@@ -105,7 +105,7 @@ class Storyboard private constructor(
 
     private suspend fun eventAdvance(direction: AdvanceDirection, jump: Boolean) {
         this.direction = direction
-        var shouldJump = jump
+        var shouldSnap = false
 
         val currentState = node.currentState
         val targetState = node.targetState
@@ -118,18 +118,18 @@ class Storyboard private constructor(
                 AdvanceDirection.Backward -> maxOf(currentState, targetState).previous() ?: return
             }
             node.snapTo(newNode)
-            shouldJump = true
+            shouldSnap = true
         }
 
         while (true) {
             // Advance the current node to the next state.
             val currentNode = node.currentState
-            when (currentNode.advance(direction, shouldJump)) {
+            when (currentNode.advance(direction, shouldSnap)) {
                 // Advancement is complete.
                 SlideNode.AdvanceResult.Complete -> return
 
                 // Advancement requires node transition as well.
-                SlideNode.AdvanceResult.Jumped -> shouldJump = true
+                SlideNode.AdvanceResult.Jumped -> shouldSnap = true
                 SlideNode.AdvanceResult.Incomplete -> {}
             }
 
@@ -138,7 +138,7 @@ class Storyboard private constructor(
                 AdvanceDirection.Forward -> currentNode.next() ?: return
                 AdvanceDirection.Backward -> currentNode.previous() ?: return
             }
-            when (shouldJump) {
+            when (shouldSnap) {
                 true -> node.snapTo(newNode)
                 false -> node.animateTo(newNode)
             }

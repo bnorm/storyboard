@@ -79,38 +79,46 @@ internal class SlideNode<T> private constructor(
     internal var stateIndex by mutableStateOf(SeekableTransitionState(0))
         private set
 
-    suspend fun advance(direction: AdvanceDirection, jump: Boolean): AdvanceResult {
+    suspend fun advance(direction: AdvanceDirection, snap: Boolean): AdvanceResult {
         val currentIndex = stateIndex.currentState
         val targetIndex = stateIndex.targetState
         if (currentIndex != targetIndex) {
             // Current and target indexes are different:
             // 1. Pick the current index based on the advancement direction.
             // 2. Switch to a jump to skip the current transition.
-            return advanceFrom(
+            val result = advanceFrom(
                 currentIndex = when (direction) {
                     AdvanceDirection.Forward -> minOf(currentIndex, targetIndex) // Pick the earlier index.
                     AdvanceDirection.Backward -> maxOf(currentIndex, targetIndex) // Pick the latter index.
                 },
                 direction = direction,
-                jump = true,
+                snap = true,
             )
+            return if (result == AdvanceResult.Complete && !snap) {
+                // If the skip was successful, start another advancement if available.
+                val newIndex = stateIndex.currentState + direction.toInt()
+                if (newIndex !in states.indices) return AdvanceResult.Complete
+                advanceFrom(stateIndex.currentState, direction, snap = false)
+            } else {
+                result
+            }
         }
 
-        return advanceFrom(currentIndex, direction, jump)
+        return advanceFrom(currentIndex, direction, snap)
     }
 
-    private suspend fun advanceFrom(currentIndex: Int, direction: AdvanceDirection, jump: Boolean): AdvanceResult {
+    private suspend fun advanceFrom(currentIndex: Int, direction: AdvanceDirection, snap: Boolean): AdvanceResult {
         val newIndex = currentIndex + direction.toInt()
         if (newIndex !in states.indices) return AdvanceResult.Incomplete
-        when (jump) {
-            true -> stateIndex = SeekableTransitionState(newIndex)
+        when (snap) {
+            true -> stateIndex.snapTo(newIndex)
             false -> stateIndex.animateTo(newIndex)
         }
 
         return when {
             direction == AdvanceDirection.Forward && states[newIndex] != SlideState.End -> AdvanceResult.Complete
             direction == AdvanceDirection.Backward && states[newIndex] != SlideState.Start -> AdvanceResult.Complete
-            jump -> AdvanceResult.Jumped
+            snap -> AdvanceResult.Jumped
             else -> return AdvanceResult.Incomplete
         }
     }
