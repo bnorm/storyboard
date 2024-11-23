@@ -144,6 +144,8 @@ class StoryboardOverview private constructor(
     val columns: ImmutableList<Column>,
     currentColumnIndex: Int,
 ) {
+    var isVisible by mutableStateOf(false)
+
     var currentColumnIndex by mutableStateOf(currentColumnIndex)
     val currentItem: Item
         get() = columns[currentColumnIndex].let { it.items[it.currentItemIndex] }

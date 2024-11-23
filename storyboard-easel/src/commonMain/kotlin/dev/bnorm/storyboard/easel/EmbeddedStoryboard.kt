@@ -12,13 +12,8 @@ import dev.bnorm.storyboard.ui.StoryboardSlide
 fun EmbeddedStoryboard(storyboard: Storyboard, modifier: Modifier = Modifier) {
     val coroutineScope = rememberCoroutineScope()
     val overlayState = remember(coroutineScope) { OverlayState(coroutineScope) }
-    EmbeddedStoryboard(storyboard, overlayState, modifier)
-}
-
-@Composable
-fun EmbeddedStoryboard(storyboard: Storyboard, overlayState: OverlayState?, modifier: Modifier = Modifier) {
     Box(modifier = Modifier.onPointerMovePress(overlayState)) {
         StoryboardSlide(storyboard, modifier = modifier)
-        if (overlayState != null) StoryboardOverlay(storyboard, overlayState)
+        StoryboardOverlay(storyboard, overlayState)
     }
 }

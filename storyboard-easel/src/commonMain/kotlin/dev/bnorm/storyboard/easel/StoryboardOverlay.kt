@@ -22,10 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.input.pointer.PointerEventType
-import androidx.compose.ui.input.pointer.PointerIcon
-import androidx.compose.ui.input.pointer.onPointerEvent
-import androidx.compose.ui.input.pointer.pointerHoverIcon
+import androidx.compose.ui.input.pointer.*
 import androidx.compose.ui.unit.dp
 import dev.bnorm.storyboard.core.AdvanceDirection
 import dev.bnorm.storyboard.core.Storyboard
@@ -119,19 +116,51 @@ class OverlayState(
     }
 }
 
+@Composable
+fun rememberOverlayState(
+    initialVisibility: Boolean = false,
+    showNavigation: Boolean = true,
+): OverlayState {
+    val coroutineScope = rememberCoroutineScope()
+    val state = remember(coroutineScope) {
+        OverlayState(
+            scope = coroutineScope,
+            initialVisibility = initialVisibility,
+            showNavigation = showNavigation,
+        )
+    }
+    return state
+}
+
 @OptIn(ExperimentalComposeUiApi::class)
 internal fun Modifier.onPointerEnterExit(state: OverlayState): Modifier {
-    return this
-        .onPointerEvent(PointerEventType.Enter) { state.enter() }
-        .onPointerEvent(PointerEventType.Exit) { state.exit() }
+    return pointerInput(Unit) {
+        awaitPointerEventScope {
+            while (true) {
+                val event = awaitPointerEvent(PointerEventPass.Main)
+                when (event.type) {
+                    PointerEventType.Enter -> state.enter()
+                    PointerEventType.Exit -> state.exit()
+                }
+            }
+        }
+    }
 }
 
 @OptIn(ExperimentalComposeUiApi::class)
 internal fun Modifier.onPointerMovePress(state: OverlayState?): Modifier {
     if (state == null) return this
-    return this
-        .onPointerEvent(PointerEventType.Move) { state.event() }
-        .onPointerEvent(PointerEventType.Press) { state.event() }
+    return pointerInput(Unit) {
+        awaitPointerEventScope {
+            while (true) {
+                val event = awaitPointerEvent(PointerEventPass.Main)
+                when (event.type) {
+                    PointerEventType.Move -> state.event()
+                    PointerEventType.Press -> state.event()
+                }
+            }
+        }
+    }
 }
 
 @Composable

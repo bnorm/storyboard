@@ -25,12 +25,20 @@ fun WebStoryboard(
         storyboard.jumpTo(storyboard.frames[frameIndex.coerceIn(storyboard.frames.indices)])
     }
 
+    val overview = StoryboardOverview.of(storyboard)
+
     CanvasBasedWindow(canvasElementId = canvasElementId, title = storyboard.name) {
-        LaunchedSearchUpdate(storyboard)
+        LaunchedSearchUpdate(storyboard, overview)
+
+        val overlayState = rememberOverlayState(
+            initialVisibility = true,
+        )
 
         MaterialTheme(colors = darkColors()) {
             Storyboard(
                 storyboard = storyboard,
+                overview = overview,
+                overlayState = overlayState,
                 modifier = Modifier.fillMaxSize()
                     .background(MaterialTheme.colors.background),
             )
@@ -39,14 +47,23 @@ fun WebStoryboard(
 }
 
 @Composable
-fun LaunchedSearchUpdate(storyboard: Storyboard) {
+fun LaunchedSearchUpdate(storyboard: Storyboard, overview: StoryboardOverview) {
     val frame = storyboard.currentFrame
-    LaunchedEffect(frame) {
-        val index = storyboard.frames.binarySearch(frame)
-        if (index < 0) return@LaunchedEffect
-
+    val overviewVisible = overview.isVisible
+    LaunchedEffect(frame, overviewVisible) {
         val url = URL(window.location.toString())
-        url.searchParams.set("frame", index.toString())
+
+        val index = storyboard.frames.binarySearch(frame)
+        if (index >= 0) {
+            url.searchParams.set("frame", index.toString())
+        }
+
+        if (overviewVisible) {
+            url.searchParams.set("overview", "true")
+        } else {
+            url.searchParams.delete("overview")
+        }
+
         window.history.pushState(null, "", url.toString())
     }
 }
