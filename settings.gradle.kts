@@ -5,7 +5,6 @@ pluginManagement {
         mavenCentral()
         google()
         gradlePluginPortal()
-        maven { setUrl("https://maven.pkg.jetbrains.space/public/p/compose/dev") }
     }
 
     plugins {
@@ -21,7 +20,6 @@ pluginManagement {
         repositories {
             mavenCentral()
             google()
-            maven { setUrl("https://maven.pkg.jetbrains.space/public/p/compose/dev") }
         }
     }
 }
