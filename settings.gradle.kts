@@ -8,12 +8,12 @@ pluginManagement {
     }
 
     plugins {
-        val kotlinVersion = "2.0.21"
+        val kotlinVersion = "2.1.0"
 
         kotlin("multiplatform") version kotlinVersion
         kotlin("plugin.serialization") version kotlinVersion
         kotlin("plugin.compose") version kotlinVersion
-        id("org.jetbrains.compose") version "1.7.1"
+        id("org.jetbrains.compose") version "1.7.3"
     }
 
     dependencyResolutionManagement {
