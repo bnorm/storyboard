@@ -26,6 +26,9 @@ fun WebStoryboard(
     }
 
     val overview = StoryboardOverview.of(storyboard)
+    if (params.get("overview").toBoolean()) {
+        overview.isVisible = true
+    }
 
     CanvasBasedWindow(canvasElementId = canvasElementId, title = storyboard.name) {
         LaunchedSearchUpdate(storyboard, overview)
@@ -64,6 +67,6 @@ fun LaunchedSearchUpdate(storyboard: Storyboard, overview: StoryboardOverview) {
             url.searchParams.delete("overview")
         }
 
-        window.history.pushState(null, "", url.toString())
+        window.history.replaceState(null, "", url.toString())
     }
 }

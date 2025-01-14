@@ -4,10 +4,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
@@ -33,10 +30,36 @@ import kotlinx.coroutines.launch
 import kotlin.time.TimeMark
 import kotlin.time.TimeSource
 
+interface SlideOverlayScope : BoxScope {
+    fun Modifier.overlayElement(): Modifier
+}
+
 @Composable
 fun StoryboardOverlay(
     storyboard: Storyboard,
     state: OverlayState,
+    content: @Composable SlideOverlayScope.() -> Unit = {
+        Surface(
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(16.dp)
+                .clip(RoundedCornerShape(8.dp))
+                .overlayElement()
+        ) {
+            Row {
+                IconButton(
+                    text = "Previous",
+                    icon = Icons.AutoMirrored.Rounded.ArrowBack,
+                    onClick = { storyboard.advance(AdvanceDirection.Backward) }
+                )
+                IconButton(
+                    text = "Next",
+                    icon = Icons.AutoMirrored.Rounded.ArrowForward,
+                    onClick = { storyboard.advance(AdvanceDirection.Forward) }
+                )
+            }
+        }
+    },
 ) {
     AnimatedVisibility(
         visible = state.visible,
@@ -49,28 +72,15 @@ fun StoryboardOverlay(
                 .fillMaxSize()
                 .alpha(alpha)
         ) {
-            if (state.showNavigation) {
-                Surface(
-                    modifier = Modifier
-                        .align(Alignment.BottomEnd)
-                        .padding(16.dp)
-                        .clip(RoundedCornerShape(8.dp))
-                        .onPointerEnterExit(state)
-                ) {
-                    Row {
-                        IconButton(
-                            text = "Previous",
-                            icon = Icons.AutoMirrored.Rounded.ArrowBack,
-                            onClick = { storyboard.advance(AdvanceDirection.Backward) }
-                        )
-                        IconButton(
-                            text = "Next",
-                            icon = Icons.AutoMirrored.Rounded.ArrowForward,
-                            onClick = { storyboard.advance(AdvanceDirection.Forward) }
-                        )
+            val scope = remember(state) {
+                object : SlideOverlayScope, BoxScope by this {
+                    override fun Modifier.overlayElement(): Modifier {
+                        return onPointerEnterExit(state)
                     }
                 }
             }
+
+            scope.content()
         }
     }
 }
