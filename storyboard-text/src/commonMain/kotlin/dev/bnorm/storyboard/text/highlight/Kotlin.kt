@@ -33,7 +33,16 @@ internal fun highlightKotlin(
                     KotlinLexer.Tokens.CLASS,
                     KotlinLexer.Tokens.INTERFACE,
                     KotlinLexer.Tokens.TYPE_ALIAS,
+                    KotlinLexer.Tokens.IF,
+                    KotlinLexer.Tokens.ELSE,
+                    KotlinLexer.Tokens.WHEN,
+                    KotlinLexer.Tokens.TRY,
+                    KotlinLexer.Tokens.CATCH,
+                    KotlinLexer.Tokens.FINALLY,
                     KotlinLexer.Tokens.FOR,
+                    KotlinLexer.Tokens.DO,
+                    KotlinLexer.Tokens.WHILE,
+                    KotlinLexer.Tokens.THROW,
                     KotlinLexer.Tokens.RETURN,
                     KotlinLexer.Tokens.IN,
                     KotlinLexer.Tokens.OPERATOR,
@@ -44,11 +53,13 @@ internal fun highlightKotlin(
                     KotlinLexer.Tokens.IntegerLiteral,
                     KotlinLexer.Tokens.HexLiteral,
                     KotlinLexer.Tokens.BinLiteral,
-                    KotlinLexer.Tokens.CharacterLiteral,
                     KotlinLexer.Tokens.RealLiteral,
                     KotlinLexer.Tokens.LongLiteral,
                     KotlinLexer.Tokens.UnsignedLiteral,
                         -> addStyle(codeStyle.number, token)
+
+                    KotlinLexer.Tokens.CharacterLiteral,
+                        -> addStyle(codeStyle.string, token)
 
                     KotlinLexer.Tokens.LineComment,
                     KotlinLexer.Tokens.Inside_Comment,
@@ -65,11 +76,23 @@ internal fun highlightKotlin(
                     }
 
                     KotlinLexer.Tokens.QUOTE_OPEN,
-                    KotlinLexer.Tokens.TRIPLE_QUOTE_OPEN,
                     KotlinLexer.Tokens.QUOTE_CLOSE,
-                    KotlinLexer.Tokens.TRIPLE_QUOTE_CLOSE,
                     KotlinLexer.Tokens.LineStrText,
                         -> addStyle(codeStyle.string, token)
+
+                    KotlinLexer.Tokens.TRIPLE_QUOTE_OPEN,
+                    KotlinLexer.Tokens.TRIPLE_QUOTE_CLOSE,
+                        -> {
+                        addStyle(codeStyle.string, token)
+                        while (true) {
+                            val next = nextToken()
+                            // TODO handle string templates
+                            addStyle(codeStyle.string, next)
+                            if (next.type == KotlinLexer.Tokens.TRIPLE_QUOTE_CLOSE) {
+                                return next
+                            }
+                        }
+                    }
 
                     KotlinLexer.Tokens.Identifier,
                         -> addIdentifierStyle(token)
