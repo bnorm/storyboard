@@ -15,7 +15,7 @@ import java.nio.file.Paths
 
 fun exportAsPdf(
     storyboard: Storyboard,
-    path: Path = Paths.get("${storyboard.name}.pdf"),
+    path: Path = Paths.get("${storyboard.title}.pdf"),
     width: Int = storyboard.size.width.value.toInt(),
     height: Int = storyboard.size.height.value.toInt(),
 ) {

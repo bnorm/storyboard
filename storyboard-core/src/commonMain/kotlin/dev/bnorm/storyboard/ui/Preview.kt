@@ -134,9 +134,10 @@ fun StoryboardPreview(storyboard: Storyboard) {
 @Composable
 fun StoryboardPreview(
     name: String = "Preview",
+    description: String? = null,
     size: DpSize = Storyboard.DEFAULT_SIZE,
     decorator: SlideDecorator = SlideDecorator.None,
     block: StoryboardBuilder.() -> Unit,
 ) {
-    StoryboardPreview(Storyboard.build(name, size, decorator, block))
+    StoryboardPreview(Storyboard.build(name, description, size, decorator, block))
 }

@@ -7,7 +7,7 @@ import dev.bnorm.storyboard.core.Storyboard
 
 val BASIC_STORYBOARD by lazy {
     Storyboard.build(
-        name = "Basic Storyboard",
+        title = "Basic Storyboard",
         size = Storyboard.DEFAULT_SIZE,
         decorator = theme,
     ) {

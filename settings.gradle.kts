@@ -8,7 +8,7 @@ pluginManagement {
     }
 
     plugins {
-        val kotlinVersion = "2.1.0"
+        val kotlinVersion = "2.1.20-Beta2"
 
         kotlin("multiplatform") version kotlinVersion
         kotlin("plugin.serialization") version kotlinVersion

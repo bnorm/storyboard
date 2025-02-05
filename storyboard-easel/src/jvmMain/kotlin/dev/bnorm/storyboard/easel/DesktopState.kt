@@ -30,7 +30,7 @@ class DesktopState(
 
 @Composable
 fun rememberDesktopState(storyboard: Storyboard, format: StringFormat = Json): DesktopState? {
-    return rememberDesktopState(Paths.get(".storyboard", "${storyboard.name}.json"), format)
+    return rememberDesktopState(Paths.get(".storyboard", "${storyboard.title}.json"), format)
 }
 
 @Composable

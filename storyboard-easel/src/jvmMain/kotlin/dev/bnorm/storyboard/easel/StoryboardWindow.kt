@@ -17,7 +17,7 @@ fun ApplicationScope.StoryboardWindow(
     Window(
         onCloseRequest = ::exitApplication,
         state = windowState,
-        title = storyboard.name,
+        title = storyboard.title,
     ) {
         if (menuBar != null) MenuBar(menuBar)
 

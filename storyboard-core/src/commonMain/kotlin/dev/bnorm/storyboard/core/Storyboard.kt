@@ -16,7 +16,8 @@ import kotlinx.coroutines.flow.collectLatest
 
 @Stable
 class Storyboard private constructor(
-    val name: String,
+    val title: String,
+    val description: String?,
     val slides: ImmutableList<Slide<*>>,
     val size: DpSize = DEFAULT_SIZE,
     val decorator: SlideDecorator = SlideDecorator.None,
@@ -37,14 +38,15 @@ class Storyboard private constructor(
         val DEFAULT_SIZE = DpSize(960.dp, 540.dp)
 
         fun build(
-            name: String,
+            title: String,
+            description: String? = null,
             size: DpSize = DEFAULT_SIZE,
             decorator: SlideDecorator = SlideDecorator.None,
             block: StoryboardBuilder.() -> Unit,
         ): Storyboard {
             val builder = StoryboardBuilderImpl()
             builder.block()
-            return Storyboard(name, builder.build().toImmutableList(), size, decorator)
+            return Storyboard(title, description, builder.build().toImmutableList(), size, decorator)
         }
     }
 
