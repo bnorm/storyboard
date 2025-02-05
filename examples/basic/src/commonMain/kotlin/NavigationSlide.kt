@@ -24,7 +24,7 @@ fun StoryboardBuilder.NavigationSlide() = slide(
                 Text("After slide gains focus, advance with arrow keys.")
                 if (currentState >= 1) Text("    • Slides can also be advanced with the mouse.")
                 if (currentState >= 3) Text("    • Press 'Esc' to see overview! (arrows to navigate and 'Enter' to open slide)")
-                if (currentState >= 4) Text("    • Press F2 to see next slide preview and notes. (Desktop only!)")
+                if (currentState >= 4) Text("    • Press 'F2' to see next slide preview and notes. (Desktop only!)")
             }
 
             if (currentState >= 2) {
