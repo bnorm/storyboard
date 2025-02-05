@@ -17,6 +17,7 @@ class Highlighting private constructor(
     val comment: SpanStyle,
     val string: SpanStyle,
     val property: SpanStyle,
+    val staticProperty: SpanStyle,
     val functionDeclaration: SpanStyle,
     val staticFunctionCall: SpanStyle,
     val extensionFunctionCall: SpanStyle,
@@ -41,6 +42,7 @@ class Highlighting private constructor(
                     comment = base,
                     string = base,
                     property = base,
+                    staticProperty = base,
                     functionDeclaration = base,
                     staticFunctionCall = base,
                     extensionFunctionCall = base,
@@ -59,6 +61,7 @@ class Highlighting private constructor(
         var comment: SpanStyle = base.comment
         var string: SpanStyle = base.string
         var property: SpanStyle = base.property
+        var staticProperty: SpanStyle = base.staticProperty
         var functionDeclaration: SpanStyle = base.functionDeclaration
         var staticFunctionCall: SpanStyle = base.staticFunctionCall
         var extensionFunctionCall: SpanStyle = base.extensionFunctionCall
@@ -74,6 +77,7 @@ class Highlighting private constructor(
                 comment = comment,
                 string = string,
                 property = property,
+                staticProperty = staticProperty,
                 functionDeclaration = functionDeclaration,
                 staticFunctionCall = staticFunctionCall,
                 extensionFunctionCall = extensionFunctionCall,

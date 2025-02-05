@@ -97,6 +97,7 @@ fun StoryboardBuilder.CodeSlide() = slide(
         comment = simple + SpanStyle(color = Color(0xFF7A7E85))
         string = simple + SpanStyle(color = Color(0xFF6AAB73))
         property = simple + SpanStyle(color = Color(0xFFC77DBB))
+        staticProperty = property + SpanStyle(fontStyle = FontStyle.Italic)
         functionDeclaration = simple + SpanStyle(color = Color(0xFF56A8F5))
         extensionFunctionCall = simple + SpanStyle(color = Color(0xFF56A8F5), fontStyle = FontStyle.Italic)
         staticFunctionCall = simple + SpanStyle(fontStyle = FontStyle.Italic)
