@@ -33,24 +33,6 @@ import kotlinx.collections.immutable.toImmutableList
 
 @Composable
 fun StoryboardOverview(
-    storyboard: Storyboard,
-    onExitOverview: (Storyboard.Frame) -> Unit = {},
-    sharedTransitionScope: SharedTransitionScope,
-    animatedVisibilityScope: AnimatedContentScope,
-    modifier: Modifier = Modifier,
-) {
-    val overview = remember(storyboard) { StoryboardOverview.of(storyboard) }
-    StoryboardOverview(
-        overview = overview,
-        onExitOverview = onExitOverview,
-        sharedTransitionScope = sharedTransitionScope,
-        animatedVisibilityScope = animatedVisibilityScope,
-        modifier = modifier,
-    )
-}
-
-@Composable
-fun StoryboardOverview(
     overview: StoryboardOverview,
     onExitOverview: (Storyboard.Frame) -> Unit = {},
     sharedTransitionScope: SharedTransitionScope,
@@ -142,11 +124,17 @@ fun StoryboardOverview(
 class StoryboardOverview private constructor(
     val storyboard: Storyboard,
     val columns: ImmutableList<Column>,
-    currentColumnIndex: Int,
 ) {
-    var isVisible by mutableStateOf(false)
+    private var _isVisible = mutableStateOf(false)
+    var isVisible: Boolean
+        get() = _isVisible.value
+        set(value) {
+            // If the overview becomes visible, make sure it is on the correct frame.
+            if (value == true) jumpToFrame()
+            _isVisible.value = value
+        }
 
-    var currentColumnIndex by mutableStateOf(currentColumnIndex)
+    var currentColumnIndex by mutableStateOf(0)
     val currentItem: Item
         get() = columns[currentColumnIndex].let { it.items[it.currentItemIndex] }
 
@@ -162,14 +150,26 @@ class StoryboardOverview private constructor(
         currentColumnIndex = coercedColumnIndex
     }
 
+    private fun jumpToFrame() {
+        val currentFrame = storyboard.currentFrame
+
+        currentColumnIndex =
+            columns.binarySearch { compareValues(it.index, currentFrame.slideIndex) }
+                .coerceAtLeast(0)
+
+        val column = columns[currentColumnIndex]
+        column.currentItemIndex =
+            column.items.binarySearch { compareValues(it.frame.stateIndex, currentFrame.stateIndex) }
+                .coerceAtLeast(0)
+    }
+
     @Immutable
     class Column(
         val slide: Slide<*>,
         val index: Int,
         val items: ImmutableList<Item>,
-        currentItemIndex: Int,
     ) {
-        var currentItemIndex by mutableStateOf(currentItemIndex)
+        var currentItemIndex by mutableStateOf(0)
     }
 
     @Immutable
@@ -179,8 +179,6 @@ class StoryboardOverview private constructor(
 
     companion object {
         fun of(storyboard: Storyboard): StoryboardOverview {
-            val currentFrame = storyboard.currentFrame
-
             val columns = storyboard.slides
                 .mapIndexed { slideIndex, slide ->
                     val items = slide.states
@@ -195,25 +193,14 @@ class StoryboardOverview private constructor(
                         slide = slide,
                         index = slideIndex,
                         items = items,
-                        currentItemIndex = when {
-                            currentFrame.slideIndex > slideIndex -> items.size - 1
-                            currentFrame.slideIndex < slideIndex -> 0
-                            else -> items.binarySearch { compareValues(it.frame.stateIndex, currentFrame.stateIndex) }
-                                .coerceAtLeast(0)
-                        },
                     )
                 }
                 .filter { it.items.isNotEmpty() }
                 .toImmutableList()
 
-            val columnIndex =
-                columns.binarySearch { compareValues(it.index, currentFrame.slideIndex) }
-                    .coerceAtLeast(0)
-
             return StoryboardOverview(
                 storyboard = storyboard,
                 columns = columns,
-                currentColumnIndex = columnIndex,
             )
         }
     }

@@ -23,7 +23,7 @@ private object SharedTitleKey
 fun SlideScope<*>.SharedTitle(modifier: Modifier = Modifier, content: @Composable BoxScope.() -> Unit) {
     Title(
         modifier = modifier.sharedElement(
-            state = rememberSharedContentState(SharedTitleKey),
+            sharedContentState = rememberSharedContentState(SharedTitleKey),
             animatedVisibilityScope = this
         ),
         content = content

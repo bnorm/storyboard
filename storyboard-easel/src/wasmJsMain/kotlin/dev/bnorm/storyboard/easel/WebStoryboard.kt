@@ -29,7 +29,7 @@ fun WebStoryboard(storyboard: Storyboard) {
         }
     }
 
-    LaunchedSearchUpdate(storyboard, overview)
+    LaunchedHistoryUpdate(storyboard, overview)
 
     val overlayState = rememberOverlayState(
         initialVisibility = true,
@@ -45,7 +45,7 @@ fun WebStoryboard(storyboard: Storyboard) {
 }
 
 @Composable
-fun LaunchedSearchUpdate(storyboard: Storyboard, overview: StoryboardOverview) {
+fun LaunchedHistoryUpdate(storyboard: Storyboard, overview: StoryboardOverview) {
     val frame = storyboard.currentFrame
     val overviewVisible = overview.isVisible
     LaunchedEffect(frame, overviewVisible) {

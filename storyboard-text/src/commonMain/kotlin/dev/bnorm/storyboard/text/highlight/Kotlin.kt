@@ -26,13 +26,18 @@ internal fun highlightKotlin(
 
             fun AnnotatedString.Builder.addStyle(token: Token): Token {
                 when (token.type) {
+                    KotlinLexer.Tokens.GET,
+                    KotlinLexer.Tokens.SET,
                     KotlinLexer.Tokens.FUN,
-                    KotlinLexer.Tokens.VAL,
-                    KotlinLexer.Tokens.VAR,
+                    KotlinLexer.Tokens.OBJECT,
                     KotlinLexer.Tokens.PACKAGE,
                     KotlinLexer.Tokens.CLASS,
                     KotlinLexer.Tokens.INTERFACE,
                     KotlinLexer.Tokens.TYPE_ALIAS,
+                    KotlinLexer.Tokens.VAL,
+                    KotlinLexer.Tokens.VAR,
+                    KotlinLexer.Tokens.COMPANION,
+                    KotlinLexer.Tokens.THIS,
                     KotlinLexer.Tokens.IF,
                     KotlinLexer.Tokens.ELSE,
                     KotlinLexer.Tokens.WHEN,
@@ -44,12 +49,25 @@ internal fun highlightKotlin(
                     KotlinLexer.Tokens.WHILE,
                     KotlinLexer.Tokens.THROW,
                     KotlinLexer.Tokens.RETURN,
+                    KotlinLexer.Tokens.IS,
                     KotlinLexer.Tokens.IN,
+                    KotlinLexer.Tokens.PUBLIC,
+                    KotlinLexer.Tokens.PRIVATE,
+                    KotlinLexer.Tokens.PROTECTED,
+                    KotlinLexer.Tokens.INTERNAL,
+                    KotlinLexer.Tokens.ENUM,
+                    KotlinLexer.Tokens.SEALED,
+                    KotlinLexer.Tokens.ANNOTATION,
+                    KotlinLexer.Tokens.DATA,
                     KotlinLexer.Tokens.OPERATOR,
+                    KotlinLexer.Tokens.OVERRIDE,
+                    KotlinLexer.Tokens.ABSTRACT,
                     KotlinLexer.Tokens.NullLiteral,
                         -> addStyle(codeStyle.keyword, token)
 
                     KotlinLexer.Tokens.BooleanLiteral,
+                        -> addStyle(codeStyle.keyword, token)
+
                     KotlinLexer.Tokens.IntegerLiteral,
                     KotlinLexer.Tokens.HexLiteral,
                     KotlinLexer.Tokens.BinLiteral,

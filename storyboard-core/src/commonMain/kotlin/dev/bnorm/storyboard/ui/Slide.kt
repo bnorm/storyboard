@@ -51,6 +51,7 @@ internal fun SlideWrapper(
     modifier: Modifier = Modifier,
     content: @Composable SharedTransitionScope.() -> Unit,
 ) {
+    // TODO i don't like that this box is part of the "slide"
     Box(contentAlignment = Alignment.Center, modifier = modifier.fillMaxSize()) {
         FixedSize(size = size) {
             decorator.decorate {

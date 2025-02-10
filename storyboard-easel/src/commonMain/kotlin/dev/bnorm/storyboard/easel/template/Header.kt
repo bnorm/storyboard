@@ -24,7 +24,7 @@ private object SharedHeaderKey
 fun SlideScope<*>.SharedHeader(modifier: Modifier = Modifier, content: @Composable BoxScope.() -> Unit) {
     Header(
         modifier = modifier.sharedElement(
-            state = rememberSharedContentState(SharedHeaderKey),
+            sharedContentState = rememberSharedContentState(SharedHeaderKey),
             animatedVisibilityScope = this
         ),
         content = content
