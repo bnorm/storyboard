@@ -11,8 +11,8 @@ interface RevealBuilder {
      */
     fun item(
         index: Int? = null,
-        enterTransition: () -> EnterTransition = { fadeIn() + slideInVertically { -it } },
-        exitTransition: () -> ExitTransition = { fadeOut() + slideOutVertically { -it } },
+        enterTransition: () -> EnterTransition = { fadeIn() },
+        exitTransition: () -> ExitTransition = { fadeOut() },
         content: @Composable AnimatedVisibilityScope.() -> Unit,
     )
 }
