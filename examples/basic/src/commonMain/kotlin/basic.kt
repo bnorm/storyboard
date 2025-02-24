@@ -1,4 +1,5 @@
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Surface
 import androidx.compose.material.Typography
 import androidx.compose.material.darkColors
 import androidx.compose.ui.graphics.Color
@@ -31,6 +32,8 @@ private val theme = SlideDecorator { content ->
     val typography = Typography()
 
     MaterialTheme(colors, typography) {
-        content()
+        Surface {
+            content()
+        }
     }
 }

@@ -5,13 +5,17 @@ import androidx.compose.animation.core.createChildTransition
 import androidx.compose.animation.core.rememberTransition
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material.Surface
-import androidx.compose.runtime.*
+ import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.DpSize
-import dev.bnorm.storyboard.core.*
+import dev.bnorm.storyboard.core.AdvanceDirection
+import dev.bnorm.storyboard.core.SlideDecorator
+import dev.bnorm.storyboard.core.Storyboard
+import dev.bnorm.storyboard.core.StoryboardSlideScope
 import dev.bnorm.storyboard.core.internal.SlideNode
 
 @Composable
@@ -55,10 +59,8 @@ internal fun SlideWrapper(
     Box(contentAlignment = Alignment.Center, modifier = modifier.fillMaxSize()) {
         FixedSize(size = size) {
             decorator.decorate {
-                Surface {
-                    SharedTransitionLayout {
-                        content()
-                    }
+                SharedTransitionLayout {
+                    content()
                 }
             }
         }
