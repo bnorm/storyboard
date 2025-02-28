@@ -38,6 +38,7 @@ kotlin {
 
         jvmMain {
             dependencies {
+                implementation("io.github.vinceglb:filekit-compose:0.8.8")
                 implementation("org.apache.pdfbox:pdfbox:3.0.1")
             }
         }

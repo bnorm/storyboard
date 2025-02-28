@@ -31,7 +31,7 @@ fun NotesTab(title: String, content: @Composable () -> Unit) {
     val storyboardNotes = LocalStoryboardNotes.current
     if (storyboardNotes != null) {
         val tabContent = rememberUpdatedState(content)
-        DisposableEffect(tabContent) {
+        DisposableEffect(title, tabContent) {
             val tab = StoryboardNotes.Tab(title, tabContent.value)
             storyboardNotes.addTab(tab)
             onDispose {
