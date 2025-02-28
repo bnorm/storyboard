@@ -3,29 +3,20 @@ package dev.bnorm.storyboard.easel.notes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import dev.bnorm.storyboard.core.AdvanceDirection
 import dev.bnorm.storyboard.core.Storyboard
 import dev.bnorm.storyboard.easel.internal.aspectRatio
 import dev.bnorm.storyboard.easel.internal.requestFocus
 import dev.bnorm.storyboard.easel.onStoryboardNavigation
 import dev.bnorm.storyboard.ui.SlidePreview
-import kotlinx.coroutines.delay
-import kotlin.time.Duration.Companion.milliseconds
-import kotlin.time.TimeMark
-import kotlin.time.TimeSource
 
 @Composable
 fun StoryboardNotes(storyboard: Storyboard, notes: StoryboardNotes, modifier: Modifier = Modifier) {
@@ -36,7 +27,7 @@ fun StoryboardNotes(storyboard: Storyboard, notes: StoryboardNotes, modifier: Mo
     ) {
         Column(modifier.padding(16.dp)) {
             Row(horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth()) {
-                StoryboardClock()
+                StoryboardTimer()
             }
 
             Row(modifier = Modifier.fillMaxWidth().padding(top = 16.dp)) {
@@ -66,10 +57,6 @@ fun StoryboardNotes(storyboard: Storyboard, notes: StoryboardNotes, modifier: Mo
                     }
                 }
             }
-
-            // TODO how can we do a preview of the next slide?
-            //  - we would really like to have a preview of the next **advancement**
-            //  - can we render the show like an export to create the previews without animations?
 
             if (notes.tabs.isNotEmpty()) {
                 var state by remember { mutableStateOf(0) }
@@ -132,35 +119,3 @@ private fun SlideAnimationProgressIndicator(storyboard: Storyboard) {
     }
 }
 
-@Composable
-fun StoryboardClock(timeSource: TimeSource = TimeSource.Monotonic) {
-    var start by remember { mutableStateOf<TimeMark?>(null) }
-    var display by remember { mutableStateOf("00h 00m 00s") }
-
-    fun Long.pad(): String = toString().padStart(2, padChar = '0')
-
-    LaunchedEffect(start) {
-        val mark = start ?: return@LaunchedEffect
-        while (true) {
-            delay(250.milliseconds)
-            val d = mark.elapsedNow()
-            display = "${d.inWholeHours.pad()}h ${(d.inWholeMinutes % 60).pad()}m ${(d.inWholeSeconds % 60).pad()}s"
-        }
-    }
-
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        Text(display, fontSize = 32.sp, fontFamily = FontFamily.Monospace)
-
-        IconButton(
-            onClick = {
-                start = timeSource.markNow()
-                display = "00h 00m 00s"
-            },
-            modifier = Modifier
-                .padding(start = 16.dp)
-                .background(MaterialTheme.colors.primary, shape = CircleShape)
-        ) {
-            Icon(Icons.Filled.PlayArrow, tint = MaterialTheme.colors.onPrimary, contentDescription = "")
-        }
-    }
-}
