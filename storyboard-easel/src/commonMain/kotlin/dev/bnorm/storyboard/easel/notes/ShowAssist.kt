@@ -19,6 +19,8 @@ import androidx.compose.ui.unit.sp
 import dev.bnorm.storyboard.core.AdvanceDirection
 import dev.bnorm.storyboard.core.Storyboard
 import dev.bnorm.storyboard.easel.internal.aspectRatio
+import dev.bnorm.storyboard.easel.internal.requestFocus
+import dev.bnorm.storyboard.easel.onStoryboardNavigation
 import dev.bnorm.storyboard.ui.SlidePreview
 import kotlinx.coroutines.delay
 import kotlin.time.Duration.Companion.milliseconds
@@ -27,7 +29,11 @@ import kotlin.time.TimeSource
 
 @Composable
 fun StoryboardNotes(storyboard: Storyboard, notes: StoryboardNotes, modifier: Modifier = Modifier) {
-    Surface(modifier = Modifier.fillMaxSize()) {
+    Surface(
+        modifier = Modifier.fillMaxSize()
+            .requestFocus()
+            .onStoryboardNavigation(storyboard = storyboard)
+    ) {
         Column(modifier.padding(16.dp)) {
             Row(horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth()) {
                 StoryboardClock()
