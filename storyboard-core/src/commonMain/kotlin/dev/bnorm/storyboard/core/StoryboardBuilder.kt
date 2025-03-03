@@ -7,11 +7,9 @@ import kotlin.enums.enumEntries
 @DslMarker
 annotation class StoryboardBuilderDsl
 
-@PublishedApi
-internal val DefaultEnterTransition: (AdvanceDirection) -> EnterTransition = { EnterTransition.None }
+val DefaultEnterTransition: (AdvanceDirection) -> EnterTransition = { EnterTransition.None }
 
-@PublishedApi
-internal val DefaultExitTransition: (AdvanceDirection) -> ExitTransition = { ExitTransition.None }
+val DefaultExitTransition: (AdvanceDirection) -> ExitTransition = { ExitTransition.None }
 
 @StoryboardBuilderDsl
 sealed interface StoryboardBuilder {
