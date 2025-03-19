@@ -61,8 +61,17 @@ class Storyboard private constructor(
     var direction by mutableStateOf(AdvanceDirection.Forward)
         private set
 
-    val currentFrame: Frame
-        get() = node.currentState.let { it.frames[it.stateIndex.currentState] }
+     val currentFrame: Frame by derivedStateOf {
+        val currentNode = node.currentState
+        if (currentNode.frames.isEmpty()) {
+            when (direction) {
+                AdvanceDirection.Forward -> currentNode.previousFrame()!!
+                AdvanceDirection.Backward -> currentNode.nextFrame()!!
+            }
+        } else {
+            currentNode.frames[currentNode.stateIndex.currentState]
+        }
+    }
 
     val advancementProgress: Float
         get() = node.fraction.takeIf { it != 0.0f }

@@ -26,6 +26,7 @@ internal fun highlightKotlin(
 
             fun AnnotatedString.Builder.addStyle(token: Token): Token {
                 when (token.type) {
+                    KotlinLexer.Tokens.AS_SAFE,
                     KotlinLexer.Tokens.GET,
                     KotlinLexer.Tokens.SET,
                     KotlinLexer.Tokens.FUN,
@@ -34,6 +35,8 @@ internal fun highlightKotlin(
                     KotlinLexer.Tokens.CLASS,
                     KotlinLexer.Tokens.INTERFACE,
                     KotlinLexer.Tokens.TYPE_ALIAS,
+                    KotlinLexer.Tokens.CONSTRUCTOR,
+                    KotlinLexer.Tokens.BY,
                     KotlinLexer.Tokens.VAL,
                     KotlinLexer.Tokens.VAR,
                     KotlinLexer.Tokens.COMPANION,
@@ -49,8 +52,11 @@ internal fun highlightKotlin(
                     KotlinLexer.Tokens.WHILE,
                     KotlinLexer.Tokens.THROW,
                     KotlinLexer.Tokens.RETURN,
+                    KotlinLexer.Tokens.AS,
                     KotlinLexer.Tokens.IS,
                     KotlinLexer.Tokens.IN,
+                    KotlinLexer.Tokens.NOT_IS,
+                    KotlinLexer.Tokens.NOT_IN,
                     KotlinLexer.Tokens.PUBLIC,
                     KotlinLexer.Tokens.PRIVATE,
                     KotlinLexer.Tokens.PROTECTED,
@@ -68,12 +74,14 @@ internal fun highlightKotlin(
                     KotlinLexer.Tokens.BooleanLiteral,
                         -> addStyle(codeStyle.keyword, token)
 
+                    KotlinLexer.Tokens.RealLiteral,
+                    KotlinLexer.Tokens.FloatLiteral,
+                    KotlinLexer.Tokens.DoubleLiteral,
                     KotlinLexer.Tokens.IntegerLiteral,
                     KotlinLexer.Tokens.HexLiteral,
                     KotlinLexer.Tokens.BinLiteral,
-                    KotlinLexer.Tokens.RealLiteral,
-                    KotlinLexer.Tokens.LongLiteral,
                     KotlinLexer.Tokens.UnsignedLiteral,
+                    KotlinLexer.Tokens.LongLiteral,
                         -> addStyle(codeStyle.number, token)
 
                     KotlinLexer.Tokens.CharacterLiteral,

@@ -123,7 +123,7 @@ fun StoryboardOverview(
 
 class StoryboardOverview private constructor(
     val storyboard: Storyboard,
-    val columns: ImmutableList<Column>,
+    internal val columns: ImmutableList<Column>,
 ) {
     private var _isVisible = mutableStateOf(false)
     var isVisible: Boolean
@@ -135,7 +135,7 @@ class StoryboardOverview private constructor(
         }
 
     var currentColumnIndex by mutableStateOf(0)
-    val currentItem: Item
+    internal val currentItem: Item
         get() = columns[currentColumnIndex].let { it.items[it.currentItemIndex] }
 
     fun jumpTo(columnIndex: Int, itemIndex: Int) {
@@ -164,7 +164,7 @@ class StoryboardOverview private constructor(
     }
 
     @Immutable
-    class Column(
+    internal class Column(
         val slide: Slide<*>,
         val index: Int,
         val items: ImmutableList<Item>,
@@ -173,7 +173,7 @@ class StoryboardOverview private constructor(
     }
 
     @Immutable
-    class Item(
+    internal class Item(
         val frame: Storyboard.Frame,
     )
 
@@ -182,10 +182,8 @@ class StoryboardOverview private constructor(
             val columns = storyboard.slides
                 .mapIndexed { slideIndex, slide ->
                     val items = slide.states
-                        .mapIndexedNotNull { stateIndex, _ ->
-                            Item(
-                                frame = Storyboard.Frame(slideIndex, stateIndex)
-                            )
+                        .mapIndexed { stateIndex, _ ->
+                            Item(frame = Storyboard.Frame(slideIndex, stateIndex))
                         }
                         .toImmutableList()
 

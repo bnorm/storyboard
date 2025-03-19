@@ -142,6 +142,28 @@ internal class SlideNode<T> private constructor(
         }
     }
 
+    fun nextFrame(): Storyboard.Frame? {
+        var iter = next
+        while (iter != null) {
+            if (iter.frames.isNotEmpty()) {
+                return iter.frames.first()
+            }
+            iter = iter.next
+        }
+        return null
+    }
+
+    fun previousFrame(): Storyboard.Frame? {
+        var iter = prev
+        while (iter != null) {
+            if (iter.frames.isNotEmpty()) {
+                return iter.frames.last()
+            }
+            iter = iter.prev
+        }
+        return null
+    }
+
     override fun compareTo(other: SlideNode<*>): Int {
         return compareValues(slideIndex, other.slideIndex)
     }
