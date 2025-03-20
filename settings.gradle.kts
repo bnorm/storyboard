@@ -8,19 +8,19 @@ pluginManagement {
     }
 
     plugins {
-        val kotlinVersion = "2.1.20-Beta2"
+        val kotlinVersion = "2.1.20"
 
         kotlin("multiplatform") version kotlinVersion
         kotlin("plugin.serialization") version kotlinVersion
         kotlin("plugin.compose") version kotlinVersion
-        id("org.jetbrains.compose") version "1.8.0-alpha02"
+        id("org.jetbrains.compose") version "1.8.0-beta01"
     }
+}
 
-    dependencyResolutionManagement {
-        repositories {
-            mavenCentral()
-            google()
-        }
+dependencyResolutionManagement {
+    repositories {
+        mavenCentral()
+        google()
     }
 }
 
