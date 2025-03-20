@@ -23,12 +23,10 @@ fun MagicText(
     // Used to time FadeOut -> Move -> FadeIn animations.
     moveDurationMillis: Int = DefaultDurationMillis,
     fadeDurationMillis: Int = moveDurationMillis / 2,
-    // Can be used to provide a custom diff equation.
-    diff: (before: List<AnnotatedString>, after: List<AnnotatedString>) -> List<MagicTextDiff> = ::diff,
 ) {
     val words = remember(text) { text.toWords() }
     val transition = updateTransition(words)
-    MagicText(transition, modifier, moveDurationMillis, fadeDurationMillis, diff)
+    MagicText(transition, modifier, moveDurationMillis, fadeDurationMillis)
 }
 
 @Composable
@@ -38,11 +36,9 @@ fun MagicText(
     // Used to time FadeOut -> Move -> FadeIn animations.
     moveDurationMillis: Int = DefaultDurationMillis,
     fadeDurationMillis: Int = moveDurationMillis / 2,
-    // Can be used to provide a custom diff equation.
-    diff: (before: List<AnnotatedString>, after: List<AnnotatedString>) -> List<MagicTextDiff> = ::diff,
 ) {
     val transition = updateTransition(tokenizedText)
-    MagicText(transition, modifier, moveDurationMillis, fadeDurationMillis, diff)
+    MagicText(transition, modifier, moveDurationMillis, fadeDurationMillis)
 }
 
 @Composable
@@ -52,8 +48,6 @@ fun MagicText(
     // Used to time FadeOut -> Move -> FadeIn animations.
     moveDurationMillis: Int = DefaultDurationMillis,
     fadeDurationMillis: Int = moveDurationMillis / 2,
-    // Can be used to provide a custom diff equation.
-    diff: (before: List<AnnotatedString>, after: List<AnnotatedString>) -> List<MagicTextDiff> = ::diff,
 ) {
     // Keyed on current and target state, so a new transition is created with each new segment.
     // This allows re-rendering of the previous text with the new transition keys.
@@ -62,16 +56,16 @@ fun MagicText(
     key(currentState, targetState) { // TODO does this need to be keyed on currentState?
 
         // TODO instead of Map<*, *>, could this be a special data structure?
+        // TODO should we be caching these maps for repeated transitions?
         val sharedText = remember {
             when (currentState == targetState) {
-                true -> mapOf(currentState to currentState.toLines()) // null == newline
+                true -> mapOf(currentState to currentState.map { SharedText(it) })
 
                 false -> {
-                    val result = diff(currentState, targetState)
-                    checkNoRepeatedKeys(result)
+                    val (current, target) = findShared(currentState, targetState)
                     mapOf(
-                        currentState to result.toLines(after = false), // Re-render the previous text, split up based on diff with the next text.
-                        targetState to result.toLines(after = true), // Render the next text, split up based on diff with the previous text.
+                        currentState to current, // Re-render the previous text, split up based on diff with the next text.
+                        targetState to target, // Render the next text, split up based on diff with the previous text.
                     )
                 }
             }
@@ -82,16 +76,10 @@ fun MagicText(
     }
 }
 
-private data class SharedText(
-    val text: AnnotatedString,
-    val crossFade: Boolean = false,
-    val key: String? = null,
-)
-
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 private fun MagicTextInternal(
-    transition: Transition<List<SharedText?>>,
+    transition: Transition<List<SharedText>>,
     modifier: Modifier,
     fadeDuration: Int,
     moveDuration: Int,
@@ -138,61 +126,20 @@ private fun MagicTextInternal(
                 val iterator = parts.iterator()
                 while (iterator.hasNext()) {
                     Row {
+                        var itemCount = 0
                         while (iterator.hasNext()) {
-                            val sharedText = iterator.next() ?: break
-                            Text(sharedText.text, sharedText.toModifier().alignByBaseline())
+                            val sharedText = iterator.next().takeIf { it.value.text != "\n" }
+                            if (sharedText != null) {
+                                Text(sharedText.value, sharedText.toModifier().alignByBaseline())
+                                itemCount++
+                            } else {
+                                if (itemCount == 0) Text("") // Need something in the row...
+                                break
+                            }
                         }
                     }
                 }
             }
         }
-    }
-}
-
-private fun checkNoRepeatedKeys(result: List<MagicTextDiff>) {
-    val uniqueKeys = mutableSetOf<Any>()
-    val repeatedKeys = mutableSetOf<Any>()
-    for (it in result) {
-        if (it.key != null && !uniqueKeys.add(it.key)) repeatedKeys.add(it.key)
-    }
-    require(repeatedKeys.isEmpty()) { "Repeated keys: $repeatedKeys" }
-}
-
-private fun List<MagicTextDiff>.toLines(after: Boolean): List<SharedText?> {
-    return buildList {
-        var subKey = 1
-        for (part in this@toLines) {
-            val text = if (after) part.after else part.before
-            if (text.isEmpty()) continue
-            for ((i, split) in text.split('\n').withIndex()) {
-                if (i > 0) add(null) // null == newline
-                add(SharedText(split, part.before != part.after, part.key?.let { "$it-${subKey++}" }))
-            }
-        }
-    }
-}
-
-private fun List<AnnotatedString>.toLines(): List<SharedText?> {
-    return buildList {
-        for (part in this@toLines) {
-            for ((i, split) in part.split('\n').withIndex()) {
-                if (i > 0) add(null) // null == newline
-                add(SharedText(split))
-            }
-        }
-    }
-}
-
-private fun AnnotatedString.split(char: Char): List<AnnotatedString> {
-    return buildList {
-        var offset = 0
-        while (true) {
-            val index = indexOf(char, offset)
-            if (index == -1) break
-
-            add(subSequence(offset, index))
-            offset = index + 1
-        }
-        add(subSequence(offset, length))
     }
 }

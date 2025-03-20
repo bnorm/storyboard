@@ -35,7 +35,6 @@ kotlin {
                 api(compose.material)
 
                 api("de.cketti.unicode:kotlin-codepoints-deluxe:0.7.0")
-                api("io.github.petertrr:kotlin-multiplatform-diff:0.7.0")
                 api("com.strumenta:antlr-kotlin-runtime:1.0.0-RC4")
             }
         }
