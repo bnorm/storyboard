@@ -5,7 +5,7 @@ import androidx.compose.animation.core.createChildTransition
 import androidx.compose.animation.core.rememberTransition
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
- import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
@@ -26,22 +26,28 @@ fun StoryboardSlide(storyboard: Storyboard, modifier: Modifier = Modifier) {
     }
 
     val holder = rememberSaveableStateHolder()
-    SlideWrapper(storyboard.size, storyboard.decorator, modifier) {
-        rememberTransition(storyboard.node).AnimatedContent(
-            transitionSpec = {
-                val direction = if (targetState > initialState) AdvanceDirection.Forward else AdvanceDirection.Backward
-                targetState.slide.enterTransition(direction) togetherWith initialState.slide.exitTransition(direction)
-            }
-        ) { node ->
-            @Composable
-            fun <T> Content(node: SlideNode<T>) {
-                val scope = rememberScope(storyboard, node, this@AnimatedContent, this@SlideWrapper)
-                node.slide.content(scope)
-            }
+    ProvideStoryboard(storyboard) {
+        SlideWrapper(storyboard.size, storyboard.decorator, modifier) {
+            rememberTransition(storyboard.node).AnimatedContent(
+                transitionSpec = {
+                    val direction = when {
+                        targetState > initialState -> AdvanceDirection.Forward
+                        else -> AdvanceDirection.Backward
+                    }
+                    targetState.slide.enterTransition(direction) togetherWith
+                            initialState.slide.exitTransition(direction)
+                }
+            ) { node ->
+                @Composable
+                fun <T> Content(node: SlideNode<T>) {
+                    val scope = rememberScope(storyboard, node, this@AnimatedContent, this@SlideWrapper)
+                    node.slide.content(scope)
+                }
 
-            holder.SaveableStateProvider(node) {
-                Box(Modifier.fillMaxSize()) {
-                    Content(node)
+                holder.SaveableStateProvider(node) {
+                    Box(Modifier.fillMaxSize()) {
+                        Content(node)
+                    }
                 }
             }
         }

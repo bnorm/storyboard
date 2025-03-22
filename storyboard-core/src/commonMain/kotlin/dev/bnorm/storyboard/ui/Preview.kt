@@ -15,35 +15,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import dev.bnorm.storyboard.core.*
-import kotlinx.collections.immutable.persistentListOf
 
 @Composable
-fun <T> SlidePreview(
-    content: SlideContent<T>,
-    state: T,
-    size: DpSize = Storyboard.DEFAULT_SIZE,
-    decorator: SlideDecorator = SlideDecorator.None,
-    modifier: Modifier = Modifier,
-) {
-    SlideWrapper(size, decorator, modifier.aspectRatio(size.width / size.height)) {
-        AnimatedVisibility(true) {
-            Box(Modifier.fillMaxSize()) {
-                key(content, state) {
-                    val scope = PreviewSlideScope(
-                        states = persistentListOf(state),
-                        state = updateTransition(SlideState.Value<T>(state)),
-                        animatedVisibilityScope = this@AnimatedVisibility,
-                        sharedTransitionScope = this@SlideWrapper
-                    )
-                    content(scope)
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun <T> SlidePreview(
+internal fun <T> SlidePreview(
     slide: Slide<T>,
     stateIndex: Int,
     size: DpSize = Storyboard.DEFAULT_SIZE,
@@ -68,7 +42,7 @@ fun <T> SlidePreview(
 }
 
 @Composable
-fun <T> SlidePreview(
+internal fun <T> SlidePreview(
     slide: Slide<T>,
     state: SlideState<Nothing>,
     size: DpSize = Storyboard.DEFAULT_SIZE,
@@ -98,35 +72,39 @@ fun SlidePreview(
     frame: Storyboard.Frame,
     modifier: Modifier = Modifier,
 ) {
-    SlidePreview(
-        slide = storyboard.slides[frame.slideIndex],
-        stateIndex = frame.stateIndex,
-        size = storyboard.size,
-        decorator = storyboard.decorator,
-        modifier = modifier,
-    )
+    ProvideStoryboard(storyboard) {
+        SlidePreview(
+            slide = storyboard.slides[frame.slideIndex],
+            stateIndex = frame.stateIndex,
+            size = storyboard.size,
+            decorator = storyboard.decorator,
+            modifier = modifier,
+        )
+    }
 }
 
 @Composable
 fun StoryboardPreview(storyboard: Storyboard) {
-    Column(
-        verticalArrangement = Arrangement.spacedBy(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.padding(vertical = 16.dp)
-            .verticalScroll(rememberScrollState())
-            .background(Color.Transparent)
-    ) {
-        for (slide in storyboard.slides) {
-            Text("State: Start")
-            SlidePreview(slide, SlideState.Start, storyboard.size, storyboard.decorator)
+    ProvideStoryboard(storyboard) {
+        Column(
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.padding(vertical = 16.dp)
+                .verticalScroll(rememberScrollState())
+                .background(Color.Transparent)
+        ) {
+            for (slide in storyboard.slides) {
+                Text("State: Start")
+                SlidePreview(slide, SlideState.Start, storyboard.size, storyboard.decorator)
 
-            for (stateIndex in slide.states.indices) {
-                Text("State: $stateIndex")
-                SlidePreview(slide, stateIndex, storyboard.size, storyboard.decorator)
+                for (stateIndex in slide.states.indices) {
+                    Text("State: $stateIndex")
+                    SlidePreview(slide, stateIndex, storyboard.size, storyboard.decorator)
+                }
+
+                Text("State: End")
+                SlidePreview(slide, SlideState.End, storyboard.size, storyboard.decorator)
             }
-
-            Text("State: End")
-            SlidePreview(slide, SlideState.End, storyboard.size, storyboard.decorator)
         }
     }
 }
