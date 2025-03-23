@@ -123,7 +123,7 @@ private fun MagicTextInternal(
             }
 
             Column(horizontalAlignment = Alignment.Start) {
-                val iterator = parts.iterator()
+                val iterator = parts.flatMap { toLines(it) }.iterator()
                 while (iterator.hasNext()) {
                     Row {
                         var itemCount = 0
@@ -140,6 +140,28 @@ private fun MagicTextInternal(
                     }
                 }
             }
+        }
+    }
+}
+
+private fun toLines(text: SharedText): List<SharedText> = buildList {
+    return buildList {
+        val string = text.value
+
+        var subKeyCount = 0
+        fun nextKey(): String? = text.key?.let { "$it-${subKeyCount++}" }
+
+        var offset = 0
+        while (true) {
+            val index = string.indexOf('\n', offset)
+            if (index == -1) break
+
+            if (index > offset) add(SharedText(string.subSequence(offset, index), nextKey(), text.crossFade))
+            add(SharedText(AnnotatedString("\n")))
+            offset = index + 1
+        }
+        if (offset < string.length) {
+            add(SharedText(string.subSequence(offset, string.length), nextKey(), text.crossFade))
         }
     }
 }
