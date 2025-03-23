@@ -11,15 +11,17 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.unit.dp
-import dev.bnorm.storyboard.core.AdvanceDirection
 import dev.bnorm.storyboard.core.Storyboard
+import dev.bnorm.storyboard.core.StoryboardState
 import dev.bnorm.storyboard.easel.internal.aspectRatio
 import dev.bnorm.storyboard.easel.internal.requestFocus
 import dev.bnorm.storyboard.easel.onStoryboardNavigation
 import dev.bnorm.storyboard.ui.SlidePreview
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 
 @Composable
-fun StoryboardNotes(storyboard: Storyboard, notes: StoryboardNotes, modifier: Modifier = Modifier) {
+fun StoryboardNotes(storyboard: StoryboardState, notes: StoryboardNotes, modifier: Modifier = Modifier) {
     Surface(
         modifier = Modifier.fillMaxSize()
             .requestFocus()
@@ -31,29 +33,19 @@ fun StoryboardNotes(storyboard: Storyboard, notes: StoryboardNotes, modifier: Mo
             }
 
             Row(modifier = Modifier.fillMaxWidth().padding(top = 16.dp)) {
-                val frames = remember(storyboard) { storyboard.frames }
+                val currentFrame = storyboard.currentFrame
                 Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
                     Text("Current Slide")
-                    ClickableSlidePreview(storyboard, storyboard.currentFrame)
+                    ClickableSlidePreview(storyboard, currentFrame)
                     SlideAnimationProgressIndicator(storyboard)
                 }
                 Spacer(Modifier.width(16.dp))
                 Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
                     Text("Next Slide")
-                    val nextFrame by derivedStateOf {
-                        val searchIndex = frames.binarySearch(storyboard.currentFrame)
-                        val currentIndex = when {
-                            searchIndex >= 0 -> searchIndex
-                            else -> when (storyboard.direction) {
-                                AdvanceDirection.Forward -> -(searchIndex - 1)
-                                AdvanceDirection.Backward -> -searchIndex
-                            }
-                        }
-                        val nextIndex = currentIndex + 1
-                        if (nextIndex in frames.indices) frames[nextIndex] else null
-                    }
-                    nextFrame?.let {
-                        ClickableSlidePreview(storyboard, it)
+                    val targetFrame = storyboard.targetFrame
+                    if (targetFrame != currentFrame) {
+                        ClickableSlidePreview(storyboard, targetFrame)
+
                     }
                 }
             }
@@ -83,14 +75,17 @@ fun StoryboardNotes(storyboard: Storyboard, notes: StoryboardNotes, modifier: Mo
 
 @Composable
 private fun ClickableSlidePreview(
-    storyboard: Storyboard,
+    storyboard: StoryboardState,
     frame: Storyboard.Frame,
     modifier: Modifier = Modifier,
 ) {
+    val coroutineScope = rememberCoroutineScope()
+    var job by remember { mutableStateOf<Job?>(null) }
+
     // TODO share with StoryboardOverview?
-    Box(modifier.aspectRatio(storyboard.size.aspectRatio)) {
+    Box(modifier.aspectRatio(storyboard.storyboard.size.aspectRatio)) {
         SlidePreview(
-            storyboard = storyboard,
+            storyboard = storyboard.storyboard,
             frame = frame,
         )
 
@@ -101,14 +96,20 @@ private fun ClickableSlidePreview(
                 .pointerHoverIcon(PointerIcon.Hand)
                 .clickable(
                     interactionSource = null, indication = null, // disable ripple effect
-                    onClick = { storyboard.jumpTo(frame) }
+                    onClick = {
+                        job?.cancel()
+                        job = coroutineScope.launch {
+                            storyboard.jumpTo(frame)
+                            job = null
+                        }
+                    }
                 )
         )
     }
 }
 
 @Composable
-private fun SlideAnimationProgressIndicator(storyboard: Storyboard) {
+private fun SlideAnimationProgressIndicator(storyboard: StoryboardState) {
     Row {
         val advancementProgress = storyboard.advancementProgress
         val color = if (advancementProgress == 1f) Color.Green else Color.Red

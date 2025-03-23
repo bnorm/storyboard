@@ -8,35 +8,44 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import dev.bnorm.storyboard.core.Storyboard
+import dev.bnorm.storyboard.core.StoryboardState
 import kotlinx.browser.window
 import org.w3c.dom.url.URL
 import org.w3c.dom.url.URLSearchParams
 
 @Composable
 fun WebStoryboard(storyboard: Storyboard) {
-    val overview = remember(storyboard) {
+    val storyboardState = remember(storyboard) {
         val params = URLSearchParams(window.location.search.toJsString())
 
         val frameIndex = params.get("frame")?.toIntOrNull()
-        if (frameIndex != null) {
-            storyboard.jumpTo(storyboard.frames[frameIndex.coerceIn(storyboard.frames.indices)])
+        val initialFrame = if (frameIndex != null) {
+            StoryboardState(storyboard)
+            storyboard.frames[frameIndex.coerceIn(storyboard.frames.indices)]
+        } else {
+            Storyboard.Frame(0, 0)
         }
 
-        StoryboardOverview.of(storyboard).apply {
+        StoryboardState(storyboard, initialFrame)
+    }
+    val overview = remember(storyboard) {
+        val params = URLSearchParams(window.location.search.toJsString())
+
+        StoryboardOverview.of(storyboardState).apply {
             if (params.get("overview").toBoolean()) {
                 isVisible = true
             }
         }
     }
 
-    LaunchedHistoryUpdate(storyboard, overview)
+    LaunchedHistoryUpdate(storyboardState, overview)
 
     val overlayState = rememberOverlayState(
         initialVisibility = true,
     )
 
     Storyboard(
-        storyboard = storyboard,
+        storyboard = storyboardState,
         overview = overview,
         overlayState = overlayState,
         modifier = Modifier.fillMaxSize()
@@ -45,13 +54,13 @@ fun WebStoryboard(storyboard: Storyboard) {
 }
 
 @Composable
-fun LaunchedHistoryUpdate(storyboard: Storyboard, overview: StoryboardOverview) {
+fun LaunchedHistoryUpdate(storyboard: StoryboardState, overview: StoryboardOverview) {
     val frame = storyboard.currentFrame
     val overviewVisible = overview.isVisible
     LaunchedEffect(frame, overviewVisible) {
         val url = URL(window.location.toString())
 
-        val index = storyboard.frames.binarySearch(frame)
+        val index = storyboard.storyboard.frames.binarySearch(frame)
         if (index >= 0) {
             url.searchParams.set("frame", index.toString())
         }

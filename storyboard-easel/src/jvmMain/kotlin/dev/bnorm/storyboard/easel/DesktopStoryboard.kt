@@ -12,6 +12,7 @@ import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyShortcut
 import androidx.compose.ui.window.*
 import dev.bnorm.storyboard.core.Storyboard
+import dev.bnorm.storyboard.core.StoryboardState
 import dev.bnorm.storyboard.easel.export.ExportProgressPopup
 import dev.bnorm.storyboard.easel.export.StoryboardPdfExporter
 import dev.bnorm.storyboard.easel.notes.LocalStoryboardNotes
@@ -22,6 +23,7 @@ import kotlinx.coroutines.launch
 fun ApplicationScope.DesktopStoryboard(storyboard: Storyboard) {
     val notes = remember { StoryboardNotes() }
     val state = rememberDesktopState(storyboard)
+    val storyboardState = remember { StoryboardState(storyboard) }
 
     val coroutineScope = rememberCoroutineScope()
     val exporter = remember { StoryboardPdfExporter(storyboard) }
@@ -69,7 +71,7 @@ fun ApplicationScope.DesktopStoryboard(storyboard: Storyboard) {
 
         CompositionLocalProvider(LocalStoryboardNotes provides notes) {
             Storyboard(
-                storyboard = storyboard,
+                storyboard = storyboardState,
                 modifier = Modifier.fillMaxSize()
                     .background(MaterialTheme.colors.background),
             )
@@ -87,7 +89,7 @@ fun ApplicationScope.DesktopStoryboard(storyboard: Storyboard) {
             MenuBar { menuBar() }
 
             StoryboardNotes(
-                storyboard = storyboard,
+                storyboard = storyboardState,
                 notes = notes,
             )
         }

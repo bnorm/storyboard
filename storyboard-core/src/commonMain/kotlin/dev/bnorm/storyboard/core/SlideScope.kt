@@ -41,7 +41,7 @@ internal class PreviewSlideScope<T>(
 }
 
 internal class StoryboardSlideScope<T>(
-    private val storyboard: Storyboard,
+    private val storyboard: StoryboardState,
     override val states: ImmutableList<T>,
     override val state: Transition<out SlideState<T>>,
     animatedVisibilityScope: AnimatedVisibilityScope,
@@ -49,5 +49,5 @@ internal class StoryboardSlideScope<T>(
 ) : SlideScope<T>,
     AnimatedVisibilityScope by animatedVisibilityScope,
     SharedTransitionScope by sharedTransitionScope {
-    override val direction: AdvanceDirection get() = storyboard.direction
+    override val direction: AdvanceDirection get() = storyboard.currentDirection
 }

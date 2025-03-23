@@ -1,34 +1,25 @@
 package dev.bnorm.storyboard.ui
 
 import androidx.compose.animation.*
+import androidx.compose.animation.core.Transition
 import androidx.compose.animation.core.createChildTransition
-import androidx.compose.animation.core.rememberTransition
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.DpSize
-import dev.bnorm.storyboard.core.AdvanceDirection
-import dev.bnorm.storyboard.core.SlideDecorator
-import dev.bnorm.storyboard.core.Storyboard
-import dev.bnorm.storyboard.core.StoryboardSlideScope
-import dev.bnorm.storyboard.core.internal.SlideNode
+import dev.bnorm.storyboard.core.*
 
 @Composable
-fun StoryboardSlide(storyboard: Storyboard, modifier: Modifier = Modifier) {
-    // TODO maybe this should be somewhere else...
-    LaunchedEffect(storyboard) {
-        storyboard.handleEvents()
-    }
-
+fun StoryboardSlide(storyboard: StoryboardState, modifier: Modifier = Modifier) {
     val holder = rememberSaveableStateHolder()
-    ProvideStoryboard(storyboard) {
-        SlideWrapper(storyboard.size, storyboard.decorator, modifier) {
-            rememberTransition(storyboard.node).AnimatedContent(
+    ProvideStoryboard(storyboard.storyboard) {
+        SlideWrapper(storyboard.storyboard.size, storyboard.storyboard.decorator, modifier) {
+            val frame = storyboard.rememberTransition()
+            frame.createChildTransition { it.scene }.AnimatedContent(
                 transitionSpec = {
                     val direction = when {
                         targetState > initialState -> AdvanceDirection.Forward
@@ -37,21 +28,45 @@ fun StoryboardSlide(storyboard: Storyboard, modifier: Modifier = Modifier) {
                     targetState.slide.enterTransition(direction) togetherWith
                             initialState.slide.exitTransition(direction)
                 }
-            ) { node ->
-                @Composable
-                fun <T> Content(node: SlideNode<T>) {
-                    val scope = rememberScope(storyboard, node, this@AnimatedContent, this@SlideWrapper)
-                    node.slide.content(scope)
-                }
-
-                holder.SaveableStateProvider(node) {
+            ) { scene ->
+                holder.SaveableStateProvider(scene) {
                     Box(Modifier.fillMaxSize()) {
-                        Content(node)
+                        SceneContent(storyboard, scene, frame, this@AnimatedContent, this@SlideWrapper)
                     }
                 }
             }
         }
     }
+}
+
+@Composable
+private fun <T> SceneContent(
+    storyboard: StoryboardState,
+    stateScene: StoryboardState.StateScene<T>,
+    frame: Transition<StoryboardState.StateFrame<*>>,
+    animatedContentScope: AnimatedContentScope,
+    sharedTransitionScope: SharedTransitionScope,
+) {
+    val state = frame.createChildTransition {
+        @Suppress("UNCHECKED_CAST")
+        when {
+            stateScene > it.scene -> SlideState.Start
+            stateScene < it.scene -> SlideState.End
+            else -> it.state as SlideState<T>
+        }
+    }
+
+    val scope = remember(storyboard, stateScene, state, animatedContentScope, sharedTransitionScope) {
+        StoryboardSlideScope(
+            storyboard = storyboard,
+            states = stateScene.slide.states,
+            state = state,
+            animatedVisibilityScope = animatedContentScope,
+            sharedTransitionScope = sharedTransitionScope
+        )
+    }
+
+    stateScene.slide.content(scope)
 }
 
 @Composable
@@ -70,25 +85,5 @@ internal fun SlideWrapper(
                 }
             }
         }
-    }
-}
-
-@Composable
-private fun <T> rememberScope(
-    storyboard: Storyboard,
-    node: SlideNode<T>,
-    animatedContentScope: AnimatedContentScope,
-    sharedTransitionScope: SharedTransitionScope,
-): StoryboardSlideScope<T> {
-    val transition = rememberTransition(node.stateIndex)
-    val stateTransition = transition.createChildTransition { node.states[it] }
-    return remember(storyboard, node, stateTransition, animatedContentScope, sharedTransitionScope) {
-        StoryboardSlideScope(
-            storyboard = storyboard,
-            states = node.slide.states,
-            state = stateTransition,
-            animatedVisibilityScope = animatedContentScope,
-            sharedTransitionScope = sharedTransitionScope
-        )
     }
 }

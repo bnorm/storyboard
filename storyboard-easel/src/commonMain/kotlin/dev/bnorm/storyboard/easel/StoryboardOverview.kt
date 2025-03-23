@@ -25,6 +25,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.*
 import dev.bnorm.storyboard.core.Slide
 import dev.bnorm.storyboard.core.Storyboard
+import dev.bnorm.storyboard.core.StoryboardState
 import dev.bnorm.storyboard.easel.internal.aspectRatio
 import dev.bnorm.storyboard.easel.internal.requestFocus
 import dev.bnorm.storyboard.ui.SlidePreview
@@ -41,7 +42,7 @@ fun StoryboardOverview(
 ) {
     BoxWithConstraints(modifier = modifier.onOverviewNavigation(overview, onExitOverview, animatedVisibilityScope)) {
         val boxWithConstraintsScope = this
-        val itemSize = boxWithConstraintsScope.toItemSize(overview.storyboard.size)
+        val itemSize = boxWithConstraintsScope.toItemSize(overview.storyboard.storyboard.size)
         val verticalPaddingDp = (boxWithConstraintsScope.maxHeight - itemSize.height).coerceAtLeast(0.dp) / 2
         val horizontalPaddingDp = (boxWithConstraintsScope.maxWidth - itemSize.width).coerceAtLeast(0.dp) / 2
         val horizontalScrollOffset = with(LocalDensity.current) { horizontalPaddingDp.toPx() }
@@ -75,7 +76,7 @@ fun StoryboardOverview(
                                 .padding(4.dp)
                                 .border(2.dp, currentColor, RoundedCornerShape(6.dp))
                                 .padding(8.dp)
-                                .aspectRatio(overview.storyboard.size.aspectRatio)
+                                .aspectRatio(overview.storyboard.storyboard.size.aspectRatio)
                         ) {
                             val sharedElementModifier = when (isCurrentItem) {
                                 false -> Modifier
@@ -88,7 +89,7 @@ fun StoryboardOverview(
                             }
 
                             SlidePreview(
-                                storyboard = overview.storyboard,
+                                storyboard = overview.storyboard.storyboard,
                                 frame = item.frame,
                                 modifier = sharedElementModifier
                             )
@@ -122,7 +123,7 @@ fun StoryboardOverview(
 }
 
 class StoryboardOverview private constructor(
-    val storyboard: Storyboard,
+    val storyboard: StoryboardState,
     internal val columns: ImmutableList<Column>,
 ) {
     private var _isVisible = mutableStateOf(false)
@@ -178,8 +179,8 @@ class StoryboardOverview private constructor(
     )
 
     companion object {
-        fun of(storyboard: Storyboard): StoryboardOverview {
-            val columns = storyboard.slides
+        fun of(storyboard: StoryboardState): StoryboardOverview {
+            val columns = storyboard.storyboard.slides
                 .mapIndexed { slideIndex, slide ->
                     val items = slide.states
                         .mapIndexed { stateIndex, _ ->

@@ -22,8 +22,9 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.*
 import androidx.compose.ui.unit.dp
 import dev.bnorm.storyboard.core.AdvanceDirection
-import dev.bnorm.storyboard.core.Storyboard
+import dev.bnorm.storyboard.core.StoryboardState
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -36,9 +37,12 @@ interface SlideOverlayScope : BoxScope {
 
 @Composable
 fun StoryboardOverlay(
-    storyboard: Storyboard,
+    storyboard: StoryboardState,
     state: OverlayState,
     content: @Composable SlideOverlayScope.() -> Unit = {
+        val coroutineScope = rememberCoroutineScope()
+        var job by remember { mutableStateOf<Job?>(null) }
+
         Surface(
             modifier = Modifier
                 .align(Alignment.BottomEnd)
@@ -50,12 +54,24 @@ fun StoryboardOverlay(
                 IconButton(
                     text = "Previous",
                     icon = Icons.AutoMirrored.Rounded.ArrowBack,
-                    onClick = { storyboard.advance(AdvanceDirection.Backward) }
+                    onClick = {
+                        job?.cancel()
+                        job = coroutineScope.launch {
+                            storyboard.advance(AdvanceDirection.Backward)
+                            job = null
+                        }
+                    }
                 )
                 IconButton(
                     text = "Next",
                     icon = Icons.AutoMirrored.Rounded.ArrowForward,
-                    onClick = { storyboard.advance(AdvanceDirection.Forward) }
+                    onClick = {
+                        job?.cancel()
+                        job = coroutineScope.launch {
+                            storyboard.advance(AdvanceDirection.Forward)
+                            job = null
+                        }
+                    }
                 )
             }
         }
