@@ -18,5 +18,6 @@ Live versions of the example Storyboards are available via GitHub Pages.
 To see how publishing is achieved, see the [`pages.yml` workflow](.github/workflows/pages.yml).
 
 * [Basic](https://bnorm.github.io/storyboard/example/basic)
+* [Interactive](https://bnorm.github.io/storyboard/example/interactive)
 
 [compose]: https://www.jetbrains.com/lp/compose-multiplatform

@@ -12,8 +12,8 @@ import dev.bnorm.storyboard.ui.StoryboardScene
 fun EmbeddedStoryboard(storyboard: StoryboardState, modifier: Modifier = Modifier) {
     val coroutineScope = rememberCoroutineScope()
     val overlayState = remember(coroutineScope) { OverlayState(coroutineScope) }
-    Box(modifier = Modifier.onPointerMovePress(overlayState)) {
-        StoryboardScene(storyboard, modifier = modifier)
+    Box(modifier = modifier.onPointerMovePress(overlayState)) {
+        StoryboardScene(storyboard)
         StoryboardOverlay(storyboard, overlayState)
     }
 }

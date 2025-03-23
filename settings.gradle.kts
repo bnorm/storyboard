@@ -31,4 +31,5 @@ include(":storyboard-easel")
 include(":storyboard-text")
 
 include(":examples:basic")
+include(":examples:interactive")
 include(":examples:shared")

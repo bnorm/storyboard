@@ -13,6 +13,10 @@ fun FixedSize(
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit,
 ) {
+    // TODO i think there is a bug in the scale code of Compose...
+    //   - until the desktop window is resized, clickable regions for buttons are incorrectly placed.
+    //   - this is reproducible with a BoxWithConstraints and scale modifier as well.
+    //   - going to the overview and back seems to fix it.
     Box(modifier = modifier.layout { measurable, constraints ->
         val scale = minOf(
             constraints.maxWidth / size.width.toPx(),

@@ -1,0 +1,21 @@
+import androidx.compose.material.Surface
+import dev.bnorm.storyboard.core.SceneDecorator
+import dev.bnorm.storyboard.core.Storyboard
+
+fun createStoryboard(): Storyboard {
+    return Storyboard.build(
+        title = "Notes Storyboard",
+        decorator = theme,
+    ) {
+        ButtonScene()
+        TextFieldScene()
+        AppScene()
+        NextScene()
+    }
+}
+
+private val theme = SceneDecorator { content ->
+    Surface {
+        content()
+    }
+}
