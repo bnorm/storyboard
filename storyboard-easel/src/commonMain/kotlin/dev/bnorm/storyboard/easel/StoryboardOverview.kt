@@ -28,6 +28,7 @@ import dev.bnorm.storyboard.core.Storyboard
 import dev.bnorm.storyboard.core.StoryboardState
 import dev.bnorm.storyboard.easel.internal.aspectRatio
 import dev.bnorm.storyboard.easel.internal.requestFocus
+import dev.bnorm.storyboard.easel.notes.LocalStoryboardNotes
 import dev.bnorm.storyboard.ui.ScenePreview
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
@@ -88,11 +89,23 @@ fun StoryboardOverview(
                                 }
                             }
 
-                            ScenePreview(
-                                storyboard = overview.storyboard.storyboard,
-                                index = item.index,
-                                modifier = sharedElementModifier
-                            )
+                            // TODO should notes be disabled *totally* during overview?
+                            //  - providing notes for the selected scene in the overview means
+                            //    we duplicate the scene notes during the transition.
+                            // TODO is there a better way to disable composition locals within overview?
+                            //  - ProvidedValues that are applied in overview as well
+                            //  - ProvidedValues that are not applied in overview
+                            //  - decorator?
+                            //  - some other storyboard concept?
+                            CompositionLocalProvider(
+                                LocalStoryboardNotes provides LocalStoryboardNotes.current.takeIf { isCurrentIndex },
+                            ) {
+                                ScenePreview(
+                                    storyboard = overview.storyboard.storyboard,
+                                    index = item.index,
+                                    modifier = sharedElementModifier
+                                )
+                            }
 
                             // Cover the scene content with a clickable modifier
                             // to disable interaction while in overview.
