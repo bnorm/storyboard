@@ -18,6 +18,9 @@ fun WebStoryboard(storyboard: Storyboard) {
     val storyboardState = remember(storyboard) {
         val params = URLSearchParams(window.location.search.toJsString())
 
+        // TODO what to rename frame to here?
+        //  - not really a frame or index
+        //  - separate values for scene and state?
         val frameIndex = params.get("frame")?.toIntOrNull()
         val initialIndex = if (frameIndex != null) {
             StoryboardState(storyboard)

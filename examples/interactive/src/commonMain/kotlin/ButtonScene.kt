@@ -36,7 +36,7 @@ fun StoryboardBuilder.ButtonScene() {
                         item { Text("• Scenes can contain interactive content.") }
                         item { Text("• For example, buttons!") }
                         item { IncreaseDecreaseCounter() }
-                        item { Text("• Try them out!") }
+                        item { Text("• Try them out! (A Compose bug requires resizing the window first)") }
                         item { Text("• Using `rememberSaveable` allows state to be preserved across scenes.") }
                         item { Text("• Navigate to the next scene and back to see it in action!") }
                     }
