@@ -33,21 +33,25 @@ fun StoryboardNotes(storyboard: StoryboardState, notes: StoryboardNotes, modifie
             }
 
             Row(modifier = Modifier.fillMaxWidth().padding(top = 16.dp)) {
-                val currentIndex = storyboard.currentIndex
                 Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
                     Text("Current Frame")
-                    ClickableScenePreview(storyboard, currentIndex)
+                    ClickableScenePreview(storyboard, storyboard.currentIndex)
                     SceneAnimationProgressIndicator(storyboard)
                 }
                 Spacer(Modifier.width(16.dp))
                 Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
                     Text("Next Frame")
-                    val targetIndex = storyboard.targetIndex
-                    if (targetIndex != currentIndex) {
-                        ClickableScenePreview(storyboard, targetIndex)
-
+                    val nextIndex by derivedStateOf {
+                        val i = storyboard.storyboard.indices.binarySearch(storyboard.currentIndex)
+                        require(i >= 0) { "targetIndex not found in storyboard" }
+                        storyboard.storyboard.indices.getOrNull(i + 1)
+                    }
+                    nextIndex?.let {
+                        ClickableScenePreview(storyboard, it)
                     }
                 }
+                // TODO previous frame?
+                // TODO highlight frame which is being advanced to?
             }
 
             if (notes.tabs.isNotEmpty()) {
@@ -111,11 +115,22 @@ private fun ClickableScenePreview(
 @Composable
 private fun SceneAnimationProgressIndicator(storyboard: StoryboardState) {
     Row {
+        val advancementDistance = storyboard.advancementDistance
         val advancementProgress = storyboard.advancementProgress
-        val color = if (advancementProgress == 1f) Color.Green else Color.Red
-        Spacer(Modifier.height(2.dp).weight(advancementProgress).background(color))
-        if (advancementProgress < 1f) {
-            Spacer(Modifier.weight(1f - advancementProgress))
+        when {
+            advancementProgress == advancementDistance -> {
+                Spacer(Modifier.height(2.dp).weight(1f).background(Color.Green))
+            }
+
+            else -> {
+                val complete = advancementProgress.toInt() / advancementDistance
+                val partial = (advancementProgress % 1f) / advancementDistance
+                val remaining = 1f - complete - partial
+
+                if (complete > 0f) Spacer(Modifier.height(2.dp).weight(complete).background(Color.Green))
+                if (partial > 0f) Spacer(Modifier.height(2.dp).weight(partial).background(Color.Red))
+                if (remaining > 0f) Spacer(Modifier.height(2.dp).weight(remaining).background(Color.DarkGray))
+            }
         }
     }
 }

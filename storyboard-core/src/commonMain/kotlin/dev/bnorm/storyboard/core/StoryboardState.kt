@@ -64,17 +64,20 @@ class StoryboardState(
     var targetIndex: Storyboard.Index by mutableStateOf(currentIndex)
         private set
 
+    val advancementDistance: Float
+        get() {
+            if (currentIndex == targetIndex) return 1f
+            val start = byIndex.getValue(currentIndex).frameIndex
+            val target = byIndex.getValue(targetIndex).frameIndex
+            return abs(target - start).toFloat()
+        }
+
     val advancementProgress: Float
         get() {
             if (currentIndex == targetIndex) return 1f
-
-            val start = byIndex.getValue(currentIndex)
+            val start = byIndex.getValue(currentIndex).frameIndex
             val current = frameIndex.currentState
-            val target = byIndex.getValue(targetIndex)
-
-            val progress = abs(current - start.frameIndex)
-            val distance = abs(target.frameIndex - start.frameIndex)
-            return progress + (frameIndex.fraction / distance)
+            return abs(current - start) + frameIndex.fraction
         }
 
     // TODO manage scope + job + launch internally? or have utilities for it?
@@ -101,8 +104,8 @@ class StoryboardState(
         } else {
             // Reverse directions.
             val tmp = currentIndex
-            targetIndex = currentIndex
-            currentIndex = tmp
+            currentIndex = targetIndex
+            targetIndex = tmp
 
             frameIndex.animateTo(frameIndex.currentState)
         }
