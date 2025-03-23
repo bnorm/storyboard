@@ -5,7 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.renderComposeScene
 import dev.bnorm.storyboard.core.Storyboard
-import dev.bnorm.storyboard.ui.SlidePreview
+import dev.bnorm.storyboard.ui.ScenePreview
 import io.github.vinceglb.filekit.core.FileKit
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runInterruptible
@@ -56,11 +56,11 @@ class StoryboardPdfExporter(
         try {
             val doc = PDDocument()
 
-            val frames = storyboard.frames
+            val frames = storyboard.indices
             for ((page, frame) in frames.withIndex()) {
                 status = ExportStatus(page.toFloat() / frames.size, "Generating PDF...")
                 val image = renderComposeScene(width, height) {
-                    SlidePreview(storyboard, frame)
+                    ScenePreview(storyboard, frame)
                 }
 
                 createPage(image, page, doc, width, height)
@@ -90,7 +90,7 @@ class StoryboardPdfExporter(
         height: Int,
     ) {
         val bytes = image.encodeToData(EncodedImageFormat.PNG)?.bytes
-        val name = "slide-${index.toString().padStart(3, '0')}"
+        val name = "frame-${index.toString().padStart(3, '0')}"
 
         val page = PDPage(PDRectangle(width.toFloat(), height.toFloat()))
         doc.addPage(page)

@@ -31,7 +31,7 @@ import kotlinx.coroutines.launch
 import kotlin.time.TimeMark
 import kotlin.time.TimeSource
 
-interface SlideOverlayScope : BoxScope {
+interface StoryboardOverlayScope : BoxScope {
     fun Modifier.overlayElement(): Modifier
 }
 
@@ -39,7 +39,7 @@ interface SlideOverlayScope : BoxScope {
 fun StoryboardOverlay(
     storyboard: StoryboardState,
     state: OverlayState,
-    content: @Composable SlideOverlayScope.() -> Unit = {
+    content: @Composable StoryboardOverlayScope.() -> Unit = {
         val coroutineScope = rememberCoroutineScope()
         var job by remember { mutableStateOf<Job?>(null) }
 
@@ -81,7 +81,7 @@ fun StoryboardOverlay(
         visible = state.visible,
         enter = fadeIn(), exit = fadeOut()
     ) {
-        // TODO keep overlay only ever over the slide? aspectRatio(storyboard.size.aspectRatio)
+        // TODO keep overlay only ever over the scene? aspectRatio(storyboard.size.aspectRatio)
         val alpha by animateFloatAsState(if (state.inside) 0.75f else 0.25f)
         Box(
             modifier = Modifier
@@ -89,7 +89,7 @@ fun StoryboardOverlay(
                 .alpha(alpha)
         ) {
             val scope = remember(state) {
-                object : SlideOverlayScope, BoxScope by this {
+                object : StoryboardOverlayScope, BoxScope by this {
                     override fun Modifier.overlayElement(): Modifier {
                         return onPointerEnterExit(state)
                     }

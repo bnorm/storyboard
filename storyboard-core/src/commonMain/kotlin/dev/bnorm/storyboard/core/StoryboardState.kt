@@ -12,42 +12,42 @@ import kotlin.math.abs
 
 class StoryboardState(
     val storyboard: Storyboard,
-    initialFrame: Storyboard.Frame = Storyboard.Frame(0, 0),
+    initialIndex: Storyboard.Index = Storyboard.Index(0, 0),
 ) {
     private val frames = buildList {
-        val slides = storyboard.slides
-        require(slides.isNotEmpty()) { "cannot build frames for empty list of slides" }
+        val scenes = storyboard.scenes
+        require(scenes.isNotEmpty()) { "cannot build frames for empty list of scenes" }
 
-        val first = slides.first()
-        val last = slides.last()
-        require(first.states.isNotEmpty() && last.states.isNotEmpty()) { "first and last slide must have states" }
+        val first = scenes.first()
+        val last = scenes.last()
+        require(first.states.isNotEmpty() && last.states.isNotEmpty()) { "first and last scene must have states" }
 
         var frameIndex = 0
-        fun <T> MutableList<StateFrame<*>>.addStates(scene: StateScene<T>, slideIndex: Int) {
-            for ((stateIndex, state) in scene.slide.states.withIndex()) {
-                val frame = StateFrame(
-                    index = frameIndex++,
+        fun <T> MutableList<StateFrame<*>>.addStates(scene: StateScene<T>) {
+            for ((stateIndex, state) in scene.scene.states.withIndex()) {
+                val index = StateFrame(
+                    frameIndex = frameIndex++,
                     scene = scene,
-                    state = SlideState.Value(state),
-                    frame = Storyboard.Frame(slideIndex, stateIndex)
+                    state = Frame.State(state),
+                    storyboardIndex = Storyboard.Index(scene.sceneIndex, stateIndex)
                 )
-                add(frame)
+                add(index)
             }
         }
 
-        for ((slideIndex, slide) in storyboard.slides.withIndex()) {
-            val scene = StateScene(slideIndex, slide)
-            if (slide != first) add(StateFrame(frameIndex++, scene, SlideState.Start, Storyboard.Frame(slideIndex, -1)))
-            addStates(scene, slideIndex)
-            if (slide != last) add(StateFrame(frameIndex++, scene, SlideState.End, Storyboard.Frame(slideIndex, -2)))
+        for ((sceneIndex, scene) in storyboard.scenes.withIndex()) {
+            val stateScene = StateScene(sceneIndex, scene)
+            if (scene != first) add(StateFrame(frameIndex++, stateScene, Frame.Start, Storyboard.Index(sceneIndex, -1)))
+            addStates(stateScene)
+            if (scene != last) add(StateFrame(frameIndex++, stateScene, Frame.End, Storyboard.Index(sceneIndex, -2)))
         }
     }
 
-    private val byFrame = frames.filter { it.frame.stateIndex >= 0 }.associateBy { it.frame }
+    private val byIndex = frames.filter { it.storyboardIndex.stateIndex >= 0 }.associateBy { it.storyboardIndex }
 
     init {
-        require(initialFrame.slideIndex >= 0 && initialFrame.stateIndex >= 0) { "initialFrame must be a valid frame" }
-        require(initialFrame in byFrame) { "initialFrame must be in storyboard" }
+        require(initialIndex.sceneIndex >= 0 && initialIndex.stateIndex >= 0) { "initialIndex must be a valid frame" }
+        require(initialIndex in byIndex) { "initialIndex must be in storyboard" }
     }
 
     var currentDirection: AdvanceDirection by mutableStateOf(AdvanceDirection.Forward)
@@ -58,22 +58,22 @@ class StoryboardState(
     // TODO report a bug?
     private var frameIndex by mutableStateOf(SeekableTransitionState(0))
 
-    var currentFrame: Storyboard.Frame by mutableStateOf(initialFrame)
+    var currentIndex: Storyboard.Index by mutableStateOf(initialIndex)
         private set
 
-    var targetFrame: Storyboard.Frame by mutableStateOf(currentFrame)
+    var targetIndex: Storyboard.Index by mutableStateOf(currentIndex)
         private set
 
     val advancementProgress: Float
         get() {
-            if (currentFrame == targetFrame) return 1f
+            if (currentIndex == targetIndex) return 1f
 
-            val start = byFrame.getValue(currentFrame)
+            val start = byIndex.getValue(currentIndex)
             val current = frameIndex.currentState
-            val target = byFrame.getValue(targetFrame)
+            val target = byIndex.getValue(targetIndex)
 
-            val progress = abs(current - start.index)
-            val distance = abs(target.index - start.index)
+            val progress = abs(current - start.frameIndex)
+            val distance = abs(target.frameIndex - start.frameIndex)
             return progress + (frameIndex.fraction / distance)
         }
 
@@ -90,29 +90,29 @@ class StoryboardState(
         if (currentDirection == null || currentDirection == direction) {
             if (currentDirection == direction) {
                 // Snap to the target and continue.
-                val target = byFrame.getValue(targetFrame)
-                frameIndex.snapTo(target.index)
-                currentFrame = target.frame
+                val target = byIndex.getValue(targetIndex)
+                frameIndex.snapTo(target.frameIndex)
+                currentIndex = target.storyboardIndex
             }
 
             // Find the next target frame index.
             val targetIndex = findTargetIndex(direction) ?: return false
-            targetFrame = frames[targetIndex].frame
+            this@StoryboardState.targetIndex = frames[targetIndex].storyboardIndex
         } else {
             // Reverse directions.
-            val tmp = currentFrame
-            targetFrame = currentFrame
-            currentFrame = tmp
+            val tmp = currentIndex
+            targetIndex = currentIndex
+            currentIndex = tmp
 
             frameIndex.animateTo(frameIndex.currentState)
         }
 
         // Animate to the target frame.
-        while (frames[frameIndex.currentState].frame != targetFrame) {
+        while (frames[frameIndex.currentState].storyboardIndex != targetIndex) {
             frameIndex.animateTo(frameIndex.currentState + direction.toInt())
         }
 
-        currentFrame = targetFrame
+        currentIndex = targetIndex
         return true
     }
 
@@ -126,44 +126,44 @@ class StoryboardState(
         var targetState = frameIndex.currentState + direction.toInt()
         if (targetState !in frames.indices) return null
 
-        while (frames[targetState].state !is SlideState.Value) {
+        while (frames[targetState].state !is Frame.State) {
             targetState += direction.toInt()
         }
         return targetState
     }
 
-    suspend fun jumpTo(frame: Storyboard.Frame): Boolean {
-        val frame = byFrame[frame]
+    suspend fun jumpTo(index: Storyboard.Index): Boolean {
+        val frame = byIndex[index]
         require(frame != null) { "$frame not found in storyboard" }
 
-        targetFrame = frame.frame
-        frameIndex.snapTo(frame.index)
+        targetIndex = frame.storyboardIndex
+        frameIndex.snapTo(frame.frameIndex)
 
         // TODO this is a workaround for SeekableTransitionState not supporting
         //  `snapTo` without a transition.
         // TODO report a bug?
-        if (frameIndex.currentState != frame.index) {
-            frameIndex = SeekableTransitionState(frame.index)
+        if (frameIndex.currentState != frame.frameIndex) {
+            frameIndex = SeekableTransitionState(frame.frameIndex)
         }
 
-        currentFrame = targetFrame
+        currentIndex = targetIndex
         return true
     }
 
     class StateScene<T>(
-        val index: Int,
-        val slide: Slide<T>,
+        val sceneIndex: Int,
+        val scene: Scene<T>,
     ) : Comparable<StateScene<*>> {
         override fun compareTo(other: StateScene<*>): Int {
-            return compareValues(index, other.index)
+            return compareValues(sceneIndex, other.sceneIndex)
         }
     }
 
     class StateFrame<T>(
-        val index: Int,
+        val frameIndex: Int,
         val scene: StateScene<T>,
-        val state: SlideState<T>,
-        val frame: Storyboard.Frame,
+        val state: Frame<T>,
+        val storyboardIndex: Storyboard.Index,
     )
 
     @Composable

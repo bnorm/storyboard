@@ -14,59 +14,59 @@ val DefaultExitTransition: (AdvanceDirection) -> ExitTransition = { ExitTransiti
 @StoryboardBuilderDsl
 sealed interface StoryboardBuilder {
     @StoryboardBuilderDsl
-    fun <T> slide(
+    fun <T> scene(
         states: List<T>,
         enterTransition: (AdvanceDirection) -> EnterTransition = DefaultEnterTransition,
         exitTransition: (AdvanceDirection) -> ExitTransition = DefaultExitTransition,
-        content: SlideContent<T>,
-    ): Slide<T>
+        content: SceneContent<T>,
+    ): Scene<T>
 }
 
 @StoryboardBuilderDsl
-fun <T> StoryboardBuilder.slide(
+fun <T> StoryboardBuilder.scene(
     vararg states: T,
     enterTransition: (AdvanceDirection) -> EnterTransition = DefaultEnterTransition,
     exitTransition: (AdvanceDirection) -> ExitTransition = DefaultExitTransition,
-    content: SlideContent<T>,
-): Slide<T> {
-    return slide(states.asList(), enterTransition, exitTransition, content)
+    content: SceneContent<T>,
+): Scene<T> {
+    return scene(states.asList(), enterTransition, exitTransition, content)
 }
 
 @StoryboardBuilderDsl
-fun StoryboardBuilder.slide(
+fun StoryboardBuilder.scene(
     stateCount: Int = 1,
     enterTransition: (AdvanceDirection) -> EnterTransition = DefaultEnterTransition,
     exitTransition: (AdvanceDirection) -> ExitTransition = DefaultExitTransition,
-    content: SlideContent<Int>,
-): Slide<Int> {
+    content: SceneContent<Int>,
+): Scene<Int> {
     require(stateCount > 0) { "stateCount must be greater than 0" }
-    return slide((0..<stateCount).toList(), enterTransition, exitTransition, content)
+    return scene((0..<stateCount).toList(), enterTransition, exitTransition, content)
 }
 
 @StoryboardBuilderDsl
-inline fun <reified T : Enum<T>> StoryboardBuilder.slideForEnum(
+inline fun <reified T : Enum<T>> StoryboardBuilder.sceneForEnum(
     noinline enterTransition: (AdvanceDirection) -> EnterTransition = DefaultEnterTransition,
     noinline exitTransition: (AdvanceDirection) -> ExitTransition = DefaultExitTransition,
-    noinline content: SlideContent<T>,
-): Slide<T> {
-    return slide(enumEntries<T>(), enterTransition, exitTransition, content)
+    noinline content: SceneContent<T>,
+): Scene<T> {
+    return scene(enumEntries<T>(), enterTransition, exitTransition, content)
 }
 
 @StoryboardBuilderDsl
-fun StoryboardBuilder.slideForBoolean(
+fun StoryboardBuilder.sceneForBoolean(
     enterTransition: (AdvanceDirection) -> EnterTransition = DefaultEnterTransition,
     exitTransition: (AdvanceDirection) -> ExitTransition = DefaultExitTransition,
-    content: SlideContent<Boolean>,
-): Slide<Boolean> {
+    content: SceneContent<Boolean>,
+): Scene<Boolean> {
     val states = listOf(false, true)
-    return slide(states, enterTransition, exitTransition, content)
+    return scene(states, enterTransition, exitTransition, content)
 }
 
 @StoryboardBuilderDsl
-fun StoryboardBuilder.slideForTransition(
+fun StoryboardBuilder.sceneForTransition(
     enterTransition: (AdvanceDirection) -> EnterTransition = DefaultEnterTransition,
     exitTransition: (AdvanceDirection) -> ExitTransition = DefaultExitTransition,
-    content: SlideContent<Nothing>,
-): Slide<Nothing> {
-    return slide(emptyList(), enterTransition, exitTransition, content)
+    content: SceneContent<Nothing>,
+): Scene<Nothing> {
+    return scene(emptyList(), enterTransition, exitTransition, content)
 }

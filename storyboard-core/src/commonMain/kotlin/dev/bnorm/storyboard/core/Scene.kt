@@ -6,9 +6,9 @@ import androidx.compose.runtime.Immutable
 import kotlinx.collections.immutable.ImmutableList
 
 @Immutable
-class Slide<T>(
+class Scene<T>(
     val states: ImmutableList<T>,
     val enterTransition: (AdvanceDirection) -> EnterTransition,
     val exitTransition: (AdvanceDirection) -> ExitTransition,
-    val content: SlideContent<T>,
+    val content: SceneContent<T>,
 )

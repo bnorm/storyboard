@@ -5,8 +5,8 @@ package dev.bnorm.storyboard.easel
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import dev.bnorm.storyboard.core.AdvanceDirection
-import dev.bnorm.storyboard.core.SlideScope
-import dev.bnorm.storyboard.core.SlideState
+import dev.bnorm.storyboard.core.SceneScope
+import dev.bnorm.storyboard.core.Frame
 import kotlin.experimental.ExperimentalTypeInference
 
 /**
@@ -16,8 +16,8 @@ import kotlin.experimental.ExperimentalTypeInference
  *  2. Direction (forward, backward) - which way is the Storyboard advancing.
  *
  * For example, consider a simple left-to-right animation of an element within a
- * slide: when the slide advances forward, the element will need to enter from
- * the left and then exit to the right. When the slide advances backwards, the
+ * scene: when the scene advances forward, the element will need to enter from
+ * the left and then exit to the right. When the scene advances backwards, the
  * element will need to enter from the right and exit to the left.
  *
  * To help simplify a common situation like this, Storyboard considers two
@@ -32,9 +32,9 @@ import kotlin.experimental.ExperimentalTypeInference
  * [     ] <-{Exit}--- [     ] <-{Enter}-- [     ] // Backwards
  * ```
  *
- * This distinction is a mirror of the [SlideScope.state] of a slide, which has
- * a [SlideState.Start] as the first element and a [SlideState.End] as the last
- * element, to help manage transitions between slides.
+ * This distinction is a mirror of the [SceneScope.frame] of a scene, which has
+ * a [Frame.Start] as the first element and a [Frame.End] as the last
+ * element, to help manage transitions between scenes.
  */
 @Suppress("unused")
 private object FileKDoc
@@ -55,12 +55,12 @@ inline fun AdvanceDirection.exit(
     AdvanceDirection.Backward -> start()
 }
 
-inline fun SlideScope<*>.enter(
+inline fun SceneScope<*>.enter(
     start: () -> EnterTransition = { EnterTransition.None },
     end: () -> EnterTransition = { EnterTransition.None },
 ): EnterTransition = direction.enter(start, end)
 
-inline fun SlideScope<*>.exit(
+inline fun SceneScope<*>.exit(
     start: () -> ExitTransition = { ExitTransition.None },
     end: () -> ExitTransition = { ExitTransition.None },
 ): ExitTransition = direction.exit(start, end)

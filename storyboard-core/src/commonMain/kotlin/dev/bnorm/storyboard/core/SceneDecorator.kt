@@ -4,36 +4,36 @@ import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.runtime.Composable
 
-fun interface SlideDecorator {
+fun interface SceneDecorator {
     @Composable
     fun decorate(content: @Composable () -> Unit)
 
     companion object {
-        val None = SlideDecorator { it() }
+        val None = SceneDecorator { it() }
     }
 }
 
-operator fun SlideDecorator.plus(other: SlideDecorator): SlideDecorator {
+operator fun SceneDecorator.plus(other: SceneDecorator): SceneDecorator {
     val self = this
-    return when (SlideDecorator.None) {
+    return when (SceneDecorator.None) {
         other -> self
         self -> other
-        else -> CompositeSlideDecorator(decorators = buildList {
+        else -> CompositeSceneDecorator(decorators = buildList {
             when (self) {
-                is CompositeSlideDecorator -> addAll(self.decorators)
+                is CompositeSceneDecorator -> addAll(self.decorators)
                 else -> add(self)
             }
             when (other) {
-                is CompositeSlideDecorator -> addAll(other.decorators)
+                is CompositeSceneDecorator -> addAll(other.decorators)
                 else -> add(other)
             }
         })
     }
 }
 
-private class CompositeSlideDecorator(
-    val decorators: List<SlideDecorator>
-) : SlideDecorator {
+private class CompositeSceneDecorator(
+    val decorators: List<SceneDecorator>
+) : SceneDecorator {
 
     @Composable
     override fun decorate(content: @Composable () -> Unit) {
@@ -52,7 +52,7 @@ private class CompositeSlideDecorator(
 
 @StoryboardBuilderDsl
 fun StoryboardBuilder.decorated(
-    decorator: SlideDecorator,
+    decorator: SceneDecorator,
     block: StoryboardBuilder.() -> Unit,
 ) {
     DecoratedStoryboardBuilder(this, decorator).block()
@@ -60,15 +60,15 @@ fun StoryboardBuilder.decorated(
 
 private class DecoratedStoryboardBuilder(
     private val upstream: StoryboardBuilder,
-    private val decorator: SlideDecorator,
+    private val decorator: SceneDecorator,
 ) : StoryboardBuilder {
-    override fun <T> slide(
+    override fun <T> scene(
         states: List<T>,
         enterTransition: (AdvanceDirection) -> EnterTransition,
         exitTransition: (AdvanceDirection) -> ExitTransition,
-        content: SlideContent<T>,
-    ): Slide<T> {
-        return upstream.slide(states, enterTransition, exitTransition) {
+        content: SceneContent<T>,
+    ): Scene<T> {
+        return upstream.scene(states, enterTransition, exitTransition) {
             decorator.decorate {
                 content()
             }

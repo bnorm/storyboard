@@ -6,7 +6,7 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.ProvideTextStyle
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import dev.bnorm.storyboard.core.SlideScope
+import dev.bnorm.storyboard.core.SceneScope
 
 @Composable
 fun Title(modifier: Modifier = Modifier, content: @Composable BoxScope.() -> Unit) {
@@ -20,7 +20,7 @@ fun Title(modifier: Modifier = Modifier, content: @Composable BoxScope.() -> Uni
 private object SharedTitleKey
 
 @Composable
-fun SlideScope<*>.SharedTitle(modifier: Modifier = Modifier, content: @Composable BoxScope.() -> Unit) {
+fun SceneScope<*>.SharedTitle(modifier: Modifier = Modifier, content: @Composable BoxScope.() -> Unit) {
     Title(
         modifier = modifier.sharedElement(
             sharedContentState = rememberSharedContentState(SharedTitleKey),

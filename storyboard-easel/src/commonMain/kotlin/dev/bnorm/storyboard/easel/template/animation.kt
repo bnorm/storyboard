@@ -12,7 +12,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.times
 import dev.bnorm.storyboard.core.AdvanceDirection
 
-fun SlideEnter(
+fun SceneEnter(
     alignment: Alignment,
     animationSpec: FiniteAnimationSpec<IntOffset> = tween(durationMillis = 750),
     layoutDirection: LayoutDirection = LayoutDirection.Ltr,
@@ -24,7 +24,7 @@ fun SlideEnter(
     }
 }
 
-fun SlideExit(
+fun SceneExit(
     alignment: Alignment,
     animationSpec: FiniteAnimationSpec<IntOffset> = tween(durationMillis = 750),
     layoutDirection: LayoutDirection = LayoutDirection.Ltr,

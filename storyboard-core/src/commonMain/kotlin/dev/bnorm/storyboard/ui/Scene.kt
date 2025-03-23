@@ -14,10 +14,10 @@ import androidx.compose.ui.unit.DpSize
 import dev.bnorm.storyboard.core.*
 
 @Composable
-fun StoryboardSlide(storyboard: StoryboardState, modifier: Modifier = Modifier) {
+fun StoryboardScene(storyboard: StoryboardState, modifier: Modifier = Modifier) {
     val holder = rememberSaveableStateHolder()
     ProvideStoryboard(storyboard.storyboard) {
-        SlideWrapper(storyboard.storyboard.size, storyboard.storyboard.decorator, modifier) {
+        SceneWrapper(storyboard.storyboard.size, storyboard.storyboard.decorator, modifier) {
             val frame = storyboard.rememberTransition()
             frame.createChildTransition { it.scene }.AnimatedContent(
                 transitionSpec = {
@@ -25,13 +25,13 @@ fun StoryboardSlide(storyboard: StoryboardState, modifier: Modifier = Modifier) 
                         targetState > initialState -> AdvanceDirection.Forward
                         else -> AdvanceDirection.Backward
                     }
-                    targetState.slide.enterTransition(direction) togetherWith
-                            initialState.slide.exitTransition(direction)
+                    targetState.scene.enterTransition(direction) togetherWith
+                            initialState.scene.exitTransition(direction)
                 }
             ) { scene ->
                 holder.SaveableStateProvider(scene) {
                     Box(Modifier.fillMaxSize()) {
-                        SceneContent(storyboard, scene, frame, this@AnimatedContent, this@SlideWrapper)
+                        SceneContent(storyboard, scene, frame, this@AnimatedContent, this@SceneWrapper)
                     }
                 }
             }
@@ -50,33 +50,33 @@ private fun <T> SceneContent(
     val state = frame.createChildTransition {
         @Suppress("UNCHECKED_CAST")
         when {
-            stateScene > it.scene -> SlideState.Start
-            stateScene < it.scene -> SlideState.End
-            else -> it.state as SlideState<T>
+            stateScene > it.scene -> Frame.Start
+            stateScene < it.scene -> Frame.End
+            else -> it.state as Frame<T>
         }
     }
 
     val scope = remember(storyboard, stateScene, state, animatedContentScope, sharedTransitionScope) {
-        StoryboardSlideScope(
+        StoryboardSceneScope(
             storyboard = storyboard,
-            states = stateScene.slide.states,
-            state = state,
+            states = stateScene.scene.states,
+            frame = state,
             animatedVisibilityScope = animatedContentScope,
             sharedTransitionScope = sharedTransitionScope
         )
     }
 
-    stateScene.slide.content(scope)
+    stateScene.scene.content(scope)
 }
 
 @Composable
-internal fun SlideWrapper(
+internal fun SceneWrapper(
     size: DpSize,
-    decorator: SlideDecorator,
+    decorator: SceneDecorator,
     modifier: Modifier = Modifier,
     content: @Composable SharedTransitionScope.() -> Unit,
 ) {
-    // TODO i don't like that this box is part of the "slide"
+    // TODO i don't like that this box is part of the "scene"
     Box(contentAlignment = Alignment.Center, modifier = modifier.fillMaxSize()) {
         FixedSize(size = size) {
             decorator.decorate {

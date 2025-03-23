@@ -23,19 +23,19 @@ import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.*
-import dev.bnorm.storyboard.core.Slide
+import dev.bnorm.storyboard.core.Scene
 import dev.bnorm.storyboard.core.Storyboard
 import dev.bnorm.storyboard.core.StoryboardState
 import dev.bnorm.storyboard.easel.internal.aspectRatio
 import dev.bnorm.storyboard.easel.internal.requestFocus
-import dev.bnorm.storyboard.ui.SlidePreview
+import dev.bnorm.storyboard.ui.ScenePreview
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 
 @Composable
 fun StoryboardOverview(
     overview: StoryboardOverview,
-    onExitOverview: (Storyboard.Frame) -> Unit = {},
+    onExitOverview: (Storyboard.Index) -> Unit = {},
     sharedTransitionScope: SharedTransitionScope,
     animatedVisibilityScope: AnimatedContentScope,
     modifier: Modifier = Modifier,
@@ -68,8 +68,8 @@ fun StoryboardOverview(
                     modifier = Modifier.fillMaxHeight()
                 ) {
                     itemsIndexed(column.items) { itemIndex, item ->
-                        val isCurrentItem = isCurrentColumn && column.currentItemIndex == itemIndex
-                        val targetColor = if (isCurrentItem) MaterialTheme.colors.primary else Color.Transparent
+                        val isCurrentIndex = isCurrentColumn && column.currentItemIndex == itemIndex
+                        val targetColor = if (isCurrentIndex) MaterialTheme.colors.primary else Color.Transparent
                         val currentColor by animateColorAsState(targetColor)
                         Box(
                             Modifier.height(itemSize.height)
@@ -78,23 +78,23 @@ fun StoryboardOverview(
                                 .padding(8.dp)
                                 .aspectRatio(overview.storyboard.storyboard.size.aspectRatio)
                         ) {
-                            val sharedElementModifier = when (isCurrentItem) {
+                            val sharedElementModifier = when (isCurrentIndex) {
                                 false -> Modifier
                                 true -> with(sharedTransitionScope) {
                                     Modifier.sharedElement(
-                                        rememberSharedContentState(OverviewCurrentSlide),
+                                        rememberSharedContentState(OverviewCurrentIndex),
                                         animatedVisibilityScope = animatedVisibilityScope,
                                     )
                                 }
                             }
 
-                            SlidePreview(
+                            ScenePreview(
                                 storyboard = overview.storyboard.storyboard,
-                                frame = item.frame,
+                                index = item.index,
                                 modifier = sharedElementModifier
                             )
 
-                            // Cover the slide content with a clickable modifier
+                            // Cover the scene content with a clickable modifier
                             // to disable interaction while in overview.
                             Box(
                                 modifier = Modifier.fillMaxSize()
@@ -102,7 +102,7 @@ fun StoryboardOverview(
                                     .clickable(
                                         interactionSource = null, indication = null, // disable ripple effect
                                         onClick = {
-                                            if (isCurrentItem) onExitOverview(item.frame)
+                                            if (isCurrentIndex) onExitOverview(item.index)
                                             else overview.jumpTo(columnIndex, itemIndex)
                                         }
                                     )
@@ -152,21 +152,21 @@ class StoryboardOverview private constructor(
     }
 
     private fun jumpToFrame() {
-        val currentFrame = storyboard.currentFrame
+        val currentFrame = storyboard.currentIndex
 
         currentColumnIndex =
-            columns.binarySearch { compareValues(it.index, currentFrame.slideIndex) }
+            columns.binarySearch { compareValues(it.index, currentFrame.sceneIndex) }
                 .coerceAtLeast(0)
 
         val column = columns[currentColumnIndex]
         column.currentItemIndex =
-            column.items.binarySearch { compareValues(it.frame.stateIndex, currentFrame.stateIndex) }
+            column.items.binarySearch { compareValues(it.index.stateIndex, currentFrame.stateIndex) }
                 .coerceAtLeast(0)
     }
 
     @Immutable
     internal class Column(
-        val slide: Slide<*>,
+        val scene: Scene<*>,
         val index: Int,
         val items: ImmutableList<Item>,
     ) {
@@ -175,22 +175,22 @@ class StoryboardOverview private constructor(
 
     @Immutable
     internal class Item(
-        val frame: Storyboard.Frame,
+        val index: Storyboard.Index,
     )
 
     companion object {
         fun of(storyboard: StoryboardState): StoryboardOverview {
-            val columns = storyboard.storyboard.slides
-                .mapIndexed { slideIndex, slide ->
-                    val items = slide.states
+            val columns = storyboard.storyboard.scenes
+                .mapIndexed { sceneIndex, scene ->
+                    val items = scene.states
                         .mapIndexed { stateIndex, _ ->
-                            Item(frame = Storyboard.Frame(slideIndex, stateIndex))
+                            Item(index = Storyboard.Index(sceneIndex, stateIndex))
                         }
                         .toImmutableList()
 
                     Column(
-                        slide = slide,
-                        index = slideIndex,
+                        scene = scene,
+                        index = sceneIndex,
                         items = items,
                     )
                 }
@@ -205,7 +205,7 @@ class StoryboardOverview private constructor(
     }
 }
 
-internal object OverviewCurrentSlide
+internal object OverviewCurrentIndex
 
 private fun BoxWithConstraintsScope.toItemSize(
     size: DpSize,
@@ -227,10 +227,10 @@ private fun BoxWithConstraintsScope.toItemSize(
 @Composable
 private fun Modifier.onOverviewNavigation(
     overview: StoryboardOverview,
-    onExitOverview: (Storyboard.Frame) -> Unit,
+    onExitOverview: (Storyboard.Index) -> Unit,
     animatedVisibilityScope: AnimatedContentScope,
 ): Modifier {
-    // TODO handle transitional slides? render with alpha = 0.5f ?
+    // TODO handle transitional scenes? render with alpha = 0.5f ?
     fun handle(event: KeyEvent): Boolean {
         // Disable navigation until enter/exit animation is complete
         if (animatedVisibilityScope.transition.isRunning) return false
@@ -239,7 +239,7 @@ private fun Modifier.onOverviewNavigation(
             val currentColumnIndex = overview.currentColumnIndex
             when (event.key) {
                 Key.Enter -> {
-                    onExitOverview(overview.currentItem.frame)
+                    onExitOverview(overview.currentItem.index)
                     return true
                 }
 

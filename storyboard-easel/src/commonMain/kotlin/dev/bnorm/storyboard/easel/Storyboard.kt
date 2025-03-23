@@ -11,7 +11,7 @@ import androidx.compose.ui.input.key.*
 import dev.bnorm.storyboard.core.AdvanceDirection
 import dev.bnorm.storyboard.core.StoryboardState
 import dev.bnorm.storyboard.easel.internal.requestFocus
-import dev.bnorm.storyboard.ui.StoryboardSlide
+import dev.bnorm.storyboard.ui.StoryboardScene
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
@@ -60,12 +60,12 @@ fun Storyboard(
                 } else {
                     holder.SaveableStateProvider(storyboard) {
                         Box(modifier = Modifier.onPointerMovePress(state = overlayState)) {
-                            StoryboardSlide(
+                            StoryboardScene(
                                 storyboard = storyboard,
                                 modifier = Modifier
                                     .fillMaxSize()
                                     .sharedElement(
-                                        rememberSharedContentState(OverviewCurrentSlide),
+                                        rememberSharedContentState(OverviewCurrentIndex),
                                         animatedVisibilityScope = this@AnimatedContent
                                     )
                                     .requestFocus()

@@ -7,7 +7,7 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.ProvideTextStyle
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import dev.bnorm.storyboard.core.SlideScope
+import dev.bnorm.storyboard.core.SceneScope
 
 @Composable
 fun Header(modifier: Modifier = Modifier, content: @Composable BoxScope.() -> Unit) {
@@ -21,7 +21,7 @@ fun Header(modifier: Modifier = Modifier, content: @Composable BoxScope.() -> Un
 private object SharedHeaderKey
 
 @Composable
-fun SlideScope<*>.SharedHeader(modifier: Modifier = Modifier, content: @Composable BoxScope.() -> Unit) {
+fun SceneScope<*>.SharedHeader(modifier: Modifier = Modifier, content: @Composable BoxScope.() -> Unit) {
     Header(
         modifier = modifier.sharedElement(
             sharedContentState = rememberSharedContentState(SharedHeaderKey),

@@ -10,21 +10,21 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import dev.bnorm.storyboard.core.StoryboardBuilder
-import dev.bnorm.storyboard.core.slide
+import dev.bnorm.storyboard.core.scene
 import dev.bnorm.storyboard.easel.enter
 import dev.bnorm.storyboard.easel.exit
 import dev.bnorm.storyboard.easel.template.Header
-import dev.bnorm.storyboard.easel.template.SlideEnter
-import dev.bnorm.storyboard.easel.template.SlideExit
+import dev.bnorm.storyboard.easel.template.SceneEnter
+import dev.bnorm.storyboard.easel.template.SceneExit
 import kotlin.math.roundToInt
 
-fun StoryboardBuilder.AnimationSlide() = slide(
+fun StoryboardBuilder.AnimationScene() = scene(
     stateCount = 6,
-    enterTransition = enter(end = SlideEnter(alignment = Alignment.CenterEnd)),
-    exitTransition = exit(end = SlideExit(alignment = Alignment.CenterEnd)),
+    enterTransition = enter(end = SceneEnter(alignment = Alignment.CenterEnd)),
+    exitTransition = exit(end = SceneExit(alignment = Alignment.CenterEnd)),
 ) {
     @OptIn(ExperimentalTransitionApi::class)
-    val state = state.createChildTransition { it.toState() }
+    val state = frame.createChildTransition { it.toState() }
 
     Column(verticalArrangement = Arrangement.spacedBy(16.dp), modifier = Modifier.padding(16.dp)) {
         Header { Text("Animation") }

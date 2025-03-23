@@ -19,14 +19,14 @@ fun WebStoryboard(storyboard: Storyboard) {
         val params = URLSearchParams(window.location.search.toJsString())
 
         val frameIndex = params.get("frame")?.toIntOrNull()
-        val initialFrame = if (frameIndex != null) {
+        val initialIndex = if (frameIndex != null) {
             StoryboardState(storyboard)
-            storyboard.frames[frameIndex.coerceIn(storyboard.frames.indices)]
+            storyboard.indices[frameIndex.coerceIn(storyboard.indices.indices)]
         } else {
-            Storyboard.Frame(0, 0)
+            Storyboard.Index(0, 0)
         }
 
-        StoryboardState(storyboard, initialFrame)
+        StoryboardState(storyboard, initialIndex)
     }
     val overview = remember(storyboard) {
         val params = URLSearchParams(window.location.search.toJsString())
@@ -55,12 +55,12 @@ fun WebStoryboard(storyboard: Storyboard) {
 
 @Composable
 fun LaunchedHistoryUpdate(storyboard: StoryboardState, overview: StoryboardOverview) {
-    val frame = storyboard.currentFrame
+    val frame = storyboard.currentIndex
     val overviewVisible = overview.isVisible
     LaunchedEffect(frame, overviewVisible) {
         val url = URL(window.location.toString())
 
-        val index = storyboard.storyboard.frames.binarySearch(frame)
+        val index = storyboard.storyboard.indices.binarySearch(frame)
         if (index >= 0) {
             url.searchParams.set("frame", index.toString())
         }

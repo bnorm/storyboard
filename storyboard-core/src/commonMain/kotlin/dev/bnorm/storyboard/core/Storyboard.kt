@@ -13,17 +13,17 @@ import kotlinx.collections.immutable.toImmutableList
 class Storyboard private constructor(
     val title: String,
     val description: String?,
-    val slides: ImmutableList<Slide<*>>,
+    val scenes: ImmutableList<Scene<*>>,
     val size: DpSize = DEFAULT_SIZE,
-    val decorator: SlideDecorator = SlideDecorator.None,
+    val decorator: SceneDecorator = SceneDecorator.None,
 ) {
     @Immutable
-    data class Frame(
-        val slideIndex: Int,
+    data class Index(
+        val sceneIndex: Int,
         val stateIndex: Int,
-    ) : Comparable<Frame> {
-        override fun compareTo(other: Frame): Int {
-            val cmp = compareValues(slideIndex, other.slideIndex)
+    ) : Comparable<Index> {
+        override fun compareTo(other: Index): Int {
+            val cmp = compareValues(sceneIndex, other.sceneIndex)
             if (cmp != 0) return cmp
             return compareValues(stateIndex, other.stateIndex)
         }
@@ -36,7 +36,7 @@ class Storyboard private constructor(
             title: String,
             description: String? = null,
             size: DpSize = DEFAULT_SIZE,
-            decorator: SlideDecorator = SlideDecorator.None,
+            decorator: SceneDecorator = SceneDecorator.None,
             block: StoryboardBuilder.() -> Unit,
         ): Storyboard {
             val builder = StoryboardBuilderImpl()
@@ -45,31 +45,31 @@ class Storyboard private constructor(
         }
     }
 
-    val frames: ImmutableList<Frame> = slides.flatMapIndexed { slideIndex, slide ->
-        List(slide.states.size) { stateIndex -> Frame(slideIndex, stateIndex) }
+    val indices: ImmutableList<Index> = scenes.flatMapIndexed { sceneIndex, scene ->
+        List(scene.states.size) { stateIndex -> Index(sceneIndex, stateIndex) }
     }.toImmutableList()
 }
 
 private class StoryboardBuilderImpl : StoryboardBuilder {
-    private val slides = mutableListOf<Slide<*>>()
+    private val scenes = mutableListOf<Scene<*>>()
 
-    override fun <T> slide(
+    override fun <T> scene(
         states: List<T>,
         enterTransition: (AdvanceDirection) -> EnterTransition,
         exitTransition: (AdvanceDirection) -> ExitTransition,
-        content: SlideContent<T>,
-    ): Slide<T> {
-        val slide = Slide(
+        content: SceneContent<T>,
+    ): Scene<T> {
+        val scene = Scene(
             states = states.toImmutableList(),
             enterTransition = enterTransition,
             exitTransition = exitTransition,
             content = content,
         )
-        slides.add(slide)
-        return slide
+        scenes.add(scene)
+        return scene
     }
 
-    fun build(): List<Slide<*>> {
-        return slides
+    fun build(): List<Scene<*>> {
+        return scenes
     }
 }

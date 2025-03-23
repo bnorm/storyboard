@@ -3,7 +3,7 @@ import androidx.compose.material.Surface
 import androidx.compose.material.Typography
 import androidx.compose.material.darkColors
 import androidx.compose.ui.graphics.Color
-import dev.bnorm.storyboard.core.SlideDecorator
+import dev.bnorm.storyboard.core.SceneDecorator
 import dev.bnorm.storyboard.core.Storyboard
 
 val BASIC_STORYBOARD by lazy {
@@ -12,14 +12,14 @@ val BASIC_STORYBOARD by lazy {
         size = Storyboard.DEFAULT_SIZE,
         decorator = theme,
     ) {
-        NavigationSlide()
-        StateSlide()
-        AnimationSlide()
-        CodeSlide()
+        NavigationScene()
+        StateScene()
+        AnimationScene()
+        CodeScene()
     }
 }
 
-private val theme = SlideDecorator { content ->
+private val theme = SceneDecorator { content ->
     val colors = darkColors(
         background = Color.Black,
         surface = Color(0xFF1E1F22),

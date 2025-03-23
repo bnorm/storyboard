@@ -17,24 +17,24 @@ import androidx.compose.ui.unit.dp
 import dev.bnorm.storyboard.core.*
 
 @Composable
-internal fun <T> SlidePreview(
-    slide: Slide<T>,
+internal fun <T> ScenePreview(
+    scene: Scene<T>,
     stateIndex: Int,
     size: DpSize = Storyboard.DEFAULT_SIZE,
-    decorator: SlideDecorator = SlideDecorator.None,
+    decorator: SceneDecorator = SceneDecorator.None,
     modifier: Modifier = Modifier,
 ) {
-    SlideWrapper(size, decorator, modifier.aspectRatio(size.width / size.height)) {
+    SceneWrapper(size, decorator, modifier.aspectRatio(size.width / size.height)) {
         AnimatedVisibility(true) {
             Box(Modifier.fillMaxSize()) {
-                key(slide, stateIndex) {
-                    val scope = PreviewSlideScope(
-                        states = slide.states,
-                        state = updateTransition(SlideState.Value(slide.states[stateIndex])),
+                key(scene, stateIndex) {
+                    val scope = PreviewSceneScope(
+                        states = scene.states,
+                        frame = updateTransition(Frame.State(scene.states[stateIndex])),
                         animatedVisibilityScope = this@AnimatedVisibility,
-                        sharedTransitionScope = this@SlideWrapper
+                        sharedTransitionScope = this@SceneWrapper
                     )
-                    slide.content(scope)
+                    scene.content(scope)
                 }
             }
         }
@@ -42,24 +42,24 @@ internal fun <T> SlidePreview(
 }
 
 @Composable
-internal fun <T> SlidePreview(
-    slide: Slide<T>,
-    state: SlideState<Nothing>,
+internal fun <T> ScenePreview(
+    scene: Scene<T>,
+    state: Frame<Nothing>,
     size: DpSize = Storyboard.DEFAULT_SIZE,
-    decorator: SlideDecorator = SlideDecorator.None,
+    decorator: SceneDecorator = SceneDecorator.None,
     modifier: Modifier = Modifier,
 ) {
-    SlideWrapper(size, decorator, modifier.aspectRatio(size.width / size.height)) {
+    SceneWrapper(size, decorator, modifier.aspectRatio(size.width / size.height)) {
         AnimatedVisibility(true) {
             Box(Modifier.fillMaxSize()) {
-                key(slide, state) {
-                    val scope = PreviewSlideScope(
-                        states = slide.states,
-                        state = updateTransition(state),
+                key(scene, state) {
+                    val scope = PreviewSceneScope(
+                        states = scene.states,
+                        frame = updateTransition(state),
                         animatedVisibilityScope = this@AnimatedVisibility,
-                        sharedTransitionScope = this@SlideWrapper
+                        sharedTransitionScope = this@SceneWrapper
                     )
-                    slide.content(scope)
+                    scene.content(scope)
                 }
             }
         }
@@ -67,15 +67,15 @@ internal fun <T> SlidePreview(
 }
 
 @Composable
-fun SlidePreview(
+fun ScenePreview(
     storyboard: Storyboard,
-    frame: Storyboard.Frame,
+    index: Storyboard.Index,
     modifier: Modifier = Modifier,
 ) {
     ProvideStoryboard(storyboard) {
-        SlidePreview(
-            slide = storyboard.slides[frame.slideIndex],
-            stateIndex = frame.stateIndex,
+        ScenePreview(
+            scene = storyboard.scenes[index.sceneIndex],
+            stateIndex = index.stateIndex,
             size = storyboard.size,
             decorator = storyboard.decorator,
             modifier = modifier,
@@ -93,17 +93,17 @@ fun StoryboardPreview(storyboard: Storyboard) {
                 .verticalScroll(rememberScrollState())
                 .background(Color.Transparent)
         ) {
-            for (slide in storyboard.slides) {
-                Text("State: Start")
-                SlidePreview(slide, SlideState.Start, storyboard.size, storyboard.decorator)
+            for (scene in storyboard.scenes) {
+                Text("Frame: Start")
+                ScenePreview(scene, Frame.Start, storyboard.size, storyboard.decorator)
 
-                for (stateIndex in slide.states.indices) {
-                    Text("State: $stateIndex")
-                    SlidePreview(slide, stateIndex, storyboard.size, storyboard.decorator)
+                for (stateIndex in scene.states.indices) {
+                    Text("Frame: $stateIndex")
+                    ScenePreview(scene, stateIndex, storyboard.size, storyboard.decorator)
                 }
 
-                Text("State: End")
-                SlidePreview(slide, SlideState.End, storyboard.size, storyboard.decorator)
+                Text("Frame: End")
+                ScenePreview(scene, Frame.End, storyboard.size, storyboard.decorator)
             }
         }
     }
@@ -114,7 +114,7 @@ fun StoryboardPreview(
     name: String = "Preview",
     description: String? = null,
     size: DpSize = Storyboard.DEFAULT_SIZE,
-    decorator: SlideDecorator = SlideDecorator.None,
+    decorator: SceneDecorator = SceneDecorator.None,
     block: StoryboardBuilder.() -> Unit,
 ) {
     StoryboardPreview(Storyboard.build(name, description, size, decorator, block))

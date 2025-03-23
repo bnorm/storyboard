@@ -16,7 +16,7 @@ import dev.bnorm.storyboard.core.StoryboardState
 import dev.bnorm.storyboard.easel.internal.aspectRatio
 import dev.bnorm.storyboard.easel.internal.requestFocus
 import dev.bnorm.storyboard.easel.onStoryboardNavigation
-import dev.bnorm.storyboard.ui.SlidePreview
+import dev.bnorm.storyboard.ui.ScenePreview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
@@ -33,18 +33,18 @@ fun StoryboardNotes(storyboard: StoryboardState, notes: StoryboardNotes, modifie
             }
 
             Row(modifier = Modifier.fillMaxWidth().padding(top = 16.dp)) {
-                val currentFrame = storyboard.currentFrame
+                val currentIndex = storyboard.currentIndex
                 Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text("Current Slide")
-                    ClickableSlidePreview(storyboard, currentFrame)
-                    SlideAnimationProgressIndicator(storyboard)
+                    Text("Current Frame")
+                    ClickableScenePreview(storyboard, currentIndex)
+                    SceneAnimationProgressIndicator(storyboard)
                 }
                 Spacer(Modifier.width(16.dp))
                 Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text("Next Slide")
-                    val targetFrame = storyboard.targetFrame
-                    if (targetFrame != currentFrame) {
-                        ClickableSlidePreview(storyboard, targetFrame)
+                    Text("Next Frame")
+                    val targetIndex = storyboard.targetIndex
+                    if (targetIndex != currentIndex) {
+                        ClickableScenePreview(storyboard, targetIndex)
 
                     }
                 }
@@ -74,9 +74,9 @@ fun StoryboardNotes(storyboard: StoryboardState, notes: StoryboardNotes, modifie
 }
 
 @Composable
-private fun ClickableSlidePreview(
+private fun ClickableScenePreview(
     storyboard: StoryboardState,
-    frame: Storyboard.Frame,
+    index: Storyboard.Index,
     modifier: Modifier = Modifier,
 ) {
     val coroutineScope = rememberCoroutineScope()
@@ -84,12 +84,12 @@ private fun ClickableSlidePreview(
 
     // TODO share with StoryboardOverview?
     Box(modifier.aspectRatio(storyboard.storyboard.size.aspectRatio)) {
-        SlidePreview(
+        ScenePreview(
             storyboard = storyboard.storyboard,
-            frame = frame,
+            index = index,
         )
 
-        // Cover the slide content with a clickable modifier
+        // Cover the scene content with a clickable modifier
         // to disable interaction while in overview.
         Box(
             modifier = Modifier.fillMaxSize()
@@ -99,7 +99,7 @@ private fun ClickableSlidePreview(
                     onClick = {
                         job?.cancel()
                         job = coroutineScope.launch {
-                            storyboard.jumpTo(frame)
+                            storyboard.jumpTo(index)
                             job = null
                         }
                     }
@@ -109,7 +109,7 @@ private fun ClickableSlidePreview(
 }
 
 @Composable
-private fun SlideAnimationProgressIndicator(storyboard: StoryboardState) {
+private fun SceneAnimationProgressIndicator(storyboard: StoryboardState) {
     Row {
         val advancementProgress = storyboard.advancementProgress
         val color = if (advancementProgress == 1f) Color.Green else Color.Red

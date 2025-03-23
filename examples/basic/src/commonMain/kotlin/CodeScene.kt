@@ -18,30 +18,30 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.bnorm.storyboard.core.StoryboardBuilder
-import dev.bnorm.storyboard.core.slide
+import dev.bnorm.storyboard.core.scene
 import dev.bnorm.storyboard.easel.template.Body
 import dev.bnorm.storyboard.easel.template.Header
-import dev.bnorm.storyboard.easel.template.SlideEnter
-import dev.bnorm.storyboard.easel.template.SlideExit
+import dev.bnorm.storyboard.easel.template.SceneEnter
+import dev.bnorm.storyboard.easel.template.SceneExit
 import dev.bnorm.storyboard.example.shared.JetBrainsMono
 import dev.bnorm.storyboard.text.highlight.Highlighting
 import dev.bnorm.storyboard.text.highlight.Language
 import dev.bnorm.storyboard.text.highlight.highlight
 import dev.bnorm.storyboard.text.magic.MagicText
 
-data class CodeSlideState(
+data class CodeSceneState(
     val description: String,
     val code: @Composable () -> List<AnnotatedString> = { emptyList() },
 )
 
-fun StoryboardBuilder.CodeSlide() = slide(
-    CodeSlideState(
+fun StoryboardBuilder.CodeScene() = scene(
+    CodeSceneState(
         description = "",
     ),
-    CodeSlideState(
+    CodeSceneState(
         description = "We can render Kotlin code!",
     ),
-    CodeSlideState(
+    CodeSceneState(
         description = "We can render Kotlin code!",
         code = {
             Highlighting.current.highlight(
@@ -49,7 +49,7 @@ fun StoryboardBuilder.CodeSlide() = slide(
             )
         },
     ),
-    CodeSlideState(
+    CodeSceneState(
         description = "We can transform Kotlin code!",
         code = {
             Highlighting.current.highlight(
@@ -60,7 +60,7 @@ fun StoryboardBuilder.CodeSlide() = slide(
             )
         },
     ),
-    CodeSlideState(
+    CodeSceneState(
         description = "What is this, magic?!",
         code = {
             Highlighting.current.highlight(
@@ -74,7 +74,7 @@ fun StoryboardBuilder.CodeSlide() = slide(
             )
         },
     ),
-    CodeSlideState(
+    CodeSceneState(
         description = "Cool!",
         code = {
             Highlighting.current.highlight(
@@ -84,8 +84,8 @@ fun StoryboardBuilder.CodeSlide() = slide(
             )
         },
     ),
-    enterTransition = SlideEnter(alignment = Alignment.CenterEnd),
-    exitTransition = SlideExit(alignment = Alignment.CenterEnd),
+    enterTransition = SceneEnter(alignment = Alignment.CenterEnd),
+    exitTransition = SceneExit(alignment = Alignment.CenterEnd),
 ) {
     val jetBrainsMono = JetBrainsMono
     val highlighting = Highlighting.build {
@@ -106,7 +106,7 @@ fun StoryboardBuilder.CodeSlide() = slide(
 
     Highlighting(highlighting) {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-            Header { Text("Code Slide") }
+            Header { Text("Code Scene") }
             Divider(color = MaterialTheme.colors.primary)
             Body {
                 Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
@@ -114,7 +114,7 @@ fun StoryboardBuilder.CodeSlide() = slide(
                     Text(currentState.description)
 
                     @OptIn(ExperimentalTransitionApi::class)
-                    val code = state.createChildTransition {
+                    val code = frame.createChildTransition {
                         it.toState().code.invoke()
                     }
                     MagicText(code, modifier = Modifier.fillMaxSize())
