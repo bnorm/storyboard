@@ -76,13 +76,10 @@ internal fun SceneWrapper(
     modifier: Modifier = Modifier,
     content: @Composable SharedTransitionScope.() -> Unit,
 ) {
-    // TODO i don't like that this box is part of the "scene"
-    Box(contentAlignment = Alignment.Center, modifier = modifier.fillMaxSize()) {
-        FixedSize(size = size) {
-            decorator.decorate {
-                SharedTransitionLayout {
-                    content()
-                }
+    FixedSize(size = size, modifier = modifier, contentAlignment = Alignment.Center) {
+        decorator.decorate {
+            SharedTransitionLayout {
+                content()
             }
         }
     }
