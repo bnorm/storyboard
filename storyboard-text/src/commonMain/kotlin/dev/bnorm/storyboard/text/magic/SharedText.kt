@@ -50,6 +50,7 @@ internal fun findShared(
 
     findSharedInternal(beforeNonBlank, afterNonBlank)
 
+    // TODO is there a way to merge items to help with large amounts of text that don't change?
     return beforeItems.map { it.toSharedItem() } to afterItems.map { it.toSharedItem() }
 }
 
@@ -137,82 +138,95 @@ private fun findSharedInternal(
         return count
     }
 
-    // TODO use priority queue of "key" to "value size" to avoid multiple loops
-    outer@ while (true) {
-        // TODO could optimize the management of these maps quite a bit i bet...
-        var groupedBefore: Map<String, List<MutableSharedText>>
-        var groupedAfter: Map<String, List<MutableSharedText>>
+    fun matchUnique() {
+        val ignoredKeys = mutableSetOf<String>()
 
-        unique@ while (true) {
-            groupedBefore = beforeList.filter { it.key == null }.groupBy { it.value.text }
-            groupedAfter = afterList.filter { it.key == null }.groupBy { it.value.text }
+        // TODO use priority queue of "key" to "value size" to avoid multiple loops
+        outer@ while (true) {
+            // TODO could optimize the management of these maps quite a bit i bet...
+            var groupedBefore: Map<String, List<MutableSharedText>>
+            var groupedAfter: Map<String, List<MutableSharedText>>
 
-            val beforeKeys = groupedBefore.filter { it.value.size == 1 }.keys
-            val afterKeys = groupedAfter.filter { it.value.size == 1 }.keys
+            unique@ while (true) {
+                groupedBefore = beforeList.filter { it.key == null }.groupBy { it.value.text }
+                groupedAfter = afterList.filter { it.key == null }.groupBy { it.value.text }
 
-            val sharedKeys = beforeKeys intersect afterKeys
-            if (sharedKeys.isEmpty()) break@unique
+                val beforeKeys = groupedBefore.filter { it.value.size == 1 }.keys
+                val afterKeys = groupedAfter.filter { it.value.size == 1 }.keys
 
-            for (key in sharedKeys) {
-                val before = groupedBefore.getValue(key)[0]
-                val after = groupedAfter.getValue(key)[0]
-                associate(before, after)
-                associateForward(before, after)
-                associateBackward(before, after)
+                val sharedKeys = beforeKeys intersect afterKeys
+                if (sharedKeys.isEmpty()) break@unique
+
+                for (key in sharedKeys) {
+                    val before = groupedBefore.getValue(key)[0]
+                    val after = groupedAfter.getValue(key)[0]
+                    associate(before, after)
+                    associateForward(before, after)
+                    associateBackward(before, after)
+                }
             }
-        }
 
-        // TODO improvements:
-        //  - up to 3?
-        //  - sort by count and take first?
-        //  - this is exponential, so it should be limited... maybe?
-        val beforeKeys = groupedBefore.filter { it.value.size <= 4 }.keys
-        val afterKeys = groupedAfter.filter { it.value.size <= 4 }.keys
+            // TODO improvements:
+            //  - up to 3?
+            //  - sort by count and take first?
+            //  - this is exponential, so it should be limited... maybe?
+            val beforeKeys = groupedBefore.filter { it.value.size <= 4 }.keys
+            val afterKeys = groupedAfter.filter { it.value.size <= 4 }.keys
 
-        val sharedKeys = beforeKeys intersect afterKeys
-        if (sharedKeys.isEmpty()) break@outer
+            val sharedKeys = (beforeKeys intersect afterKeys) - ignoredKeys
+            if (sharedKeys.isEmpty()) break@outer
 
-        double@ for (key in sharedKeys) {
-            val combinations = buildList {
+            double@ for (key in sharedKeys) {
+                val combinations = mutableListOf<Pair<Int, Pair<MutableSharedText, MutableSharedText>>>()
+
                 val beforeItems = groupedBefore.getValue(key)
                 val afterItems = groupedAfter.getValue(key)
                 for (before in beforeItems) {
                     for (after in afterItems) {
-                        add(before to after)
+                        val strength = countForward(before, after) + countBackward(before, after)
+                        combinations.add(strength to (before to after))
                     }
+                }
+
+                combinations.sortBy { -it.first }
+
+                if (combinations[0].first == combinations[1].first) {
+                    ignoredKeys.add(key)
+                } else {
+                    val (before, after) = combinations[0].second
+                    associate(before, after)
+                    associateForward(before, after)
+                    associateBackward(before, after)
+                    continue@outer
+                }
+            }
+        }
+    }
+
+    fun matchEdges() {
+        // Match edges as much as possible as a last option.
+        if (beforeList.isNotEmpty() && afterList.isNotEmpty()) {
+            run {
+                val before = beforeList.first()
+                val after = afterList.first()
+                if (before.value.text == after.value.text && before.key == null && after.key == null) {
+                    associate(before, after)
+                    associateForward(before, after)
                 }
             }
 
-            val (before, after) = combinations.maxBy { (before, after) ->
-                countForward(before, after) + countBackward(before, after)
-            }
-
-            associate(before, after)
-            associateForward(before, after)
-            associateBackward(before, after)
-
-            continue@outer
-        }
-    }
-
-    // Match edges as much as possible as a last option.
-    if (beforeList.isNotEmpty() && afterList.isNotEmpty()) {
-        run {
-            val before = beforeList.first()
-            val after = afterList.first()
-            if (before.value.text == after.value.text && before.key == null && after.key == null) {
-                associate(before, after)
-                associateForward(before, after)
-            }
-        }
-
-        run {
-            val before = beforeList.last()
-            val after = afterList.last()
-            if (before.value.text == after.value.text && before.key == null && after.key == null) {
-                associate(before, after)
-                associateBackward(before, after)
+            run {
+                val before = beforeList.last()
+                val after = afterList.last()
+                if (before.value.text == after.value.text && before.key == null && after.key == null) {
+                    associate(before, after)
+                    associateBackward(before, after)
+                }
             }
         }
     }
+
+    matchUnique()
+    matchEdges()
+    matchUnique()
 }

@@ -1,11 +1,7 @@
 package dev.bnorm.storyboard.text.magic
 
 import androidx.compose.animation.*
-import androidx.compose.animation.core.AnimationConstants.DefaultDurationMillis
-import androidx.compose.animation.core.Transition
-import androidx.compose.animation.core.createChildTransition
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.core.updateTransition
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.material.Text
@@ -15,39 +11,62 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.AnnotatedString
+import kotlin.jvm.JvmName
+
+const val DefaultMoveDurationMillis = 300
+const val DefaultFadeDurationMillis = 300
+const val DefaultDelayDurationMillis = 0
 
 @Composable
 fun MagicText(
     text: AnnotatedString,
     modifier: Modifier = Modifier,
-    // Used to time FadeOut -> Move -> FadeIn animations.
-    moveDurationMillis: Int = DefaultDurationMillis,
-    fadeDurationMillis: Int = moveDurationMillis / 2,
+    // Used to time FadeOut --(Delay)-> Move --(Delay)-> FadeIn animations.
+    moveDurationMillis: Int = DefaultMoveDurationMillis,
+    fadeDurationMillis: Int = DefaultFadeDurationMillis,
+    delayDurationMillis: Int = DefaultDelayDurationMillis,
 ) {
     val words = remember(text) { text.toWords() }
     val transition = updateTransition(words)
-    MagicText(transition, modifier, moveDurationMillis, fadeDurationMillis)
+    MagicText(transition, modifier, moveDurationMillis, fadeDurationMillis, delayDurationMillis)
+}
+
+@Composable
+@JvmName("MagicTextAnnotatedString")
+fun MagicText(
+    transition: Transition<AnnotatedString>,
+    modifier: Modifier = Modifier,
+    // Used to time FadeOut --(Delay)-> Move --(Delay)-> FadeIn animations.
+    moveDurationMillis: Int = DefaultMoveDurationMillis,
+    fadeDurationMillis: Int = DefaultFadeDurationMillis,
+    delayDurationMillis: Int = DefaultDelayDurationMillis,
+) {
+    val worlds = transition.createChildTransition { remember(it) { it.toWords() } }
+    MagicText(worlds, modifier, moveDurationMillis, fadeDurationMillis, delayDurationMillis)
 }
 
 @Composable
 fun MagicText(
     tokenizedText: List<AnnotatedString>,
     modifier: Modifier = Modifier,
-    // Used to time FadeOut -> Move -> FadeIn animations.
-    moveDurationMillis: Int = DefaultDurationMillis,
-    fadeDurationMillis: Int = moveDurationMillis / 2,
+    // Used to time FadeOut --(Delay)-> Move --(Delay)-> FadeIn animations.
+    moveDurationMillis: Int = DefaultMoveDurationMillis,
+    fadeDurationMillis: Int = DefaultFadeDurationMillis,
+    delayDurationMillis: Int = DefaultDelayDurationMillis,
 ) {
     val transition = updateTransition(tokenizedText)
-    MagicText(transition, modifier, moveDurationMillis, fadeDurationMillis)
+    MagicText(transition, modifier, moveDurationMillis, fadeDurationMillis, delayDurationMillis)
 }
 
 @Composable
+@JvmName("MagicTextList")
 fun MagicText(
     transition: Transition<List<AnnotatedString>>,
     modifier: Modifier = Modifier,
-    // Used to time FadeOut -> Move -> FadeIn animations.
-    moveDurationMillis: Int = DefaultDurationMillis,
-    fadeDurationMillis: Int = moveDurationMillis / 2,
+    // Used to time FadeOut --(Delay)-> Move --(Delay)-> FadeIn animations.
+    moveDurationMillis: Int = DefaultMoveDurationMillis,
+    fadeDurationMillis: Int = DefaultFadeDurationMillis,
+    delayDurationMillis: Int = DefaultDelayDurationMillis,
 ) {
     // Keyed on current and target state, so a new transition is created with each new segment.
     // This allows re-rendering of the previous text with the new transition keys.
@@ -59,20 +78,20 @@ fun MagicText(
         // TODO should we be caching these maps for repeated transitions?
         val sharedText = remember {
             when (currentState == targetState) {
-                true -> mapOf(currentState to currentState.map { SharedText(it) })
+                true -> mapOf(currentState to currentState.map { SharedText(it) }.flatMap { toLines(it) })
 
                 false -> {
                     val (current, target) = findShared(currentState, targetState)
                     mapOf(
-                        currentState to current, // Re-render the previous text, split up based on diff with the next text.
-                        targetState to target, // Render the next text, split up based on diff with the previous text.
+                        currentState to current.flatMap { toLines(it) }, // Re-render the previous text, split up based on diff with the next text.
+                        targetState to target.flatMap { toLines(it) }, // Render the next text, split up based on diff with the previous text.
                     )
                 }
             }
         }
 
         val child = transition.createChildTransition { text -> sharedText.getValue(text) }
-        MagicTextInternal(child, modifier, fadeDurationMillis, moveDurationMillis)
+        MagicTextInternal(child, modifier, fadeDurationMillis, moveDurationMillis, delayDurationMillis)
     }
 }
 
@@ -81,9 +100,13 @@ fun MagicText(
 private fun MagicTextInternal(
     transition: Transition<List<SharedText>>,
     modifier: Modifier,
-    fadeDuration: Int,
-    moveDuration: Int,
+    fadeDuration: Int, // Millis
+    moveDuration: Int, // Millis
+    delayDuration: Int, // Millis
 ) {
+    val moveDelay = delayDuration + fadeDuration
+    val fadeInDelay = 2 * delayDuration + fadeDuration + moveDuration
+
     SharedTransitionLayout {
         transition.AnimatedContent(
             modifier = modifier,
@@ -95,8 +118,8 @@ private fun MagicTextInternal(
                 return when {
                     // Text is completely different and should fade in and out.
                     key == null -> Modifier.animateEnterExit(
-                        enter = fadeIn(tween(fadeDuration, delayMillis = moveDuration + fadeDuration)),
-                        exit = fadeOut(tween(fadeDuration)),
+                        enter = fadeIn(tween(fadeDuration, delayMillis = fadeInDelay, easing = EaseInCubic)),
+                        exit = fadeOut(tween(fadeDuration, easing = EaseOutCubic)),
                     )
 
                     // Text content is the same, but the styling may be different,
@@ -104,10 +127,10 @@ private fun MagicTextInternal(
                     crossFade -> Modifier.sharedBounds(
                         rememberSharedContentState(key),
                         animatedVisibilityScope = this@AnimatedContent,
-                        enter = fadeIn(tween(moveDuration, delayMillis = fadeDuration)),
-                        exit = fadeOut(tween(moveDuration, delayMillis = fadeDuration)),
+                        enter = fadeIn(tween(moveDuration, delayMillis = moveDelay, easing = EaseInOut)),
+                        exit = fadeOut(tween(moveDuration, delayMillis = moveDelay, easing = EaseInOut)),
                         boundsTransform = { _, _ ->
-                            tween(moveDuration, delayMillis = fadeDuration)
+                            tween(moveDuration, delayMillis = moveDelay, easing = EaseInOut)
                         },
                     )
 
@@ -116,14 +139,14 @@ private fun MagicTextInternal(
                         rememberSharedContentState(key),
                         animatedVisibilityScope = this@AnimatedContent,
                         boundsTransform = { _, _ ->
-                            tween(moveDuration, delayMillis = fadeDuration)
+                            tween(moveDuration, delayMillis = moveDelay, easing = EaseInOut)
                         },
                     )
                 }
             }
 
             Column(horizontalAlignment = Alignment.Start) {
-                val iterator = parts.flatMap { toLines(it) }.iterator()
+                val iterator = parts.iterator()
                 while (iterator.hasNext()) {
                     Row {
                         var itemCount = 0
