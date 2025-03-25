@@ -8,7 +8,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import dev.bnorm.storyboard.core.StoryboardBuilder
-import dev.bnorm.storyboard.core.scene
 import dev.bnorm.storyboard.easel.notes.NotesTab
 import dev.bnorm.storyboard.easel.template.Body
 import dev.bnorm.storyboard.easel.template.Header

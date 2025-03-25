@@ -10,7 +10,6 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import dev.bnorm.storyboard.core.StoryboardBuilder
-import dev.bnorm.storyboard.core.scene
 import dev.bnorm.storyboard.easel.enter
 import dev.bnorm.storyboard.easel.exit
 import dev.bnorm.storyboard.easel.template.Header
