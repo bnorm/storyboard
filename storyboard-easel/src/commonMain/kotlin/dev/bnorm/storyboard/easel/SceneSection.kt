@@ -19,6 +19,10 @@ class SceneSection(
             title = {},
         )
 
+        val current: SceneSection
+            @Composable
+            get() = LocalSceneSection.current
+
         val title: @Composable () -> Unit
             @Composable
             get() = LocalSceneSection.current.title
