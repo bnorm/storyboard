@@ -194,6 +194,7 @@ private fun findSharedInternal(
         groupedAfter: Map<String, List<MutableSharedText>>,
         ignoredKeys: MutableSet<String>,
         stopOnLineBreaks: Boolean,
+        skipKeysWithoutBest: Boolean,
     ): MatchRegion? {
         for (key in sharedKeys) {
             val combinations = mutableListOf<Pair<Int, MatchPair>>()
@@ -211,7 +212,7 @@ private fun findSharedInternal(
 
             combinations.sortBy { -it.first }
 
-            if (combinations[0].first == combinations[1].first) {
+            if (skipKeysWithoutBest && combinations[0].first == combinations[1].first) {
                 ignoredKeys.add(key)
             } else {
                 val pair = combinations[0].second
@@ -222,7 +223,9 @@ private fun findSharedInternal(
         return null
     }
 
-    fun matchUnique(stopOnLineBreaks: Boolean) {
+    fun matchUnique(stopOnLineBreaks: Boolean, skipKeysWithoutBest: Boolean) {
+        ignoredKeys.clear()
+
         // TODO use priority queue of "key" to "value size" to avoid multiple loops
         outer@ while (true) {
             // TODO could optimize the management of these maps quite a bit i bet...
@@ -255,8 +258,14 @@ private fun findSharedInternal(
             val sharedKeys = (beforeKeys intersect afterKeys) - ignoredKeys
             if (sharedKeys.isEmpty()) break@outer
 
-            val region = findMultiMatch(sharedKeys, groupedBefore, groupedAfter, ignoredKeys, stopOnLineBreaks)
-                ?: break@outer
+            val region = findMultiMatch(
+                sharedKeys,
+                groupedBefore,
+                groupedAfter,
+                ignoredKeys,
+                stopOnLineBreaks,
+                skipKeysWithoutBest,
+            ) ?: break@outer
             matches.add(region)
         }
     }
@@ -291,8 +300,8 @@ private fun findSharedInternal(
         }
     }
 
-    matchUnique(stopOnLineBreaks = true)
+    matchUnique(stopOnLineBreaks = true, skipKeysWithoutBest = true)
     widenMatches()
     matchEdges()
-    matchUnique(stopOnLineBreaks = false)
+    matchUnique(stopOnLineBreaks = false, skipKeysWithoutBest = false)
 }
