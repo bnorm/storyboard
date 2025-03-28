@@ -9,15 +9,38 @@ internal class SharedText(
 )
 
 private class MutableSharedText(
+    val index: Int,
     val value: AnnotatedString,
-) {
+) : Comparable<MutableSharedText> {
+
     var key: String? = null
     var crossFade: Boolean = false
 
     var prev: MutableSharedText? = null
     var next: MutableSharedText? = null
 
+    fun move(direction: Move, stopOnLineBreaks: Boolean): MutableSharedText? {
+        tailrec fun rec(text: MutableSharedText): MutableSharedText? {
+            val iter = when (direction) {
+                Move.Next -> text.next
+                Move.Previous -> text.prev
+            }
+            return when {
+                iter == null -> null
+                iter.value.text != "\n" -> iter
+                stopOnLineBreaks -> null
+                else -> rec(iter)
+            }
+        }
+
+        return rec(this)
+    }
+
     fun toSharedItem(): SharedText = SharedText(value, key, crossFade)
+
+    override fun compareTo(other: MutableSharedText): Int {
+        return compareValues(index, other.index)
+    }
 
     override fun toString(): String {
         return "MutableSharedItem(value=$value, key=$key, crossFade=$crossFade)"
@@ -28,11 +51,11 @@ internal fun findShared(
     before: List<AnnotatedString>,
     after: List<AnnotatedString>,
 ): Pair<List<SharedText>, List<SharedText>> {
-    val beforeItems = before.map { MutableSharedText(it) }
-    val afterItems = after.map { MutableSharedText(it) }
+    val beforeItems = before.mapIndexed { index, value -> MutableSharedText(index, value) }
+    val afterItems = after.mapIndexed { index, value -> MutableSharedText(index, value) }
 
-    val beforeNonBlank = beforeItems.filter { it.value.isNotBlank() }
-    val afterNonBlank = afterItems.filter { it.value.isNotBlank() }
+    val beforeNonBlank = beforeItems.filter { it.value.isNotBlank() || it.value.text == "\n" }
+    val afterNonBlank = afterItems.filter { it.value.isNotBlank() || it.value.text == "\n" }
 
     var prev: MutableSharedText? = null
     for (item in beforeNonBlank) {
@@ -54,93 +77,152 @@ internal fun findShared(
     return beforeItems.map { it.toSharedItem() } to afterItems.map { it.toSharedItem() }
 }
 
+private enum class Move {
+    Next,
+    Previous,
+    ;
+}
+
+private data class MatchPair(
+    val before: MutableSharedText,
+    val after: MutableSharedText,
+) : Comparable<MatchPair> {
+    fun move(direction: Move, stopOnLineBreaks: Boolean): MatchPair? {
+        return MatchPair(
+            before = before.move(direction, stopOnLineBreaks) ?: return null,
+            after = after.move(direction, stopOnLineBreaks) ?: return null,
+        )
+    }
+
+    fun couldAssociate(): Boolean = unkeyed() && matches()
+
+    fun unkeyed(): Boolean {
+        return before.key == null && after.key == null
+    }
+
+    fun matches(): Boolean {
+        return before.value.text == after.value.text
+    }
+
+    fun sequence(direction: Move, stopOnLineBreaks: Boolean): Sequence<MatchPair> =
+        generateSequence(this) { it.move(direction, stopOnLineBreaks) }
+
+    override fun compareTo(other: MatchPair): Int {
+        return when {
+            after < other.after && before < other.before -> -1
+            after > other.after && before > other.before -> 1
+            after == other.after && before == other.before -> 0
+            else -> error("!")
+        }
+    }
+}
+
+@ConsistentCopyVisibility
+private data class MatchRegion private constructor(
+    val start: MatchPair,
+    val end: MatchPair,
+) {
+    constructor(pair: MatchPair) : this(pair, pair)
+
+    fun widen(pair: MatchPair): MatchRegion {
+        return when {
+            pair == start || pair == end -> this
+            pair > end -> MatchRegion(start, pair)
+            pair < start -> MatchRegion(pair, end)
+            else -> error("!")
+        }
+    }
+}
+
 private fun findSharedInternal(
     beforeList: List<MutableSharedText>,
     afterList: List<MutableSharedText>,
 ) {
+    val matches = mutableListOf<MatchRegion>()
+    val ignoredKeys = mutableSetOf<String>()
+
     var index = 1
     fun nextKey() = "stable:${index++}"
 
-    fun associate(before: MutableSharedText, after: MutableSharedText) {
+    fun associate(pair: MatchPair) {
         val key = nextKey()
-        before.key = key
-        after.key = key
+        pair.before.key = key
+        pair.after.key = key
 
-        if (before.value != after.value) {
-            before.crossFade = true
-            after.crossFade = true
+        if (pair.before.value != pair.after.value) {
+            pair.before.crossFade = true
+            pair.after.crossFade = true
         }
     }
 
-    fun associateForward(before: MutableSharedText, after: MutableSharedText) {
-        var nextBefore = before.next
-        var nextAfter = after.next
-        while (nextBefore != null && nextAfter != null) {
-            if (nextBefore.key != null || nextAfter.key != null) break
-            if (nextBefore.value.text != nextAfter.value.text) break
-
-            associate(nextBefore, nextAfter)
-            nextBefore = nextBefore.next
-            nextAfter = nextAfter.next
-        }
+    fun associateDirection(
+        pair: MatchPair,
+        direction: Move,
+        stopOnLineBreaks: Boolean,
+    ): MatchPair {
+        return pair.sequence(direction, stopOnLineBreaks)
+            .drop(1)
+            .takeWhile { it.couldAssociate() }
+            .onEach { associate(it) }
+            .lastOrNull() ?: pair
     }
 
-    fun associateBackward(before: MutableSharedText, after: MutableSharedText) {
-        var prevBefore = before.prev
-        var prevAfter = after.prev
-        while (prevBefore != null && prevAfter != null) {
-            if (prevBefore.key != null || prevAfter.key != null) break
-            if (prevBefore.value.text != prevAfter.value.text) break
-
-            associate(prevBefore, prevAfter)
-            prevBefore = prevBefore.prev
-            prevAfter = prevAfter.prev
-        }
+    fun countDirection(
+        pair: MatchPair,
+        direction: Move,
+        stopOnLineBreaks: Boolean,
+    ): Int {
+        return pair.sequence(direction, stopOnLineBreaks)
+            .drop(1)
+            .takeWhile { it.couldAssociate() }
+            .count()
     }
 
-    fun countForward(before: MutableSharedText, after: MutableSharedText): Int {
-        var iterBefore = before
-        var iterAfter = after
-        var count = 0
+    fun associateCenter(pair: MatchPair, stopOnLineBreaks: Boolean): MatchRegion {
+        ignoredKeys.clear()
 
-        while (true) {
-            val nextBefore = iterBefore.next ?: break
-            val nextAfter = iterAfter.next ?: break
-
-            if (nextBefore.key != null || nextAfter.key != null) break
-            if (nextBefore.value.text != nextAfter.value.text) break
-
-            iterBefore = nextBefore
-            iterAfter = nextAfter
-            count++
-        }
-
-        return count
+        var region = MatchRegion(pair)
+        associate(pair)
+        region = region.widen(associateDirection(pair, Move.Next, stopOnLineBreaks))
+        region = region.widen(associateDirection(pair, Move.Previous, stopOnLineBreaks))
+        return region
     }
 
-    fun countBackward(before: MutableSharedText, after: MutableSharedText): Int {
-        var iterBefore = before
-        var iterAfter = after
-        var count = 0
+    fun findMultiMatch(
+        sharedKeys: Set<String>,
+        groupedBefore: Map<String, List<MutableSharedText>>,
+        groupedAfter: Map<String, List<MutableSharedText>>,
+        ignoredKeys: MutableSet<String>,
+        stopOnLineBreaks: Boolean,
+    ): MatchRegion? {
+        for (key in sharedKeys) {
+            val combinations = mutableListOf<Pair<Int, MatchPair>>()
 
-        while (true) {
-            val prevBefore = iterBefore.prev ?: break
-            val prevAfter = iterAfter.prev ?: break
+            val beforeItems = groupedBefore.getValue(key)
+            val afterItems = groupedAfter.getValue(key)
+            for (before in beforeItems) {
+                for (after in afterItems) {
+                    val pair = MatchPair(before, after)
+                    val strength = countDirection(pair, Move.Next, stopOnLineBreaks) +
+                            countDirection(pair, Move.Previous, stopOnLineBreaks)
+                    combinations.add(strength to pair)
+                }
+            }
 
-            if (prevBefore.key != null || prevAfter.key != null) break
-            if (prevBefore.value.text != prevAfter.value.text) break
+            combinations.sortBy { -it.first }
 
-            iterBefore = prevBefore
-            iterAfter = prevAfter
-            count++
+            if (combinations[0].first == combinations[1].first) {
+                ignoredKeys.add(key)
+            } else {
+                val pair = combinations[0].second
+                return associateCenter(pair, stopOnLineBreaks)
+            }
         }
 
-        return count
+        return null
     }
 
-    fun matchUnique() {
-        val ignoredKeys = mutableSetOf<String>()
-
+    fun matchUnique(stopOnLineBreaks: Boolean) {
         // TODO use priority queue of "key" to "value size" to avoid multiple loops
         outer@ while (true) {
             // TODO could optimize the management of these maps quite a bit i bet...
@@ -148,8 +230,8 @@ private fun findSharedInternal(
             var groupedAfter: Map<String, List<MutableSharedText>>
 
             unique@ while (true) {
-                groupedBefore = beforeList.filter { it.key == null }.groupBy { it.value.text }
-                groupedAfter = afterList.filter { it.key == null }.groupBy { it.value.text }
+                groupedBefore = beforeList.filter { it.key == null && it.value.text != "\n" }.groupBy { it.value.text }
+                groupedAfter = afterList.filter { it.key == null && it.value.text != "\n" }.groupBy { it.value.text }
 
                 val beforeKeys = groupedBefore.filter { it.value.size == 1 }.keys
                 val afterKeys = groupedAfter.filter { it.value.size == 1 }.keys
@@ -158,11 +240,8 @@ private fun findSharedInternal(
                 if (sharedKeys.isEmpty()) break@unique
 
                 for (key in sharedKeys) {
-                    val before = groupedBefore.getValue(key)[0]
-                    val after = groupedAfter.getValue(key)[0]
-                    associate(before, after)
-                    associateForward(before, after)
-                    associateBackward(before, after)
+                    val pair = MatchPair(groupedBefore.getValue(key)[0], groupedAfter.getValue(key)[0])
+                    matches.add(associateCenter(pair, stopOnLineBreaks))
                 }
             }
 
@@ -176,30 +255,18 @@ private fun findSharedInternal(
             val sharedKeys = (beforeKeys intersect afterKeys) - ignoredKeys
             if (sharedKeys.isEmpty()) break@outer
 
-            double@ for (key in sharedKeys) {
-                val combinations = mutableListOf<Pair<Int, Pair<MutableSharedText, MutableSharedText>>>()
+            val region = findMultiMatch(sharedKeys, groupedBefore, groupedAfter, ignoredKeys, stopOnLineBreaks)
+                ?: break@outer
+            matches.add(region)
+        }
+    }
 
-                val beforeItems = groupedBefore.getValue(key)
-                val afterItems = groupedAfter.getValue(key)
-                for (before in beforeItems) {
-                    for (after in afterItems) {
-                        val strength = countForward(before, after) + countBackward(before, after)
-                        combinations.add(strength to (before to after))
-                    }
-                }
-
-                combinations.sortBy { -it.first }
-
-                if (combinations[0].first == combinations[1].first) {
-                    ignoredKeys.add(key)
-                } else {
-                    val (before, after) = combinations[0].second
-                    associate(before, after)
-                    associateForward(before, after)
-                    associateBackward(before, after)
-                    continue@outer
-                }
-            }
+    fun widenMatches() {
+        for (region in matches.toList().also { matches.clear() }) {
+            var wider = region
+            wider = wider.widen(associateDirection(wider.end, Move.Next, stopOnLineBreaks = false))
+            wider = wider.widen(associateDirection(wider.start, Move.Previous, stopOnLineBreaks = false))
+            matches.add(wider)
         }
     }
 
@@ -207,26 +274,25 @@ private fun findSharedInternal(
         // Match edges as much as possible as a last option.
         if (beforeList.isNotEmpty() && afterList.isNotEmpty()) {
             run {
-                val before = beforeList.first()
-                val after = afterList.first()
-                if (before.value.text == after.value.text && before.key == null && after.key == null) {
-                    associate(before, after)
-                    associateForward(before, after)
+                val pair = MatchPair(beforeList.first(), afterList.first())
+                if (pair.matches() && pair.unkeyed()) {
+                    associate(pair)
+                    associateDirection(pair, Move.Next, stopOnLineBreaks = false)
                 }
             }
 
             run {
-                val before = beforeList.last()
-                val after = afterList.last()
-                if (before.value.text == after.value.text && before.key == null && after.key == null) {
-                    associate(before, after)
-                    associateBackward(before, after)
+                val pair = MatchPair(beforeList.last(), afterList.last())
+                if (pair.matches() && pair.unkeyed()) {
+                    associate(pair)
+                    associateDirection(pair, Move.Previous, stopOnLineBreaks = false)
                 }
             }
         }
     }
 
-    matchUnique()
+    matchUnique(stopOnLineBreaks = true)
+    widenMatches()
     matchEdges()
-    matchUnique()
+    matchUnique(stopOnLineBreaks = false)
 }
