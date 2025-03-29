@@ -9,16 +9,16 @@ import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.*
 import dev.bnorm.storyboard.core.AdvanceDirection
-import dev.bnorm.storyboard.core.StoryboardState
+import dev.bnorm.storyboard.core.StoryState
 import dev.bnorm.storyboard.easel.internal.requestFocus
-import dev.bnorm.storyboard.ui.StoryboardScene
+import dev.bnorm.storyboard.ui.StoryScene
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 @Composable
-fun Storyboard(
-    storyboard: StoryboardState,
-    overview: StoryboardOverview = remember(storyboard) { StoryboardOverview.of(storyboard) },
+fun Story(
+    storyState: StoryState,
+    overview: StoryOverview = remember(storyState) { StoryOverview.of(storyState) },
     overlayState: OverlayState = rememberOverlayState(),
     modifier: Modifier = Modifier,
 ) {
@@ -42,13 +42,13 @@ fun Storyboard(
                 transitionSpec = { fadeIn(tween(300)) togetherWith fadeOut(tween(300)) }
             ) { isOverview ->
                 if (isOverview) {
-                    StoryboardOverview(
+                    StoryOverview(
                         overview = overview,
                         onExitOverview = {
                             job?.cancel()
                             job = coroutineScope.launch {
                                 // TODO this doesn't work because the transition is not attached!
-                                storyboard.jumpTo(it)
+                                storyState.jumpTo(it)
                                 job = null
                                 overview.isVisible = false
                             }
@@ -58,10 +58,10 @@ fun Storyboard(
                         modifier = Modifier.fillMaxSize(),
                     )
                 } else {
-                    holder.SaveableStateProvider(storyboard) {
+                    holder.SaveableStateProvider(storyState) {
                         Box(modifier = Modifier.onPointerMovePress(state = overlayState)) {
-                            StoryboardScene(
-                                storyboard = storyboard,
+                            StoryScene(
+                                storyState = storyState,
                                 modifier = Modifier
                                     .fillMaxSize()
                                     .sharedElement(
@@ -69,9 +69,9 @@ fun Storyboard(
                                         animatedVisibilityScope = this@AnimatedContent
                                     )
                                     .requestFocus()
-                                    .onStoryboardNavigation(storyboard = storyboard)
+                                    .onStoryboardNavigation(storyboard = storyState)
                                     .onKeyEvent { handleKeyEvent(it) })
-                            StoryboardOverlay(storyboard = storyboard, state = overlayState)
+                            StoryOverlay(storyState = storyState, state = overlayState)
                         }
                     }
                 }
@@ -81,7 +81,7 @@ fun Storyboard(
 }
 
 @Composable
-internal fun Modifier.onStoryboardNavigation(storyboard: StoryboardState): Modifier {
+internal fun Modifier.onStoryboardNavigation(storyboard: StoryState): Modifier {
     val coroutineScope = rememberCoroutineScope()
     var job by remember { mutableStateOf<Job?>(null) }
 

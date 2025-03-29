@@ -22,7 +22,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.*
 import androidx.compose.ui.unit.dp
 import dev.bnorm.storyboard.core.AdvanceDirection
-import dev.bnorm.storyboard.core.StoryboardState
+import dev.bnorm.storyboard.core.StoryState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -31,15 +31,15 @@ import kotlinx.coroutines.launch
 import kotlin.time.TimeMark
 import kotlin.time.TimeSource
 
-interface StoryboardOverlayScope : BoxScope {
+interface StoryOverlayScope : BoxScope {
     fun Modifier.overlayElement(): Modifier
 }
 
 @Composable
-fun StoryboardOverlay(
-    storyboard: StoryboardState,
+fun StoryOverlay(
+    storyState: StoryState,
     state: OverlayState,
-    content: @Composable StoryboardOverlayScope.() -> Unit = {
+    content: @Composable StoryOverlayScope.() -> Unit = {
         val coroutineScope = rememberCoroutineScope()
         var job by remember { mutableStateOf<Job?>(null) }
 
@@ -57,7 +57,7 @@ fun StoryboardOverlay(
                     onClick = {
                         job?.cancel()
                         job = coroutineScope.launch {
-                            storyboard.advance(AdvanceDirection.Backward)
+                            storyState.advance(AdvanceDirection.Backward)
                             job = null
                         }
                     }
@@ -68,7 +68,7 @@ fun StoryboardOverlay(
                     onClick = {
                         job?.cancel()
                         job = coroutineScope.launch {
-                            storyboard.advance(AdvanceDirection.Forward)
+                            storyState.advance(AdvanceDirection.Forward)
                             job = null
                         }
                     }
@@ -89,7 +89,7 @@ fun StoryboardOverlay(
                 .alpha(alpha)
         ) {
             val scope = remember(state) {
-                object : StoryboardOverlayScope, BoxScope by this {
+                object : StoryOverlayScope, BoxScope by this {
                     override fun Modifier.overlayElement(): Modifier {
                         return onPointerEnterExit(state)
                     }

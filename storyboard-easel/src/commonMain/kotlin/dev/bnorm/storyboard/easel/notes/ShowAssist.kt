@@ -12,7 +12,7 @@ import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.unit.dp
 import dev.bnorm.storyboard.core.Storyboard
-import dev.bnorm.storyboard.core.StoryboardState
+import dev.bnorm.storyboard.core.StoryState
 import dev.bnorm.storyboard.easel.internal.aspectRatio
 import dev.bnorm.storyboard.easel.internal.requestFocus
 import dev.bnorm.storyboard.easel.onStoryboardNavigation
@@ -21,35 +21,35 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 @Composable
-fun StoryboardNotes(storyboard: StoryboardState, notes: StoryboardNotes, modifier: Modifier = Modifier) {
+fun StoryNotes(storyState: StoryState, notes: StoryNotes, modifier: Modifier = Modifier) {
     Surface(
         modifier = Modifier.fillMaxSize()
             .requestFocus()
-            .onStoryboardNavigation(storyboard = storyboard)
+            .onStoryboardNavigation(storyboard = storyState)
     ) {
         Column(modifier.padding(16.dp)) {
             Row(horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth()) {
-                StoryboardTimer()
+                StoryTimer()
             }
 
             Row(modifier = Modifier.fillMaxWidth().padding(top = 16.dp)) {
                 Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
                     Text("Current Frame")
-                    CompositionLocalProvider(LocalStoryboardNotes provides notes) {
-                        ClickableScenePreview(storyboard, storyboard.currentIndex)
+                    CompositionLocalProvider(LocalStoryNotes provides notes) {
+                        ClickableScenePreview(storyState, storyState.currentIndex)
                     }
-                    SceneAnimationProgressIndicator(storyboard)
+                    SceneAnimationProgressIndicator(storyState)
                 }
                 Spacer(Modifier.width(16.dp))
                 Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
                     Text("Next Frame")
                     val nextIndex by derivedStateOf {
-                        val i = storyboard.storyboard.indices.binarySearch(storyboard.currentIndex)
+                        val i = storyState.storyboard.indices.binarySearch(storyState.currentIndex)
                         require(i >= 0) { "targetIndex not found in storyboard" }
-                        storyboard.storyboard.indices.getOrNull(i + 1)
+                        storyState.storyboard.indices.getOrNull(i + 1)
                     }
                     nextIndex?.let {
-                        ClickableScenePreview(storyboard, it)
+                        ClickableScenePreview(storyState, it)
                     }
                 }
                 // TODO previous frame?
@@ -81,7 +81,7 @@ fun StoryboardNotes(storyboard: StoryboardState, notes: StoryboardNotes, modifie
 
 @Composable
 private fun ClickableScenePreview(
-    storyboard: StoryboardState,
+    storyboard: StoryState,
     index: Storyboard.Index,
     modifier: Modifier = Modifier,
 ) {
@@ -115,7 +115,7 @@ private fun ClickableScenePreview(
 }
 
 @Composable
-private fun SceneAnimationProgressIndicator(storyboard: StoryboardState) {
+private fun SceneAnimationProgressIndicator(storyboard: StoryState) {
     Row {
         val advancementDistance = storyboard.advancementDistance
         val advancementProgress = storyboard.advancementProgress

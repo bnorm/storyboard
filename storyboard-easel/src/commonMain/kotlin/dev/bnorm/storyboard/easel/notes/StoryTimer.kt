@@ -89,7 +89,7 @@ class Timer(
 }
 
 @Composable
-fun StoryboardTimer(timeSource: TimeSource = TimeSource.Monotonic) {
+fun StoryTimer(timeSource: TimeSource = TimeSource.Monotonic) {
     val timer = remember(timeSource) { Timer(timeSource) }
     LaunchedEffect(timer.state) { timer.await() }
 

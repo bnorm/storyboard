@@ -88,7 +88,7 @@ fun ScenePreview(
 }
 
 @Composable
-fun StoryboardPreview(
+fun StoryPreview(
     storyboard: Storyboard,
     displayType: DisplayType = DisplayType.Preview,
 ) {
@@ -117,7 +117,7 @@ fun StoryboardPreview(
 }
 
 @Composable
-fun StoryboardPreview(
+fun StoryPreview(
     name: String = "Preview",
     description: String? = null,
     size: DpSize = Storyboard.DEFAULT_SIZE,
@@ -125,5 +125,5 @@ fun StoryboardPreview(
     displayType: DisplayType = DisplayType.Preview,
     block: StoryboardBuilder.() -> Unit,
 ) {
-    StoryboardPreview(Storyboard.build(name, description, size, decorator, block), displayType)
+    StoryPreview(Storyboard.build(name, description, size, decorator, block), displayType)
 }

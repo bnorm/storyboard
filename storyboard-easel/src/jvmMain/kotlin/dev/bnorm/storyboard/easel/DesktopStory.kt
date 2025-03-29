@@ -11,23 +11,24 @@ import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyShortcut
 import androidx.compose.ui.window.*
 import dev.bnorm.storyboard.core.Storyboard
-import dev.bnorm.storyboard.core.StoryboardState
+import dev.bnorm.storyboard.core.StoryState
 import dev.bnorm.storyboard.easel.export.ExportProgressPopup
 import dev.bnorm.storyboard.easel.export.StoryboardPdfExporter
-import dev.bnorm.storyboard.easel.notes.StoryboardNotes
+import dev.bnorm.storyboard.easel.notes.StoryNotes
 import kotlinx.coroutines.launch
 
 @Composable
-fun ApplicationScope.DesktopStoryboard(storyboard: Storyboard) {
-    val notes = remember { StoryboardNotes() }
+fun ApplicationScope.DesktopStory(storyboard: Storyboard) {
+    val notes = remember { StoryNotes() }
     val state = rememberDesktopState(storyboard)
-    val storyboardState = remember { StoryboardState(storyboard) }
+    val storyState = remember { StoryState(storyboard) }
 
     val coroutineScope = rememberCoroutineScope()
     val exporter = remember { StoryboardPdfExporter(storyboard) }
 
     if (state == null) {
-        // Need a window to keep the application from closing
+        // Need a window to keep the application from closing.
+        // TODO splash screen?
         Window(onCloseRequest = ::exitApplication, visible = false) {}
         return
     }
@@ -67,8 +68,8 @@ fun ApplicationScope.DesktopStoryboard(storyboard: Storyboard) {
     ) {
         MenuBar { menuBar() }
 
-        Storyboard(
-            storyboard = storyboardState,
+        Story(
+            storyState = storyState,
             modifier = Modifier.fillMaxSize()
                 .background(MaterialTheme.colors.background),
         )
@@ -84,8 +85,8 @@ fun ApplicationScope.DesktopStoryboard(storyboard: Storyboard) {
         ) {
             MenuBar { menuBar() }
 
-            StoryboardNotes(
-                storyboard = storyboardState,
+            StoryNotes(
+                storyState = storyState,
                 notes = notes,
             )
         }

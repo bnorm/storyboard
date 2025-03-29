@@ -8,14 +8,14 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import dev.bnorm.storyboard.core.Storyboard
-import dev.bnorm.storyboard.core.StoryboardState
+import dev.bnorm.storyboard.core.StoryState
 import kotlinx.browser.window
 import org.w3c.dom.url.URL
 import org.w3c.dom.url.URLSearchParams
 
 @Composable
-fun WebStoryboard(storyboard: Storyboard) {
-    val storyboardState = remember(storyboard) {
+fun WebStory(storyboard: Storyboard) {
+    val storyState = remember(storyboard) {
         val params = URLSearchParams(window.location.search.toJsString())
 
         // TODO what to rename frame to here?
@@ -23,32 +23,32 @@ fun WebStoryboard(storyboard: Storyboard) {
         //  - separate values for scene and state?
         val frameIndex = params.get("frame")?.toIntOrNull()
         val initialIndex = if (frameIndex != null) {
-            StoryboardState(storyboard)
+            StoryState(storyboard)
             storyboard.indices[frameIndex.coerceIn(storyboard.indices.indices)]
         } else {
             Storyboard.Index(0, 0)
         }
 
-        StoryboardState(storyboard, initialIndex)
+        StoryState(storyboard, initialIndex)
     }
     val overview = remember(storyboard) {
         val params = URLSearchParams(window.location.search.toJsString())
 
-        StoryboardOverview.of(storyboardState).apply {
+        StoryOverview.of(storyState).apply {
             if (params.get("overview").toBoolean()) {
                 isVisible = true
             }
         }
     }
 
-    LaunchedHistoryUpdate(storyboardState, overview)
+    LaunchedHistoryUpdate(storyState, overview)
 
     val overlayState = rememberOverlayState(
         initialVisibility = true,
     )
 
-    Storyboard(
-        storyboard = storyboardState,
+    Story(
+        storyState = storyState,
         overview = overview,
         overlayState = overlayState,
         modifier = Modifier.fillMaxSize()
@@ -57,7 +57,7 @@ fun WebStoryboard(storyboard: Storyboard) {
 }
 
 @Composable
-fun LaunchedHistoryUpdate(storyboard: StoryboardState, overview: StoryboardOverview) {
+fun LaunchedHistoryUpdate(storyboard: StoryState, overview: StoryOverview) {
     val frame = storyboard.currentIndex
     val overviewVisible = overview.isVisible
     LaunchedEffect(frame, overviewVisible) {

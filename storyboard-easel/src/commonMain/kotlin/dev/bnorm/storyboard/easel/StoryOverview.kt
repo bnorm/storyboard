@@ -25,7 +25,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.*
 import dev.bnorm.storyboard.core.Scene
 import dev.bnorm.storyboard.core.Storyboard
-import dev.bnorm.storyboard.core.StoryboardState
+import dev.bnorm.storyboard.core.StoryState
 import dev.bnorm.storyboard.easel.internal.aspectRatio
 import dev.bnorm.storyboard.easel.internal.requestFocus
 import dev.bnorm.storyboard.ui.ScenePreview
@@ -33,8 +33,8 @@ import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 
 @Composable
-fun StoryboardOverview(
-    overview: StoryboardOverview,
+fun StoryOverview(
+    overview: StoryOverview,
     onExitOverview: (Storyboard.Index) -> Unit = {},
     sharedTransitionScope: SharedTransitionScope,
     animatedVisibilityScope: AnimatedContentScope,
@@ -42,7 +42,7 @@ fun StoryboardOverview(
 ) {
     BoxWithConstraints(modifier = modifier.onOverviewNavigation(overview, onExitOverview, animatedVisibilityScope)) {
         val boxWithConstraintsScope = this
-        val itemSize = boxWithConstraintsScope.toItemSize(overview.storyboard.storyboard.size)
+        val itemSize = boxWithConstraintsScope.toItemSize(overview.storyState.storyboard.size)
         val verticalPaddingDp = (boxWithConstraintsScope.maxHeight - itemSize.height).coerceAtLeast(0.dp) / 2
         val horizontalPaddingDp = (boxWithConstraintsScope.maxWidth - itemSize.width).coerceAtLeast(0.dp) / 2
         val horizontalScrollOffset = with(LocalDensity.current) { horizontalPaddingDp.toPx() }
@@ -76,7 +76,7 @@ fun StoryboardOverview(
                                 .padding(4.dp)
                                 .border(2.dp, currentColor, RoundedCornerShape(6.dp))
                                 .padding(8.dp)
-                                .aspectRatio(overview.storyboard.storyboard.size.aspectRatio)
+                                .aspectRatio(overview.storyState.storyboard.size.aspectRatio)
                         ) {
                             val sharedElementModifier = when (isCurrentIndex) {
                                 false -> Modifier
@@ -89,7 +89,7 @@ fun StoryboardOverview(
                             }
 
                             ScenePreview(
-                                storyboard = overview.storyboard.storyboard,
+                                storyboard = overview.storyState.storyboard,
                                 index = item.index,
                                 modifier = sharedElementModifier
                             )
@@ -122,8 +122,8 @@ fun StoryboardOverview(
     }
 }
 
-class StoryboardOverview private constructor(
-    val storyboard: StoryboardState,
+class StoryOverview private constructor(
+    val storyState: StoryState,
     internal val columns: ImmutableList<Column>,
 ) {
     private var _isVisible = mutableStateOf(false)
@@ -152,7 +152,7 @@ class StoryboardOverview private constructor(
     }
 
     private fun jumpToFrame() {
-        val currentFrame = storyboard.currentIndex
+        val currentFrame = storyState.currentIndex
 
         currentColumnIndex =
             columns.binarySearch { compareValues(it.index, currentFrame.sceneIndex) }
@@ -179,8 +179,8 @@ class StoryboardOverview private constructor(
     )
 
     companion object {
-        fun of(storyboard: StoryboardState): StoryboardOverview {
-            val columns = storyboard.storyboard.scenes
+        fun of(storyState: StoryState): StoryOverview {
+            val columns = storyState.storyboard.scenes
                 .mapIndexed { sceneIndex, scene ->
                     val items = scene.states
                         .mapIndexed { stateIndex, _ ->
@@ -197,8 +197,8 @@ class StoryboardOverview private constructor(
                 .filter { it.items.isNotEmpty() }
                 .toImmutableList()
 
-            return StoryboardOverview(
-                storyboard = storyboard,
+            return StoryOverview(
+                storyState = storyState,
                 columns = columns,
             )
         }
@@ -226,7 +226,7 @@ private fun BoxWithConstraintsScope.toItemSize(
 
 @Composable
 private fun Modifier.onOverviewNavigation(
-    overview: StoryboardOverview,
+    overview: StoryOverview,
     onExitOverview: (Storyboard.Index) -> Unit,
     animatedVisibilityScope: AnimatedContentScope,
 ): Modifier {

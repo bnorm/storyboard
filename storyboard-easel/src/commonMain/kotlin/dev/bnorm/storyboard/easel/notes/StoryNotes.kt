@@ -3,7 +3,7 @@ package dev.bnorm.storyboard.easel.notes
 import androidx.compose.runtime.*
 
 @Stable
-class StoryboardNotes {
+class StoryNotes {
     var visible by mutableStateOf(false)
 
     private val mutableTabs = mutableStateListOf<Tab>()
@@ -24,15 +24,15 @@ class StoryboardNotes {
     )
 }
 
-val LocalStoryboardNotes = compositionLocalOf<StoryboardNotes?> { null }
+val LocalStoryNotes = compositionLocalOf<StoryNotes?> { null }
 
 @Composable
 fun NotesTab(title: String, content: @Composable () -> Unit) {
-    val storyboardNotes = LocalStoryboardNotes.current
+    val storyboardNotes = LocalStoryNotes.current
     if (storyboardNotes != null) {
         val tabContent = rememberUpdatedState(content)
         DisposableEffect(title, tabContent) {
-            val tab = StoryboardNotes.Tab(title, tabContent.value)
+            val tab = StoryNotes.Tab(title, tabContent.value)
             storyboardNotes.addTab(tab)
             onDispose {
                 storyboardNotes.removeTab(tab)

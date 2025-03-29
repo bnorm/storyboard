@@ -15,11 +15,11 @@ import androidx.compose.ui.unit.DpSize
 import dev.bnorm.storyboard.core.*
 
 @Composable
-fun StoryboardScene(storyboard: StoryboardState, modifier: Modifier = Modifier) {
+fun StoryScene(storyState: StoryState, modifier: Modifier = Modifier) {
     val holder = rememberSaveableStateHolder()
-    ProvideStoryboard(storyboard.storyboard) {
-        SceneWrapper(storyboard.storyboard.size, storyboard.storyboard.decorator, DisplayType.Story, modifier) {
-            val frame = storyboard.rememberTransition()
+    ProvideStoryboard(storyState.storyboard) {
+        SceneWrapper(storyState.storyboard.size, storyState.storyboard.decorator, DisplayType.Story, modifier) {
+            val frame = storyState.rememberTransition()
             frame.createChildTransition { it.scene }.AnimatedContent(
                 transitionSpec = {
                     val direction = when {
@@ -32,7 +32,7 @@ fun StoryboardScene(storyboard: StoryboardState, modifier: Modifier = Modifier) 
             ) { scene ->
                 holder.SaveableStateProvider(scene) {
                     Box(Modifier.fillMaxSize()) {
-                        SceneContent(storyboard, scene, frame, this@AnimatedContent, this@SceneWrapper)
+                        SceneContent(storyState, scene, frame, this@AnimatedContent, this@SceneWrapper)
                     }
                 }
             }
@@ -42,9 +42,9 @@ fun StoryboardScene(storyboard: StoryboardState, modifier: Modifier = Modifier) 
 
 @Composable
 private fun <T> SceneContent(
-    storyboard: StoryboardState,
-    stateScene: StoryboardState.StateScene<T>,
-    frame: Transition<StoryboardState.StateFrame<*>>,
+    storyState: StoryState,
+    stateScene: StoryState.StateScene<T>,
+    frame: Transition<StoryState.StateFrame<*>>,
     animatedContentScope: AnimatedContentScope,
     sharedTransitionScope: SharedTransitionScope,
 ) {
@@ -57,9 +57,9 @@ private fun <T> SceneContent(
         }
     }
 
-    val scope = remember(storyboard, stateScene, state, animatedContentScope, sharedTransitionScope) {
+    val scope = remember(storyState, stateScene, state, animatedContentScope, sharedTransitionScope) {
         StoryboardSceneScope(
-            storyboard = storyboard,
+            storyState = storyState,
             states = stateScene.scene.states,
             frame = state,
             animatedVisibilityScope = animatedContentScope,

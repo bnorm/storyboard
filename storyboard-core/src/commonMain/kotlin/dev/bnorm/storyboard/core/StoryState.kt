@@ -10,7 +10,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import kotlin.math.abs
 
-class StoryboardState(
+class StoryState(
     val storyboard: Storyboard,
     initialIndex: Storyboard.Index = Storyboard.Index(0, 0),
 ) {
@@ -100,7 +100,7 @@ class StoryboardState(
 
             // Find the next target frame index.
             val targetIndex = findTargetIndex(direction) ?: return false
-            this@StoryboardState.targetIndex = frames[targetIndex].storyboardIndex
+            this@StoryState.targetIndex = frames[targetIndex].storyboardIndex
         } else {
             // Reverse directions.
             val tmp = currentIndex
@@ -153,7 +153,7 @@ class StoryboardState(
         return true
     }
 
-    class StateScene<T>(
+    internal class StateScene<T>(
         val sceneIndex: Int,
         val scene: Scene<T>,
     ) : Comparable<StateScene<*>> {
@@ -162,7 +162,7 @@ class StoryboardState(
         }
     }
 
-    class StateFrame<T>(
+    internal class StateFrame<T>(
         val frameIndex: Int,
         val scene: StateScene<T>,
         val state: Frame<T>,
