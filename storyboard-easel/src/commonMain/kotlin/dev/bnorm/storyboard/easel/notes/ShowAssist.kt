@@ -35,7 +35,9 @@ fun StoryboardNotes(storyboard: StoryboardState, notes: StoryboardNotes, modifie
             Row(modifier = Modifier.fillMaxWidth().padding(top = 16.dp)) {
                 Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
                     Text("Current Frame")
-                    ClickableScenePreview(storyboard, storyboard.currentIndex)
+                    CompositionLocalProvider(LocalStoryboardNotes provides notes) {
+                        ClickableScenePreview(storyboard, storyboard.currentIndex)
+                    }
                     SceneAnimationProgressIndicator(storyboard)
                 }
                 Spacer(Modifier.width(16.dp))
