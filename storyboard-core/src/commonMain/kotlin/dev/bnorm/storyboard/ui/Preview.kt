@@ -8,6 +8,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.key
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -75,7 +76,7 @@ fun ScenePreview(
     displayType: DisplayType = DisplayType.Preview,
     modifier: Modifier = Modifier,
 ) {
-    ProvideStoryboard(storyboard) {
+    CompositionLocalProvider(LocalStoryboard provides storyboard) {
         ScenePreview(
             scene = storyboard.scenes[index.sceneIndex],
             stateIndex = index.stateIndex,
@@ -92,7 +93,7 @@ fun StoryPreview(
     storyboard: Storyboard,
     displayType: DisplayType = DisplayType.Preview,
 ) {
-    ProvideStoryboard(storyboard) {
+    CompositionLocalProvider(LocalStoryboard provides storyboard) {
         Column(
             verticalArrangement = Arrangement.spacedBy(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,

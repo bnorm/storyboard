@@ -17,7 +17,10 @@ import dev.bnorm.storyboard.core.*
 @Composable
 fun StoryScene(storyState: StoryState, modifier: Modifier = Modifier) {
     val holder = rememberSaveableStateHolder()
-    ProvideStoryboard(storyState.storyboard) {
+    CompositionLocalProvider(
+        LocalStoryState provides storyState,
+        LocalStoryboard provides storyState.storyboard,
+    ) {
         SceneWrapper(storyState.storyboard.size, storyState.storyboard.decorator, DisplayType.Story, modifier) {
             val frame = storyState.rememberTransition()
             frame.createChildTransition { it.scene }.AnimatedContent(
