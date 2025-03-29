@@ -6,6 +6,7 @@ import androidx.compose.animation.core.createChildTransition
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.ui.Alignment
@@ -17,7 +18,7 @@ import dev.bnorm.storyboard.core.*
 fun StoryboardScene(storyboard: StoryboardState, modifier: Modifier = Modifier) {
     val holder = rememberSaveableStateHolder()
     ProvideStoryboard(storyboard.storyboard) {
-        SceneWrapper(storyboard.storyboard.size, storyboard.storyboard.decorator, modifier) {
+        SceneWrapper(storyboard.storyboard.size, storyboard.storyboard.decorator, DisplayType.Story, modifier) {
             val frame = storyboard.rememberTransition()
             frame.createChildTransition { it.scene }.AnimatedContent(
                 transitionSpec = {
@@ -73,13 +74,16 @@ private fun <T> SceneContent(
 internal fun SceneWrapper(
     size: DpSize,
     decorator: SceneDecorator,
+    displayType: DisplayType,
     modifier: Modifier = Modifier,
     content: @Composable SharedTransitionScope.() -> Unit,
 ) {
     FixedSize(size = size, modifier = modifier, contentAlignment = Alignment.Center) {
-        decorator.decorate {
-            SharedTransitionLayout {
-                content()
+        CompositionLocalProvider(LocalDisplayType provides displayType) {
+            decorator.decorate {
+                SharedTransitionLayout {
+                    content()
+                }
             }
         }
     }

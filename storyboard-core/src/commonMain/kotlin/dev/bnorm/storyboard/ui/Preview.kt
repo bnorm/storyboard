@@ -22,9 +22,10 @@ internal fun <T> ScenePreview(
     stateIndex: Int,
     size: DpSize = Storyboard.DEFAULT_SIZE,
     decorator: SceneDecorator = SceneDecorator.None,
+    displayType: DisplayType = DisplayType.Preview,
     modifier: Modifier = Modifier,
 ) {
-    SceneWrapper(size, decorator, modifier.aspectRatio(size.width / size.height)) {
+    SceneWrapper(size, decorator, displayType, modifier.aspectRatio(size.width / size.height)) {
         AnimatedVisibility(true) {
             Box(Modifier.fillMaxSize()) {
                 key(scene, stateIndex) {
@@ -47,9 +48,10 @@ internal fun <T> ScenePreview(
     state: Frame<Nothing>,
     size: DpSize = Storyboard.DEFAULT_SIZE,
     decorator: SceneDecorator = SceneDecorator.None,
+    displayType: DisplayType = DisplayType.Preview,
     modifier: Modifier = Modifier,
 ) {
-    SceneWrapper(size, decorator, modifier.aspectRatio(size.width / size.height)) {
+    SceneWrapper(size, decorator, displayType, modifier.aspectRatio(size.width / size.height)) {
         AnimatedVisibility(true) {
             Box(Modifier.fillMaxSize()) {
                 key(scene, state) {
@@ -70,12 +72,14 @@ internal fun <T> ScenePreview(
 fun ScenePreview(
     storyboard: Storyboard,
     index: Storyboard.Index,
+    displayType: DisplayType = DisplayType.Preview,
     modifier: Modifier = Modifier,
 ) {
     ProvideStoryboard(storyboard) {
         ScenePreview(
             scene = storyboard.scenes[index.sceneIndex],
             stateIndex = index.stateIndex,
+            displayType = displayType,
             size = storyboard.size,
             decorator = storyboard.decorator,
             modifier = modifier,
@@ -84,7 +88,10 @@ fun ScenePreview(
 }
 
 @Composable
-fun StoryboardPreview(storyboard: Storyboard) {
+fun StoryboardPreview(
+    storyboard: Storyboard,
+    displayType: DisplayType = DisplayType.Preview,
+) {
     ProvideStoryboard(storyboard) {
         Column(
             verticalArrangement = Arrangement.spacedBy(16.dp),
@@ -95,15 +102,15 @@ fun StoryboardPreview(storyboard: Storyboard) {
         ) {
             for (scene in storyboard.scenes) {
                 Text("Frame: Start")
-                ScenePreview(scene, Frame.Start, storyboard.size, storyboard.decorator)
+                ScenePreview(scene, Frame.Start, storyboard.size, storyboard.decorator, displayType)
 
                 for (stateIndex in scene.states.indices) {
                     Text("Frame: $stateIndex")
-                    ScenePreview(scene, stateIndex, storyboard.size, storyboard.decorator)
+                    ScenePreview(scene, stateIndex, storyboard.size, storyboard.decorator, displayType)
                 }
 
                 Text("Frame: End")
-                ScenePreview(scene, Frame.End, storyboard.size, storyboard.decorator)
+                ScenePreview(scene, Frame.End, storyboard.size, storyboard.decorator, displayType)
             }
         }
     }
@@ -115,7 +122,8 @@ fun StoryboardPreview(
     description: String? = null,
     size: DpSize = Storyboard.DEFAULT_SIZE,
     decorator: SceneDecorator = SceneDecorator.None,
+    displayType: DisplayType = DisplayType.Preview,
     block: StoryboardBuilder.() -> Unit,
 ) {
-    StoryboardPreview(Storyboard.build(name, description, size, decorator, block))
+    StoryboardPreview(Storyboard.build(name, description, size, decorator, block), displayType)
 }
