@@ -7,6 +7,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.text.SpanStyle
 
+// TODO name: CodeStyle?
 @Immutable
 class Highlighting private constructor(
     val simple: SpanStyle,
