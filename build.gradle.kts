@@ -1,6 +1,7 @@
 import org.jetbrains.kotlin.compose.compiler.gradle.ComposeCompilerGradlePluginExtension
 import org.jetbrains.kotlin.compose.compiler.gradle.ComposeFeatureFlag
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
+import org.jetbrains.kotlin.gradle.targets.wasm.nodejs.WasmNodeJsRootPlugin
 
 plugins {
     kotlin("multiplatform") apply false
@@ -23,15 +24,6 @@ allprojects {
     plugins.withId("org.jetbrains.kotlin.multiplatform") {
         extensions.configure<KotlinMultiplatformExtension> {
             sourceSets.all {
-//                compilerOptions {
-//                    freeCompilerArgs.add("-Xwhen-guards")
-//                    freeCompilerArgs.add("-Xcontext-parameters")
-//                }
-//                languageSettings {
-//                    optIn("androidx.compose.animation.core.ExperimentalTransitionApi")
-//                    optIn("androidx.compose.animation.ExperimentalAnimationApi")
-//                    optIn("androidx.compose.animation.ExperimentalSharedTransitionApi")
-//                }
                 languageSettings {
                     enableLanguageFeature("ContextParameters")
                     enableLanguageFeature("WhenGuards")
@@ -43,5 +35,11 @@ allprojects {
                 }
             }
         }
+    }
+}
+
+plugins.withType(WasmNodeJsRootPlugin::class.java) {
+    tasks.register("rootPackageJson") {
+        dependsOn(tasks.named("wasmRootPackageJson"))
     }
 }

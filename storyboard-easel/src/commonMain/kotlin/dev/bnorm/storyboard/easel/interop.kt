@@ -4,9 +4,39 @@ import androidx.compose.animation.*
 import androidx.compose.animation.SharedTransitionScope.*
 import androidx.compose.animation.SharedTransitionScope.PlaceHolderSize.Companion.contentSize
 import androidx.compose.animation.SharedTransitionScope.ResizeMode.Companion.ScaleToBounds
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+
+// ============================ //
+// ----- animateEnterExit ----- //
+// ============================ //
+
+context(animatedVisibilityScope: AnimatedVisibilityScope)
+fun Modifier.animateEnterExit(
+    enter: EnterTransition = fadeIn(),
+    exit: ExitTransition = fadeOut(),
+    label: String = "animateEnterExit",
+): Modifier {
+    with(animatedVisibilityScope) {
+        return animateEnterExit(
+            enter = enter,
+            exit = exit,
+            label = label,
+        )
+    }
+}
+
+// ========================= //
+// ----- sharedElement ----- //
+// ========================= //
+
+@Composable
+context(sharedTransitionScope: SharedTransitionScope)
+fun rememberSharedContentState(key: Any): SharedContentState {
+    return sharedTransitionScope.rememberSharedContentState(key)
+}
 
 // ========================= //
 // ----- sharedElement ----- //
