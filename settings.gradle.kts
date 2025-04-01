@@ -6,6 +6,7 @@ pluginManagement {
         google()
         gradlePluginPortal()
         maven { setUrl("https://redirector.kotlinlang.org/maven/dev") }
+        maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
     }
 
     plugins {
@@ -23,6 +24,7 @@ dependencyResolutionManagement {
         mavenCentral()
         google()
         maven { setUrl("https://redirector.kotlinlang.org/maven/dev") }
+        maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
     }
 }
 
