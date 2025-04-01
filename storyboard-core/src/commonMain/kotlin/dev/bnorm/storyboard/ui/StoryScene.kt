@@ -56,7 +56,7 @@ private fun <T> SceneContent(
         when {
             stateScene > it.scene -> Frame.Start
             stateScene < it.scene -> Frame.End
-            else -> it.state as Frame<T>
+            else -> it.frame as Frame<T>
         }
     }
 

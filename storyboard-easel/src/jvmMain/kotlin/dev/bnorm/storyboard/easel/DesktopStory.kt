@@ -10,23 +10,38 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyShortcut
 import androidx.compose.ui.window.*
-import dev.bnorm.storyboard.core.Storyboard
+import dev.bnorm.storyboard.core.ExperimentalStoryStateApi
 import dev.bnorm.storyboard.core.StoryState
+import dev.bnorm.storyboard.core.Storyboard
+import dev.bnorm.storyboard.core.rememberStoryState
 import dev.bnorm.storyboard.easel.export.ExportProgressPopup
 import dev.bnorm.storyboard.easel.export.StoryboardPdfExporter
 import dev.bnorm.storyboard.easel.notes.StoryNotes
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalStoryStateApi::class)
 @Composable
 fun ApplicationScope.DesktopStory(storyboard: Storyboard) {
+    val storyState = rememberStoryState()
+    storyState.updateStoryboard(storyboard)
+    DesktopStory(storyState)
+}
+
+/**
+ * This function is designed to be used in combination with Compose Hot-Reload.
+ * Make sure a [Storyboard] is already attached to the [StoryState] with [StoryState.updateStoryboard].
+ * Each time the storyboard is changed, it can be updated on the state to not revert the story to the first index.
+ */
+@Composable
+@ExperimentalStoryStateApi
+fun ApplicationScope.DesktopStory(storyState: StoryState) {
     val notes = remember { StoryNotes() }
-    val state = rememberDesktopState(storyboard)
-    val storyState = remember { StoryState(storyboard) }
+    val desktopState = rememberDesktopState(storyState.storyboard)
 
     val coroutineScope = rememberCoroutineScope()
-    val exporter = remember { StoryboardPdfExporter(storyboard) }
+    val exporter = remember { StoryboardPdfExporter(storyState.storyboard) }
 
-    if (state == null) {
+    if (desktopState == null) {
         // Need a window to keep the application from closing.
         // TODO splash screen?
         Window(onCloseRequest = ::exitApplication, visible = false) {}
@@ -40,7 +55,7 @@ fun ApplicationScope.DesktopStory(storyboard: Storyboard) {
                 // TODO keynote seems to create a new window which fades in over the entire screen
                 //  - is this a better experience then converting the window to full screen?
                 //  - would *just* the overview be shown when not in full screen?
-                state.storyboard.placement = when (state.storyboard.placement) {
+                desktopState.storyboard.placement = when (desktopState.storyboard.placement) {
                     WindowPlacement.Floating -> WindowPlacement.Fullscreen
                     WindowPlacement.Maximized -> WindowPlacement.Fullscreen
                     WindowPlacement.Fullscreen -> WindowPlacement.Floating // TODO go back to float or max?
@@ -63,8 +78,8 @@ fun ApplicationScope.DesktopStory(storyboard: Storyboard) {
 
     Window(
         onCloseRequest = ::exitApplication,
-        state = state.storyboard,
-        title = storyboard.title,
+        state = desktopState.storyboard,
+        title = storyState.storyboard.title,
     ) {
         MenuBar { menuBar() }
 
@@ -80,7 +95,7 @@ fun ApplicationScope.DesktopStory(storyboard: Storyboard) {
     if (notes.visible) {
         Window(
             onCloseRequest = { notes.visible = false },
-            state = state.notes,
+            state = desktopState.notes,
             title = "Notes",
         ) {
             MenuBar { menuBar() }

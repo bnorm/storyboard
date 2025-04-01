@@ -7,12 +7,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import dev.bnorm.storyboard.core.Storyboard
+import dev.bnorm.storyboard.core.ExperimentalStoryStateApi
 import dev.bnorm.storyboard.core.StoryState
+import dev.bnorm.storyboard.core.Storyboard
 import kotlinx.browser.window
 import org.w3c.dom.url.URL
 import org.w3c.dom.url.URLSearchParams
 
+@OptIn(ExperimentalStoryStateApi::class)
 @Composable
 fun WebStory(storyboard: Storyboard) {
     val storyState = remember(storyboard) {
@@ -23,13 +25,14 @@ fun WebStory(storyboard: Storyboard) {
         //  - separate values for scene and state?
         val frameIndex = params.get("frame")?.toIntOrNull()
         val initialIndex = if (frameIndex != null) {
-            StoryState(storyboard)
             storyboard.indices[frameIndex.coerceIn(storyboard.indices.indices)]
         } else {
             Storyboard.Index(0, 0)
         }
 
-        StoryState(storyboard, initialIndex)
+        StoryState(initialIndex).also {
+            it.updateStoryboard(storyboard)
+        }
     }
     val overview = remember(storyboard) {
         val params = URLSearchParams(window.location.search.toJsString())

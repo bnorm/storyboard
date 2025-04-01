@@ -8,11 +8,11 @@ import androidx.compose.material.Divider
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.darkColors
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import dev.bnorm.storyboard.core.StoryboardBuilder
-import dev.bnorm.storyboard.core.StoryState
+import dev.bnorm.storyboard.core.rememberStoryState
 import dev.bnorm.storyboard.easel.EmbeddedStory
 import dev.bnorm.storyboard.easel.template.Body
 import dev.bnorm.storyboard.easel.template.Header
@@ -29,17 +29,17 @@ fun StoryboardBuilder.AppScene() {
                     Modifier.padding(vertical = 16.dp, horizontal = 16.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp),
                 ) {
-                    val storyboard = rememberSaveable { StoryState(createStoryboard()) }
+                    val state = rememberStoryState(remember { createStoryboard() })
 
                     RevealEach(frame.createChildTransition { it.toState() }) {
                         item { Text("• Storyboard is ultimately just a Compose application.") }
-                        item { Text("• Anything achieve with Compose, is possible in Storyboard!") }
+                        item { Text("• Anything achievable with Compose, is possible in Storyboard!") }
                         item { Text("• You could even embed a Storyboard, in a Storyboard!") }
                         item {
                             MaterialTheme(colors = darkColors()) {
                                 EmbeddedStory(
-                                    storyboard,
-                                    modifier = Modifier.requiredSize(storyboard.storyboard.size / 3),
+                                    state,
+                                    modifier = Modifier.requiredSize(state.storyboard.size / 3),
                                 )
                             }
                         }
