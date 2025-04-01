@@ -1,12 +1,14 @@
 package dev.bnorm.storyboard.easel.template
 
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.ProvideTextStyle
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import dev.bnorm.storyboard.core.SceneScope
+import dev.bnorm.storyboard.easel.sharedElement
 
 @Composable
 fun Title(modifier: Modifier = Modifier, content: @Composable BoxScope.() -> Unit) {
@@ -20,11 +22,11 @@ fun Title(modifier: Modifier = Modifier, content: @Composable BoxScope.() -> Uni
 private object SharedTitleKey
 
 @Composable
-fun SceneScope<*>.SharedTitle(modifier: Modifier = Modifier, content: @Composable BoxScope.() -> Unit) {
+context(_: AnimatedVisibilityScope, scope: SharedTransitionScope)
+fun SharedTitle(modifier: Modifier = Modifier, content: @Composable BoxScope.() -> Unit) {
     Title(
         modifier = modifier.sharedElement(
-            sharedContentState = rememberSharedContentState(SharedTitleKey),
-            animatedVisibilityScope = this
+            sharedContentState = scope.rememberSharedContentState(SharedTitleKey),
         ),
         content = content
     )

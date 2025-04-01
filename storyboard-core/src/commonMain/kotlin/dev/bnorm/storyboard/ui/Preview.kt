@@ -33,8 +33,6 @@ internal fun <T> ScenePreview(
                     val scope = PreviewSceneScope(
                         states = scene.states,
                         frame = updateTransition(Frame.State(scene.states[stateIndex])),
-                        animatedVisibilityScope = this@AnimatedVisibility,
-                        sharedTransitionScope = this@SceneWrapper
                     )
                     scene.content(scope)
                 }
@@ -59,8 +57,6 @@ internal fun <T> ScenePreview(
                     val scope = PreviewSceneScope(
                         states = scene.states,
                         frame = updateTransition(state),
-                        animatedVisibilityScope = this@AnimatedVisibility,
-                        sharedTransitionScope = this@SceneWrapper
                     )
                     scene.content(scope)
                 }
