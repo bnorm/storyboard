@@ -15,7 +15,7 @@ pluginManagement {
         kotlin("multiplatform") version kotlinVersion
         kotlin("plugin.serialization") version kotlinVersion
         kotlin("plugin.compose") version kotlinVersion
-        id("org.jetbrains.compose") version "1.8.0-beta01"
+        id("org.jetbrains.compose") version "1.8.0+dev2284"
     }
 }
 
