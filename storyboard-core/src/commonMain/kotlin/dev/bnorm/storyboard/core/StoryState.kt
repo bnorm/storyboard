@@ -140,7 +140,7 @@ class StoryState @ExperimentalStoryStateApi constructor(
         if (_storyboard == null) return false // Cannot jump without Storyboard.
 
         val frame = byIndex[index]
-        require(frame != null) { "$frame not found in storyboard" }
+        if (frame == null) return false
 
         targetIndex = frame.storyboardIndex
         snapTo(frame.frameIndex)
