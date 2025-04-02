@@ -4,6 +4,7 @@ import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.key
@@ -109,7 +110,7 @@ private fun MagicTextInternal(
 
     SharedTransitionLayout {
         transition.AnimatedContent(
-            modifier = modifier,
+            modifier = modifier.wrapContentSize(align = Alignment.TopStart, unbounded = true),
             transitionSpec = { EnterTransition.None togetherWith ExitTransition.None },
         ) { parts ->
 
