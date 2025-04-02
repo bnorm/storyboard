@@ -1,5 +1,7 @@
 package dev.bnorm.storyboard.easel.template
 
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -7,7 +9,7 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.ProvideTextStyle
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import dev.bnorm.storyboard.core.SceneScope
+import dev.bnorm.storyboard.easel.sharedElement
 
 @Composable
 fun Header(modifier: Modifier = Modifier, content: @Composable BoxScope.() -> Unit) {
@@ -21,11 +23,11 @@ fun Header(modifier: Modifier = Modifier, content: @Composable BoxScope.() -> Un
 private object SharedHeaderKey
 
 @Composable
-fun SceneScope<*>.SharedHeader(modifier: Modifier = Modifier, content: @Composable BoxScope.() -> Unit) {
+context(_: AnimatedVisibilityScope, scope: SharedTransitionScope)
+fun SharedHeader(modifier: Modifier = Modifier, content: @Composable BoxScope.() -> Unit) {
     Header(
         modifier = modifier.sharedElement(
-            sharedContentState = rememberSharedContentState(SharedHeaderKey),
-            animatedVisibilityScope = this
+            sharedContentState = scope.rememberSharedContentState(SharedHeaderKey),
         ),
         content = content
     )

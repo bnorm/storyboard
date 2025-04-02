@@ -35,7 +35,7 @@ fun StoryScene(storyState: StoryState, modifier: Modifier = Modifier) {
             ) { scene ->
                 holder.SaveableStateProvider(scene) {
                     Box(Modifier.fillMaxSize()) {
-                        SceneContent(storyState, scene, frame, this@AnimatedContent, this@SceneWrapper)
+                        SceneContent(storyState, scene, frame)
                     }
                 }
             }
@@ -44,12 +44,11 @@ fun StoryScene(storyState: StoryState, modifier: Modifier = Modifier) {
 }
 
 @Composable
+context(_: AnimatedVisibilityScope, _: SharedTransitionScope)
 private fun <T> SceneContent(
     storyState: StoryState,
     stateScene: StoryState.StateScene<T>,
     frame: Transition<StoryState.StateFrame<*>>,
-    animatedContentScope: AnimatedContentScope,
-    sharedTransitionScope: SharedTransitionScope,
 ) {
     val state = frame.createChildTransition {
         @Suppress("UNCHECKED_CAST")
@@ -60,13 +59,11 @@ private fun <T> SceneContent(
         }
     }
 
-    val scope = remember(storyState, stateScene, state, animatedContentScope, sharedTransitionScope) {
+    val scope = remember(storyState, stateScene, state) {
         StoryboardSceneScope(
             storyState = storyState,
             states = stateScene.scene.states,
             frame = state,
-            animatedVisibilityScope = animatedContentScope,
-            sharedTransitionScope = sharedTransitionScope
         )
     }
 
@@ -79,7 +76,7 @@ internal fun SceneWrapper(
     decorator: SceneDecorator,
     displayType: DisplayType,
     modifier: Modifier = Modifier,
-    content: @Composable SharedTransitionScope.() -> Unit,
+    content: @Composable context(SharedTransitionScope) () -> Unit,
 ) {
     FixedSize(size = size, modifier = modifier, contentAlignment = Alignment.Center) {
         CompositionLocalProvider(LocalDisplayType provides displayType) {

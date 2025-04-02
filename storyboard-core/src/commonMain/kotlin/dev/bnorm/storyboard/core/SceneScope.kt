@@ -1,14 +1,12 @@
 package dev.bnorm.storyboard.core
 
-import androidx.compose.animation.AnimatedVisibilityScope
-import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.animation.core.Transition
 import androidx.compose.runtime.Stable
 import dev.bnorm.storyboard.core.Frame.*
 import kotlinx.collections.immutable.ImmutableList
 
 @Stable
-sealed interface SceneScope<T> : AnimatedVisibilityScope, SharedTransitionScope {
+sealed interface SceneScope<T> {
     val states: ImmutableList<T>
     val frame: Transition<out Frame<T>>
 
@@ -32,11 +30,7 @@ sealed interface SceneScope<T> : AnimatedVisibilityScope, SharedTransitionScope 
 internal class PreviewSceneScope<T>(
     override val states: ImmutableList<T>,
     override val frame: Transition<out Frame<T>>,
-    animatedVisibilityScope: AnimatedVisibilityScope,
-    sharedTransitionScope: SharedTransitionScope,
-) : SceneScope<T>,
-    AnimatedVisibilityScope by animatedVisibilityScope,
-    SharedTransitionScope by sharedTransitionScope {
+) : SceneScope<T> {
     override val direction: AdvanceDirection get() = AdvanceDirection.Forward
 }
 
@@ -44,10 +38,6 @@ internal class StoryboardSceneScope<T>(
     private val storyState: StoryState,
     override val states: ImmutableList<T>,
     override val frame: Transition<out Frame<T>>,
-    animatedVisibilityScope: AnimatedVisibilityScope,
-    sharedTransitionScope: SharedTransitionScope,
-) : SceneScope<T>,
-    AnimatedVisibilityScope by animatedVisibilityScope,
-    SharedTransitionScope by sharedTransitionScope {
+) : SceneScope<T> {
     override val direction: AdvanceDirection get() = storyState.currentDirection
 }
