@@ -18,6 +18,7 @@ import dev.bnorm.storyboard.easel.export.ExportProgressPopup
 import dev.bnorm.storyboard.easel.export.StoryboardPdfExporter
 import dev.bnorm.storyboard.easel.notes.StoryNotes
 import dev.bnorm.storyboard.easel.overlay.OverlayNavigation
+import dev.bnorm.storyboard.easel.overlay.StoryOverlayScope
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalStoryStateApi::class)
@@ -35,7 +36,12 @@ fun ApplicationScope.DesktopStory(storyboard: Storyboard) {
  */
 @Composable
 @ExperimentalStoryStateApi
-fun ApplicationScope.DesktopStory(storyState: StoryState) {
+fun ApplicationScope.DesktopStory(
+    storyState: StoryState,
+    overlay: @Composable StoryOverlayScope.() -> Unit = {
+        OverlayNavigation(storyState)
+    },
+) {
     val notes = remember { StoryNotes() }
     val desktopState = rememberDesktopState(storyState.storyboard)
 
@@ -89,7 +95,7 @@ fun ApplicationScope.DesktopStory(storyState: StoryState) {
             overlay = {
                 // Only display overlay navigation when *not* fullscreen.
                 if (desktopState.storyboard.placement != WindowPlacement.Fullscreen) {
-                    OverlayNavigation(storyState)
+                    overlay()
                 }
             },
             modifier = Modifier.fillMaxSize()
