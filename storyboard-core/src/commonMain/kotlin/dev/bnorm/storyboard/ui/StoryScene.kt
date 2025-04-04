@@ -9,7 +9,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.DpSize
 import dev.bnorm.storyboard.core.*
@@ -78,7 +77,7 @@ internal fun SceneWrapper(
     modifier: Modifier = Modifier,
     content: @Composable context(SharedTransitionScope) () -> Unit,
 ) {
-    FixedSize(size = size, modifier = modifier, contentAlignment = Alignment.Center) {
+    FixedSize(size = size, modifier = modifier) {
         CompositionLocalProvider(LocalDisplayType provides displayType) {
             decorator.decorate {
                 SharedTransitionLayout {
