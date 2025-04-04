@@ -10,6 +10,7 @@ import androidx.compose.ui.Modifier
 import dev.bnorm.storyboard.core.ExperimentalStoryStateApi
 import dev.bnorm.storyboard.core.StoryState
 import dev.bnorm.storyboard.core.Storyboard
+import dev.bnorm.storyboard.easel.overlay.OverlayNavigation
 import kotlinx.browser.window
 import org.w3c.dom.url.URL
 import org.w3c.dom.url.URLSearchParams
@@ -46,14 +47,13 @@ fun WebStory(storyboard: Storyboard) {
 
     LaunchedHistoryUpdate(storyState, overview)
 
-    val overlayState = rememberOverlayState(
-        initialVisibility = true,
-    )
-
     Story(
         storyState = storyState,
         overview = overview,
-        overlayState = overlayState,
+        overlay = {
+            // TODO if this is a mobile device, prefer touch navigation
+            OverlayNavigation(storyState)
+        },
         modifier = Modifier.fillMaxSize()
             .background(MaterialTheme.colors.background),
     )
