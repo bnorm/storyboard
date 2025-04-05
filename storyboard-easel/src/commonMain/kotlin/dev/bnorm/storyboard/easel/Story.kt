@@ -10,14 +10,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.*
 import dev.bnorm.storyboard.core.AdvanceDirection
-import dev.bnorm.storyboard.core.StoryState
 import dev.bnorm.storyboard.easel.internal.requestFocus
 import dev.bnorm.storyboard.easel.overlay.StoryOverlay
 import dev.bnorm.storyboard.easel.overlay.StoryOverlayScope
 import dev.bnorm.storyboard.easel.overview.OverviewCurrentItemKey
 import dev.bnorm.storyboard.easel.overview.StoryOverview
 import dev.bnorm.storyboard.easel.overview.StoryOverviewState
-import dev.bnorm.storyboard.ui.StoryScene
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 

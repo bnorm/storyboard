@@ -1,4 +1,4 @@
-package dev.bnorm.storyboard.ui
+package dev.bnorm.storyboard.easel.internal
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable

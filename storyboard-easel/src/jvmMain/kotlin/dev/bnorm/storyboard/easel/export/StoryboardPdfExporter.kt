@@ -5,7 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.renderComposeScene
 import dev.bnorm.storyboard.core.Storyboard
-import dev.bnorm.storyboard.ui.ScenePreview
+import dev.bnorm.storyboard.easel.ScenePreview
 import io.github.vinceglb.filekit.core.FileKit
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runInterruptible

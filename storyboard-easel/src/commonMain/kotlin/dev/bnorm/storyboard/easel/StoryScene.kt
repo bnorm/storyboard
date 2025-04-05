@@ -1,4 +1,4 @@
-package dev.bnorm.storyboard.ui
+package dev.bnorm.storyboard.easel
 
 import androidx.compose.animation.*
 import androidx.compose.animation.core.Transition
@@ -12,6 +12,9 @@ import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.DpSize
 import dev.bnorm.storyboard.core.*
+import dev.bnorm.storyboard.easel.internal.FixedSize
+import dev.bnorm.storyboard.ui.LocalDisplayType
+import dev.bnorm.storyboard.ui.LocalStoryboard
 import kotlinx.collections.immutable.ImmutableList
 
 @Composable

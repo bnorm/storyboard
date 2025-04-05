@@ -1,9 +1,10 @@
-package dev.bnorm.storyboard.ui
+package dev.bnorm.storyboard.easel.template
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.NonRestartableComposable
 import dev.bnorm.storyboard.core.DisplayType
+import dev.bnorm.storyboard.ui.LocalDisplayType
 import kotlinx.coroutines.CoroutineScope
 
 /** A [LaunchedEffect] which only runs if the current scene is displayed in a story. */

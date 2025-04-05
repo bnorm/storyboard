@@ -1,4 +1,4 @@
-package dev.bnorm.storyboard.ui
+package dev.bnorm.storyboard.easel
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Transition
@@ -19,6 +19,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import dev.bnorm.storyboard.core.*
+import dev.bnorm.storyboard.ui.LocalStoryboard
 import kotlinx.collections.immutable.ImmutableList
 
 private class PreviewSceneScope<T>(

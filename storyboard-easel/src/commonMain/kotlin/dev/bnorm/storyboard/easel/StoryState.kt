@@ -1,4 +1,4 @@
-package dev.bnorm.storyboard.core
+package dev.bnorm.storyboard.easel
 
 import androidx.compose.animation.core.SeekableTransitionState
 import androidx.compose.animation.core.Transition
@@ -7,6 +7,10 @@ import androidx.compose.animation.core.rememberTransition
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.snapshots.Snapshot
+import dev.bnorm.storyboard.core.AdvanceDirection
+import dev.bnorm.storyboard.core.Frame
+import dev.bnorm.storyboard.core.Scene
+import dev.bnorm.storyboard.core.Storyboard
 import kotlin.math.abs
 import kotlin.properties.Delegates
 
