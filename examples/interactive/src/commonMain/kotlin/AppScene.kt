@@ -13,10 +13,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import dev.bnorm.storyboard.core.StoryboardBuilder
 import dev.bnorm.storyboard.core.rememberStoryState
-import dev.bnorm.storyboard.easel.EmbeddedStory
+import dev.bnorm.storyboard.easel.overlay.OverlayNavigation
+import dev.bnorm.storyboard.easel.overlay.StoryOverlay
 import dev.bnorm.storyboard.easel.template.Body
 import dev.bnorm.storyboard.easel.template.Header
 import dev.bnorm.storyboard.easel.template.RevealEach
+import dev.bnorm.storyboard.ui.StoryScene
 
 @OptIn(ExperimentalTransitionApi::class)
 fun StoryboardBuilder.AppScene() {
@@ -37,10 +39,12 @@ fun StoryboardBuilder.AppScene() {
                         item { Text("• You could even embed a Storyboard, in a Storyboard!") }
                         item {
                             MaterialTheme(colors = darkColors()) {
-                                EmbeddedStory(
-                                    state,
-                                    modifier = Modifier.requiredSize(state.storyboard.size / 3),
-                                )
+                                StoryOverlay(
+                                    overlay = { OverlayNavigation(state) },
+                                    modifier = Modifier.requiredSize(state.storyboard.size / 3)
+                                ) {
+                                    StoryScene(state)
+                                }
                             }
                         }
                     }

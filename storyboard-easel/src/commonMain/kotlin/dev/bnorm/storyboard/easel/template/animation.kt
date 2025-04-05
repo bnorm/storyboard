@@ -1,12 +1,12 @@
 @file:OptIn(ExperimentalTypeInference::class)
 
-package dev.bnorm.storyboard.easel
+package dev.bnorm.storyboard.easel.template
 
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import dev.bnorm.storyboard.core.AdvanceDirection
-import dev.bnorm.storyboard.core.SceneScope
 import dev.bnorm.storyboard.core.Frame
+import dev.bnorm.storyboard.core.SceneScope
 import kotlin.experimental.ExperimentalTypeInference
 
 /**
@@ -32,7 +32,7 @@ import kotlin.experimental.ExperimentalTypeInference
  * [     ] <-{Exit}--- [     ] <-{Enter}-- [     ] // Backwards
  * ```
  *
- * This distinction is a mirror of the [SceneScope.frame] of a scene, which has
+ * This distinction is the same as the [SceneScope.frame] of a scene, which has
  * a [Frame.Start] as the first element and a [Frame.End] as the last
  * element, to help manage transitions between scenes.
  */

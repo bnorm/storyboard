@@ -10,11 +10,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import dev.bnorm.storyboard.core.StoryboardBuilder
-import dev.bnorm.storyboard.easel.enter
-import dev.bnorm.storyboard.easel.exit
-import dev.bnorm.storyboard.easel.template.Header
-import dev.bnorm.storyboard.easel.template.SceneEnter
-import dev.bnorm.storyboard.easel.template.SceneExit
+import dev.bnorm.storyboard.easel.template.*
 import kotlin.math.roundToInt
 
 fun StoryboardBuilder.AnimationScene() = scene(

@@ -21,6 +21,9 @@ import dev.bnorm.storyboard.ui.StoryScene
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
+// TODO rename:
+//  - Story -> StoryAndOverview?
+//  - StoryScene -> Story?
 @Composable
 fun Story(
     storyState: StoryState,

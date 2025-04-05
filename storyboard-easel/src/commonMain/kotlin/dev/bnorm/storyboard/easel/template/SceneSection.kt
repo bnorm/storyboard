@@ -1,4 +1,4 @@
-package dev.bnorm.storyboard.easel
+package dev.bnorm.storyboard.easel.template
 
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
