@@ -20,20 +20,20 @@ fun StoryScene(storyState: StoryState, modifier: Modifier = Modifier) {
     val holder = rememberSaveableStateHolder()
     CompositionLocalProvider(LocalStoryboard provides storyState.storyboard) {
         SceneWrapper(storyState.storyboard.size, storyState.storyboard.decorator, DisplayType.Story, modifier) {
-            val frame = storyState.rememberTransition()
-            frame.createChildTransition { it.scene }.AnimatedContent(
+            val stateFrame = storyState.rememberTransition()
+            stateFrame.createChildTransition { it.scene }.AnimatedContent(
                 transitionSpec = {
                     val direction = when {
                         targetState > initialState -> AdvanceDirection.Forward
                         else -> AdvanceDirection.Backward
                     }
-                    targetState.scene.enterTransition(direction) togetherWith
-                            initialState.scene.exitTransition(direction)
+                    targetState.enterTransition(direction) togetherWith
+                            initialState.exitTransition(direction)
                 }
             ) { scene ->
                 holder.SaveableStateProvider(scene) {
                     Box(Modifier.fillMaxSize()) {
-                        SceneContent(storyState, scene, frame)
+                        SceneContent(storyState, scene, stateFrame)
                     }
                 }
             }
@@ -53,27 +53,27 @@ private class StoryboardSceneScope<T>(
 context(_: AnimatedVisibilityScope, _: SharedTransitionScope)
 private fun <T> SceneContent(
     storyState: StoryState,
-    stateScene: StoryState.StateScene<T>,
-    frame: Transition<StoryState.StateFrame<*>>,
+    scene: Scene<T>,
+    stateFrame: Transition<StoryState.StateFrame<*>>,
 ) {
-    val state = frame.createChildTransition {
+    val frame = stateFrame.createChildTransition {
         @Suppress("UNCHECKED_CAST")
         when {
-            stateScene > it.scene -> Frame.Start
-            stateScene < it.scene -> Frame.End
+            scene > it.scene -> Frame.Start
+            scene < it.scene -> Frame.End
             else -> it.frame as Frame<T>
         }
     }
 
-    val scope = remember(storyState, stateScene, state) {
+    val scope = remember(storyState, scene, frame) {
         StoryboardSceneScope(
             storyState = storyState,
-            states = stateScene.scene.states,
-            frame = state,
+            states = scene.states,
+            frame = frame,
         )
     }
 
-    scope.Render(stateScene.scene.content)
+    scope.Render(scene.content)
 }
 
 @Composable

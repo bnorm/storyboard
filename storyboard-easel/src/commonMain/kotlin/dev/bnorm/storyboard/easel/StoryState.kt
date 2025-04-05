@@ -201,45 +201,48 @@ class StoryState @ExperimentalStoryStateApi constructor(
         require(first.states.isNotEmpty() && last.states.isNotEmpty()) { "first and last scene must have states" }
 
         var frameIndex = 0
-        fun <T> MutableList<StateFrame<*>>.addStates(scene: StateScene<T>) {
-            for ((stateIndex, state) in scene.scene.states.withIndex()) {
+        fun <T> MutableList<StateFrame<*>>.addStates(scene: Scene<T>) {
+            for ((stateIndex, state) in scene.states.withIndex()) {
                 val index = StateFrame(
                     frameIndex = frameIndex++,
                     scene = scene,
                     frame = Frame.State(state),
-                    storyboardIndex = Storyboard.Index(scene.sceneIndex, stateIndex),
+                    storyboardIndex = Storyboard.Index(scene.index, stateIndex),
                 )
                 add(index)
             }
         }
 
         for ((sceneIndex, scene) in scenes.withIndex()) {
-            val slide = StateScene(sceneIndex, scene)
-            if (scene != first) add(
-                StateFrame(
-                    frameIndex++,
-                    slide,
-                    Frame.Start,
-                    Storyboard.Index(sceneIndex, -1)
+            if (scene != first) {
+                // TODO don't create an invalid Storyboard.Index
+                add(
+                    StateFrame(
+                        frameIndex = frameIndex++,
+                        scene = scene,
+                        frame = Frame.Start,
+                        storyboardIndex = Storyboard.Index(sceneIndex, -1)
+                    )
                 )
-            )
-            addStates(slide)
-            if (scene != last) add(StateFrame(frameIndex++, slide, Frame.End, Storyboard.Index(sceneIndex, -2)))
-        }
-    }
-
-    internal class StateScene<T>(
-        val sceneIndex: Int,
-        val scene: Scene<T>,
-    ) : Comparable<StateScene<*>> {
-        override fun compareTo(other: StateScene<*>): Int {
-            return compareValues(sceneIndex, other.sceneIndex)
+            }
+            addStates(scene)
+            if (scene != last) {
+                // TODO don't create an invalid Storyboard.Index
+                add(
+                    StateFrame(
+                        frameIndex = frameIndex++,
+                        scene = scene,
+                        frame = Frame.End,
+                        storyboardIndex = Storyboard.Index(sceneIndex, scene.states.size)
+                    )
+                )
+            }
         }
     }
 
     internal class StateFrame<T>(
         val frameIndex: Int,
-        val scene: StateScene<T>,
+        val scene: Scene<T>,
         val frame: Frame<T>,
         val storyboardIndex: Storyboard.Index,
     )

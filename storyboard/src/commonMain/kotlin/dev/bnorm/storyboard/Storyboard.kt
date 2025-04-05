@@ -62,6 +62,7 @@ private class StoryboardBuilderImpl : StoryboardBuilder {
         content: SceneContent<T>,
     ): Scene<T> {
         val scene = Scene(
+            index = scenes.size,
             states = states.toImmutableList(),
             enterTransition = enterTransition,
             exitTransition = exitTransition,
