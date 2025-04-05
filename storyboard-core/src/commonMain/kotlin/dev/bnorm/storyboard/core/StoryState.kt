@@ -41,6 +41,7 @@ class StoryState @ExperimentalStoryStateApi constructor(
     val storyboard: Storyboard
         get() = _storyboard ?: error("Storyboard uninitialized.")
 
+    // TODO this cross dependency between StoryState and Storyboard is *UGLY*
     private val frames get() = storyboard.frames
     private val byIndex get() = storyboard.framesByIndex
 
