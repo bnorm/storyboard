@@ -14,7 +14,7 @@ import dev.bnorm.storyboard.core.StoryState
 import dev.bnorm.storyboard.easel.internal.requestFocus
 import dev.bnorm.storyboard.easel.overlay.StoryOverlay
 import dev.bnorm.storyboard.easel.overlay.StoryOverlayScope
-import dev.bnorm.storyboard.easel.overview.OverviewCurrentIndex
+import dev.bnorm.storyboard.easel.overview.OverviewCurrentItemKey
 import dev.bnorm.storyboard.easel.overview.StoryOverview
 import dev.bnorm.storyboard.easel.overview.StoryOverviewState
 import dev.bnorm.storyboard.ui.StoryScene
@@ -58,8 +58,6 @@ fun Story(
                                 storyOverviewState.isVisible = false
                             }
                         },
-                        sharedTransitionScope = this@SharedTransitionLayout,
-                        animatedVisibilityScope = this@AnimatedContent,
                         modifier = Modifier.fillMaxSize(),
                     )
                 } else {
@@ -70,7 +68,7 @@ fun Story(
                                     storyState = storyState,
                                     modifier = Modifier
                                         .sharedElement(
-                                            rememberSharedContentState(OverviewCurrentIndex),
+                                            rememberSharedContentState(OverviewCurrentItemKey),
                                             animatedVisibilityScope = this@AnimatedContent
                                         )
                                         .requestFocus()
