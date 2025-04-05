@@ -11,6 +11,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import dev.bnorm.storyboard.StoryboardBuilder
 import dev.bnorm.storyboard.easel.template.*
+import dev.bnorm.storyboard.easel.template.rememberAdvanceDirection
 import dev.bnorm.storyboard.toState
 import kotlin.math.roundToInt
 
@@ -19,8 +20,11 @@ fun StoryboardBuilder.AnimationScene() = scene(
     enterTransition = enter(end = SceneEnter(alignment = Alignment.CenterEnd)),
     exitTransition = exit(end = SceneExit(alignment = Alignment.CenterEnd)),
 ) {
+    fun <T> quick(): SpringSpec<T> = spring(stiffness = Spring.StiffnessVeryLow)
+
     @OptIn(ExperimentalTransitionApi::class)
     val state = frame.createChildTransition { it.toState() }
+    val direction = rememberAdvanceDirection()
 
     Column(verticalArrangement = Arrangement.spacedBy(16.dp), modifier = Modifier.padding(16.dp)) {
         Header { Text("Animation") }
@@ -31,41 +35,35 @@ fun StoryboardBuilder.AnimationScene() = scene(
         val halfWidth = with(LocalDensity.current) { maxWidth.toPx().roundToInt() } / 2
         val halfHeight = with(LocalDensity.current) { maxWidth.toPx().roundToInt() } / 2
 
+
         state.AnimatedVisibility(
             visible = { it == 1 },
-            enter = enter(
-                start = { fadeIn(spring(stiffness = Spring.StiffnessVeryLow)) },
-                end = { fadeIn() },
-            ),
+            enter = direction.enter(start = { fadeIn(quick()) }, end = { fadeIn() }),
             exit = fadeOut(),
             modifier = Modifier.align(Alignment.Center),
             content = { Text("Things can appear!", style = MaterialTheme.typography.h4) },
         )
 
+        // TODO there seems to be a Compose bug where the first time it goes through the animation
+        //  it remembers it and won't change to the opposite direction.
+        //  - maybe not all of it though? only the direction it seems.
         state.AnimatedVisibility(
             visible = { it == 2 },
-            enter = enter(
-                start = {
-                    slideInHorizontally(
-                        spring(
-                            stiffness = Spring.StiffnessVeryLow,
-                            visibilityThreshold = IntOffset.VisibilityThreshold,
-                        )
-                    ) { -halfWidth - it / 2 }
-                },
+            enter = fadeIn() + direction.enter(
+                start = { slideInHorizontally(quick()) { -halfWidth - it / 2 } },
                 end = { slideInHorizontally { halfWidth + it / 2 } },
-            ) + fadeIn(),
-            exit = exit(
+            ),
+            exit = fadeOut() + direction.exit(
                 start = { slideOutHorizontally { -halfWidth - it / 2 } },
                 end = { slideOutHorizontally { halfWidth + it / 2 } },
-            ) + fadeOut(),
+            ),
             modifier = Modifier.align(Alignment.Center),
             content = { Text("Things can move!", style = MaterialTheme.typography.h4) },
         )
 
         state.AnimatedVisibility(
             visible = { it in 3..5 },
-            enter = enter(
+            enter = direction.enter(
                 start = {
                     slideInVertically(
                         spring(

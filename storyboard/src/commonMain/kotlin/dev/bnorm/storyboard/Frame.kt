@@ -4,7 +4,29 @@ sealed class Frame<out T> {
     data object Start : Frame<Nothing>()
     data object End : Frame<Nothing>()
 
-    class State<out T>(val state: T) : Frame<T>()
+    class State<out T>(val state: T) : Frame<T>() {
+        override fun toString(): String = "State($state)"
+    }
+}
+
+operator fun <T : Comparable<T>> Frame<T>.compareTo(other: Frame<T>): Int {
+    return when (this) {
+        Frame.Start -> when (other) {
+            Frame.Start -> 0
+            else -> -1
+        }
+
+        Frame.End -> when (other) {
+            Frame.End -> 0
+            else -> 1
+        }
+
+        is Frame.State -> when (other) {
+            Frame.Start -> 1
+            Frame.End -> -1
+            is Frame.State -> state.compareTo(other.state)
+        }
+    }
 }
 
 fun <T, R> Frame<T>.map(transform: (T) -> R): Frame<R> {

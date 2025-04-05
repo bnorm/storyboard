@@ -33,7 +33,7 @@ fun StoryScene(storyState: StoryState, modifier: Modifier = Modifier) {
             ) { scene ->
                 holder.SaveableStateProvider(scene) {
                     Box(Modifier.fillMaxSize()) {
-                        SceneContent(storyState, scene, stateFrame)
+                        SceneContent(scene, stateFrame)
                     }
                 }
             }
@@ -42,17 +42,13 @@ fun StoryScene(storyState: StoryState, modifier: Modifier = Modifier) {
 }
 
 private class StoryboardSceneScope<T>(
-    private val storyState: StoryState,
     override val states: ImmutableList<T>,
     override val frame: Transition<out Frame<T>>,
-) : SceneScope<T> {
-    override val direction: AdvanceDirection get() = storyState.currentDirection
-}
+) : SceneScope<T>
 
 @Composable
 context(_: AnimatedVisibilityScope, _: SharedTransitionScope)
 private fun <T> SceneContent(
-    storyState: StoryState,
     scene: Scene<T>,
     stateFrame: Transition<StoryState.StateFrame<*>>,
 ) {
@@ -65,9 +61,8 @@ private fun <T> SceneContent(
         }
     }
 
-    val scope = remember(storyState, scene, frame) {
+    val scope = remember(scene, frame) {
         StoryboardSceneScope(
-            storyState = storyState,
             states = scene.states,
             frame = frame,
         )

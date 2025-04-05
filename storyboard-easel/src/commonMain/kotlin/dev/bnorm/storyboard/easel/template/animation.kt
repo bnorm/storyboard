@@ -55,16 +55,6 @@ inline fun AdvanceDirection.exit(
     AdvanceDirection.Backward -> start()
 }
 
-inline fun SceneScope<*>.enter(
-    start: () -> EnterTransition = { EnterTransition.None },
-    end: () -> EnterTransition = { EnterTransition.None },
-): EnterTransition = direction.enter(start, end)
-
-inline fun SceneScope<*>.exit(
-    start: () -> ExitTransition = { ExitTransition.None },
-    end: () -> ExitTransition = { ExitTransition.None },
-): ExitTransition = direction.exit(start, end)
-
 inline fun enter(
     crossinline start: (AdvanceDirection) -> EnterTransition = { EnterTransition.None },
     crossinline end: (AdvanceDirection) -> EnterTransition = { EnterTransition.None },

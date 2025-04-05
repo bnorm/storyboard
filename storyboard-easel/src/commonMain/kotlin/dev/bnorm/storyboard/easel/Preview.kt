@@ -24,9 +24,7 @@ import kotlinx.collections.immutable.ImmutableList
 private class PreviewSceneScope<T>(
     override val states: ImmutableList<T>,
     override val frame: Transition<out Frame<T>>,
-) : SceneScope<T> {
-    override val direction: AdvanceDirection get() = AdvanceDirection.Forward
-}
+) : SceneScope<T>
 
 @Composable
 internal fun <T> ScenePreview(

@@ -9,17 +9,16 @@ import kotlinx.collections.immutable.ImmutableList
 interface SceneScope<T> {
     val states: ImmutableList<T>
     val frame: Transition<out Frame<T>>
-
-    // TODO figure out how to remove this from the scope...
-    val direction: AdvanceDirection
 }
 
+// TODO do we want this?
 val <T> SceneScope<T>.currentState: T
     get() {
         require(states.isNotEmpty()) { "implicit conversion to state requires non-empty states" }
         return frame.currentState.toState()
     }
 
+// TODO where's the best place for this?
 context(sceneScope: SceneScope<T>)
 fun <T, R : T> Frame<R>.toState(): T {
     require(sceneScope.states.isNotEmpty()) { "implicit conversion to state requires non-empty states" }
@@ -29,3 +28,4 @@ fun <T, R : T> Frame<R>.toState(): T {
         is Frame.State -> state
     }
 }
+
