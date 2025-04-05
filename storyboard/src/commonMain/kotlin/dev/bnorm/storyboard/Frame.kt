@@ -7,7 +7,7 @@ sealed class Frame<out T> {
     class State<out T>(val state: T) : Frame<T>()
 }
 
-fun <R, T> Frame<T>.map(transform: (T) -> R): Frame<R> {
+fun <T, R> Frame<T>.map(transform: (T) -> R): Frame<R> {
     return when (this) {
         Frame.Start -> Frame.Start
         Frame.End -> Frame.End

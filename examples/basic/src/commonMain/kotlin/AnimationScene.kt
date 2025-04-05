@@ -11,6 +11,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import dev.bnorm.storyboard.StoryboardBuilder
 import dev.bnorm.storyboard.easel.template.*
+import dev.bnorm.storyboard.toState
 import kotlin.math.roundToInt
 
 fun StoryboardBuilder.AnimationScene() = scene(

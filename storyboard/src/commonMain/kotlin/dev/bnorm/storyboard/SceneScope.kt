@@ -9,19 +9,22 @@ interface SceneScope<T> {
     val states: ImmutableList<T>
     val frame: Transition<out Frame<T>>
 
+    // TODO figure out how to remove this from the scope...
     val direction: AdvanceDirection
-    val currentState: T
-        get() {
-            require(states.isNotEmpty()) { "implicit conversion to state requires non-empty states" }
-            return frame.currentState.toState()
-        }
+}
 
-    fun <R : T> Frame<R>.toState(): T {
+val <T> SceneScope<T>.currentState: T
+    get() {
         require(states.isNotEmpty()) { "implicit conversion to state requires non-empty states" }
-        return when (this) {
-            Frame.Start -> states.first()
-            Frame.End -> states.last()
-            is Frame.State -> state
-        }
+        return frame.currentState.toState()
+    }
+
+context(sceneScope: SceneScope<T>)
+fun <T, R : T> Frame<R>.toState(): T {
+    require(sceneScope.states.isNotEmpty()) { "implicit conversion to state requires non-empty states" }
+    return when (this) {
+        Frame.Start -> sceneScope.states.first()
+        Frame.End -> sceneScope.states.last()
+        is Frame.State -> state
     }
 }

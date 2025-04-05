@@ -14,6 +14,7 @@ import dev.bnorm.storyboard.StoryboardBuilder
 import dev.bnorm.storyboard.easel.template.Body
 import dev.bnorm.storyboard.easel.template.Header
 import dev.bnorm.storyboard.easel.template.RevealEach
+import dev.bnorm.storyboard.toState
 
 @OptIn(ExperimentalTransitionApi::class)
 fun StoryboardBuilder.TextFieldScene() {
