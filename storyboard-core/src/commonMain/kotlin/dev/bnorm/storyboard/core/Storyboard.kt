@@ -22,6 +22,8 @@ class Storyboard private constructor(
         val sceneIndex: Int,
         val stateIndex: Int,
     ) : Comparable<Index> {
+        // TODO require sceneIndex >= 0?
+        // TODO require stateIndex >= 0?
         override fun compareTo(other: Index): Int {
             val cmp = compareValues(sceneIndex, other.sceneIndex)
             if (cmp != 0) return cmp
