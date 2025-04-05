@@ -21,6 +21,9 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun StoryNotes(storyState: StoryState, notes: StoryNotes, modifier: Modifier = Modifier) {
+    val coroutineScope = rememberCoroutineScope()
+    var job by remember { mutableStateOf<Job?>(null) }
+
     Surface(
         modifier = Modifier.fillMaxSize()
             .requestFocus()
@@ -35,7 +38,7 @@ fun StoryNotes(storyState: StoryState, notes: StoryNotes, modifier: Modifier = M
                 Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
                     Text("Current Frame")
                     CompositionLocalProvider(LocalStoryNotes provides notes) {
-                        ClickableScenePreview(storyState, storyState.currentIndex)
+                        ClickableScenePreview(storyboard = storyState.storyboard, storyState.currentIndex)
                     }
                     SceneAnimationProgressIndicator(storyState)
                 }
@@ -48,7 +51,17 @@ fun StoryNotes(storyState: StoryState, notes: StoryNotes, modifier: Modifier = M
                         storyState.storyboard.indices.getOrNull(i + 1)
                     }
                     nextIndex?.let {
-                        ClickableScenePreview(storyState, it)
+                        ClickableScenePreview(
+                            storyboard = storyState.storyboard,
+                            index = it,
+                            onClick = {
+                                job?.cancel()
+                                job = coroutineScope.launch {
+                                    storyState.jumpTo(it)
+                                    job = null
+                                }
+                            },
+                        )
                     }
                 }
                 // TODO previous frame?
@@ -80,17 +93,15 @@ fun StoryNotes(storyState: StoryState, notes: StoryNotes, modifier: Modifier = M
 
 @Composable
 private fun ClickableScenePreview(
-    storyboard: StoryState,
+    storyboard: Storyboard,
     index: Storyboard.Index,
+    onClick: (() -> Unit)? = null,
     modifier: Modifier = Modifier,
 ) {
-    val coroutineScope = rememberCoroutineScope()
-    var job by remember { mutableStateOf<Job?>(null) }
-
     // TODO share with StoryboardOverview?
-    Box(modifier) {
+    Box(modifier.height(IntrinsicSize.Min).width(IntrinsicSize.Min)) {
         ScenePreview(
-            storyboard = storyboard.storyboard,
+            storyboard = storyboard,
             index = index,
         )
 
@@ -98,15 +109,11 @@ private fun ClickableScenePreview(
         // to disable interaction while in overview.
         Box(
             modifier = Modifier.fillMaxSize()
-                .pointerHoverIcon(PointerIcon.Hand)
+                .pointerHoverIcon(if (onClick != null) PointerIcon.Hand else PointerIcon.Default)
                 .clickable(
                     interactionSource = null, indication = null, // disable ripple effect
                     onClick = {
-                        job?.cancel()
-                        job = coroutineScope.launch {
-                            storyboard.jumpTo(index)
-                            job = null
-                        }
+                        onClick?.invoke()
                     }
                 )
         )
