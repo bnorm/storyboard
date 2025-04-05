@@ -15,4 +15,3 @@ context(_: AnimatedVisibilityScope, _: SharedTransitionScope)
 fun <T> SceneScope<T>.Render(content: SceneContent<T>) {
     with(content) { Content() }
 }
-

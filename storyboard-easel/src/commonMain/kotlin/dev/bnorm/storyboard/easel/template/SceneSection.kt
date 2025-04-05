@@ -7,7 +7,6 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.compositionLocalOf
 import dev.bnorm.storyboard.SceneDecorator
 import dev.bnorm.storyboard.StoryboardBuilder
-import dev.bnorm.storyboard.StoryboardBuilderDsl
 import dev.bnorm.storyboard.decorated
 
 @Immutable
@@ -31,7 +30,6 @@ class SceneSection(
 
 private val LocalSceneSection = compositionLocalOf { SceneSection.Empty }
 
-@StoryboardBuilderDsl
 fun StoryboardBuilder.section(
     title: String,
     block: StoryboardBuilder.() -> Unit,
@@ -42,7 +40,6 @@ fun StoryboardBuilder.section(
     )
 }
 
-@StoryboardBuilderDsl
 fun StoryboardBuilder.section(
     title: @Composable () -> Unit,
     block: StoryboardBuilder.() -> Unit,

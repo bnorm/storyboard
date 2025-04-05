@@ -1,7 +1,9 @@
 package dev.bnorm.storyboard
 
+import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.runtime.Composable
 
 fun interface SceneDecorator {
@@ -34,7 +36,6 @@ operator fun SceneDecorator.plus(other: SceneDecorator): SceneDecorator {
 private class CompositeSceneDecorator(
     val decorators: List<SceneDecorator>
 ) : SceneDecorator {
-
     @Composable
     override fun decorate(content: @Composable () -> Unit) {
         @Composable
@@ -50,7 +51,25 @@ private class CompositeSceneDecorator(
     }
 }
 
-@StoryboardBuilderDsl
+fun <T> SceneContent<T>.decorated(
+    decorator: SceneDecorator,
+): SceneContent<T> {
+    return DecoratedSceneContent(this, decorator)
+}
+
+private class DecoratedSceneContent<T>(
+    private val upstream: SceneContent<T>,
+    private val decorator: SceneDecorator,
+) : SceneContent<T> {
+    @Composable
+    context(_: AnimatedVisibilityScope, _: SharedTransitionScope)
+    override fun SceneScope<T>.Content() {
+        decorator.decorate {
+            Render(upstream)
+        }
+    }
+}
+
 fun StoryboardBuilder.decorated(
     decorator: SceneDecorator,
     block: StoryboardBuilder.() -> Unit,
@@ -68,10 +87,11 @@ private class DecoratedStoryboardBuilder(
         exitTransition: (AdvanceDirection) -> ExitTransition,
         content: SceneContent<T>,
     ): Scene<T> {
-        return upstream.scene(states, enterTransition, exitTransition) {
-            decorator.decorate {
-                Render(content)
-            }
-        }
+        return upstream.scene(
+            states = states,
+            enterTransition = enterTransition,
+            exitTransition = exitTransition,
+            content = content.decorated(decorator)
+        )
     }
 }

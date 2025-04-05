@@ -5,7 +5,7 @@ import androidx.compose.animation.ExitTransition
 import kotlin.enums.enumEntries
 
 @DslMarker
-annotation class StoryboardBuilderDsl
+internal annotation class StoryboardBuilderDsl
 
 val DefaultEnterTransition: (AdvanceDirection) -> EnterTransition = { EnterTransition.None }
 

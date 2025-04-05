@@ -5,6 +5,7 @@ import androidx.compose.runtime.Stable
 import kotlinx.collections.immutable.ImmutableList
 
 @Stable
+@StoryboardBuilderDsl
 interface SceneScope<T> {
     val states: ImmutableList<T>
     val frame: Transition<out Frame<T>>
