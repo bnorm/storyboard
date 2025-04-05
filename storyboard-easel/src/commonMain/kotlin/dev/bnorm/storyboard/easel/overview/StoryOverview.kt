@@ -1,4 +1,4 @@
-package dev.bnorm.storyboard.easel
+package dev.bnorm.storyboard.easel.overview
 
 import androidx.compose.animation.AnimatedContentScope
 import androidx.compose.animation.SharedTransitionScope
@@ -34,7 +34,7 @@ import kotlinx.collections.immutable.toImmutableList
 
 @Composable
 fun StoryOverview(
-    overview: StoryOverview,
+    overview: StoryOverviewState,
     onExitOverview: (Storyboard.Index) -> Unit = {},
     sharedTransitionScope: SharedTransitionScope,
     animatedVisibilityScope: AnimatedContentScope,
@@ -122,9 +122,9 @@ fun StoryOverview(
     }
 }
 
-class StoryOverview private constructor(
+class StoryOverviewState private constructor(
     val storyState: StoryState,
-    internal val columns: ImmutableList<Column>,
+    internal val columns: ImmutableList<SceneColumn>,
 ) {
     private var _isVisible = mutableStateOf(false)
     var isVisible: Boolean
@@ -165,7 +165,7 @@ class StoryOverview private constructor(
     }
 
     @Immutable
-    internal class Column(
+    internal class SceneColumn(
         val scene: Scene<*>,
         val index: Int,
         val items: ImmutableList<Item>,
@@ -179,7 +179,7 @@ class StoryOverview private constructor(
     )
 
     companion object {
-        fun of(storyState: StoryState): StoryOverview {
+        fun of(storyState: StoryState): StoryOverviewState {
             val columns = storyState.storyboard.scenes
                 .mapIndexed { sceneIndex, scene ->
                     val items = scene.states
@@ -188,7 +188,7 @@ class StoryOverview private constructor(
                         }
                         .toImmutableList()
 
-                    Column(
+                    SceneColumn(
                         scene = scene,
                         index = sceneIndex,
                         items = items,
@@ -197,7 +197,7 @@ class StoryOverview private constructor(
                 .filter { it.items.isNotEmpty() }
                 .toImmutableList()
 
-            return StoryOverview(
+            return StoryOverviewState(
                 storyState = storyState,
                 columns = columns,
             )
@@ -226,7 +226,7 @@ private fun BoxWithConstraintsScope.toItemSize(
 
 @Composable
 private fun Modifier.onOverviewNavigation(
-    overview: StoryOverview,
+    overview: StoryOverviewState,
     onExitOverview: (Storyboard.Index) -> Unit,
     animatedVisibilityScope: AnimatedContentScope,
 ): Modifier {

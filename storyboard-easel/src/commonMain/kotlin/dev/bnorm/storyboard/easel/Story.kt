@@ -14,6 +14,9 @@ import dev.bnorm.storyboard.core.StoryState
 import dev.bnorm.storyboard.easel.internal.requestFocus
 import dev.bnorm.storyboard.easel.overlay.StoryOverlay
 import dev.bnorm.storyboard.easel.overlay.StoryOverlayScope
+import dev.bnorm.storyboard.easel.overview.OverviewCurrentIndex
+import dev.bnorm.storyboard.easel.overview.StoryOverview
+import dev.bnorm.storyboard.easel.overview.StoryOverviewState
 import dev.bnorm.storyboard.ui.StoryScene
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -21,7 +24,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun Story(
     storyState: StoryState,
-    overview: StoryOverview = remember(storyState) { StoryOverview.of(storyState) },
+    storyOverviewState: StoryOverviewState = remember(storyState.storyboard) { StoryOverviewState.of(storyState) },
     overlay: @Composable StoryOverlayScope.() -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
@@ -32,7 +35,7 @@ fun Story(
 
     fun handleKeyEvent(event: KeyEvent): Boolean {
         if (event.type == KeyEventType.KeyUp && event.key == Key.Escape) {
-            overview.isVisible = true
+            storyOverviewState.isVisible = true
             return true
         }
         return false
@@ -41,18 +44,18 @@ fun Story(
     Box(contentAlignment = Alignment.Center, modifier = modifier) {
         SharedTransitionLayout {
             AnimatedContent(
-                targetState = overview.isVisible,
+                targetState = storyOverviewState.isVisible,
                 transitionSpec = { fadeIn(tween(300)) togetherWith fadeOut(tween(300)) }
             ) { isOverview ->
                 if (isOverview) {
                     StoryOverview(
-                        overview = overview,
+                        overview = storyOverviewState,
                         onExitOverview = {
                             job?.cancel()
                             job = coroutineScope.launch {
                                 storyState.jumpTo(it)
                                 job = null
-                                overview.isVisible = false
+                                storyOverviewState.isVisible = false
                             }
                         },
                         sharedTransitionScope = this@SharedTransitionLayout,
@@ -60,7 +63,7 @@ fun Story(
                         modifier = Modifier.fillMaxSize(),
                     )
                 } else {
-                    holder.SaveableStateProvider(storyState) {
+                    holder.SaveableStateProvider(storyState.storyboard) {
                         Box(contentAlignment = Alignment.Center, modifier = modifier.fillMaxSize()) {
                             StoryOverlay(overlay = overlay) {
                                 StoryScene(
