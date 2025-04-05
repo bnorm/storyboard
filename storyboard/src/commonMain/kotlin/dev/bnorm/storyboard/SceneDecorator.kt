@@ -70,7 +70,7 @@ private class DecoratedStoryboardBuilder(
     ): Scene<T> {
         return upstream.scene(states, enterTransition, exitTransition) {
             decorator.decorate {
-                content()
+                Render(content)
             }
         }
     }

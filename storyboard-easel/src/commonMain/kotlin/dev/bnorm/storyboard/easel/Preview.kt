@@ -44,7 +44,7 @@ internal fun <T> ScenePreview(
                     states = scene.states,
                     frame = updateTransition(Frame.State(scene.states[stateIndex])),
                 )
-                scene.content(scope)
+                scope.Render(scene.content)
             }
         }
     }
@@ -66,7 +66,7 @@ fun <T> ScenePreview(
                     states = scene.states,
                     frame = updateTransition(frame),
                 )
-                scene.content(scope)
+                scope.Render(scene.content)
             }
         }
     }
@@ -88,7 +88,7 @@ fun <T> ScenePreview(
                         states = scene.states,
                         frame = updateTransition(frame),
                     )
-                    scene.content(scope)
+                    scope.Render(scene.content)
                 }
             }
         }

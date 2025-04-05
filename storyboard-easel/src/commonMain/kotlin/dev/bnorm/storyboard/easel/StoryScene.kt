@@ -73,7 +73,7 @@ private fun <T> SceneContent(
         )
     }
 
-    stateScene.scene.content(scope)
+    scope.Render(stateScene.scene.content)
 }
 
 @Composable

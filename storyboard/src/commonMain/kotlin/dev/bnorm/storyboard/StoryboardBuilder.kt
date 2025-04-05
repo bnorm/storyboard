@@ -47,7 +47,7 @@ fun <T> StoryboardBuilder.scene(
 inline fun <reified T : Enum<T>> StoryboardBuilder.sceneForEnum(
     noinline enterTransition: (AdvanceDirection) -> EnterTransition = DefaultEnterTransition,
     noinline exitTransition: (AdvanceDirection) -> ExitTransition = DefaultExitTransition,
-    noinline content: SceneContent<T>,
+    content: SceneContent<T>,
 ): Scene<T> {
     return scene(enumEntries<T>(), enterTransition, exitTransition, content)
 }
