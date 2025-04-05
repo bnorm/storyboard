@@ -12,7 +12,7 @@ import kotlinx.collections.immutable.toImmutableList
 
 class StoryOverviewState private constructor(
     val storyState: StoryState,
-    internal val columns: ImmutableList<SceneColumn>,
+    internal val columns: ImmutableList<SceneColumn<*>>,
 ) {
     private var _isVisible = mutableStateOf(false)
     var isVisible: Boolean
@@ -24,7 +24,7 @@ class StoryOverviewState private constructor(
         }
 
     var currentColumnIndex by mutableStateOf(0)
-    internal val currentItem: Item
+    internal val currentItem: StateItem<*>
         get() = columns[currentColumnIndex].let { it.items[it.currentItemIndex] }
 
     fun jumpTo(columnIndex: Int, itemIndex: Int) {
@@ -53,36 +53,44 @@ class StoryOverviewState private constructor(
     }
 
     @Immutable
-    internal class SceneColumn(
+    internal class SceneColumn<T>(
         val scene: Scene<*>,
         val index: Int,
-        val items: ImmutableList<Item>,
+        val start: Boolean,
+        val end: Boolean,
+        val items: ImmutableList<StateItem<T>>,
     ) {
         var currentItemIndex by mutableStateOf(0)
     }
 
+
     @Immutable
-    internal class Item(
+    internal class StateItem<T>(
         val index: Storyboard.Index,
+        val state: T,
     )
 
     companion object {
         fun of(storyState: StoryState): StoryOverviewState {
-            val columns = storyState.storyboard.scenes
-                .mapIndexed { sceneIndex, scene ->
-                    val items = scene.states
-                        .mapIndexed { stateIndex, _ ->
-                            Item(index = Storyboard.Index(sceneIndex, stateIndex))
-                        }
-                        .toImmutableList()
+            val lastSceneIndex = storyState.storyboard.scenes.lastIndex
 
-                    SceneColumn(
-                        scene = scene,
-                        index = sceneIndex,
-                        items = items,
-                    )
-                }
-                .filter { it.items.isNotEmpty() }
+            fun <T> SceneColumn(scene: Scene<T>, sceneIndex: Int): SceneColumn<T> {
+                return SceneColumn(
+                    scene = scene,
+                    index = sceneIndex,
+                    start = sceneIndex > 0,
+                    end = sceneIndex < lastSceneIndex,
+                    items = scene.states.mapIndexed { stateIndex, state ->
+                        StateItem(
+                            index = Storyboard.Index(sceneIndex, stateIndex),
+                            state = state,
+                        )
+                    }.toImmutableList<StateItem<T>>(),
+                )
+            }
+
+            val columns = storyState.storyboard.scenes
+                .mapIndexed { sceneIndex, scene -> SceneColumn(scene, sceneIndex) }
                 .toImmutableList()
 
             return StoryOverviewState(

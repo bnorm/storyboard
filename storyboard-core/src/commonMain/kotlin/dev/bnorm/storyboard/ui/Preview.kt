@@ -5,7 +5,6 @@ import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -48,7 +47,7 @@ internal fun <T> ScenePreview(
 @Composable
 fun <T> ScenePreview(
     scene: Scene<T>,
-    state: Frame<T>,
+    frame: Frame<T>,
     modifier: Modifier = Modifier,
     size: DpSize = Storyboard.DEFAULT_SIZE,
     decorator: SceneDecorator = SceneDecorator.None,
@@ -58,10 +57,34 @@ fun <T> ScenePreview(
     CompositionLocalProvider(LocalStoryState provides null) {
         SceneWrapper(size, decorator, displayType, modifier) {
             AnimatedVisibility(true) {
-                key(scene, state) {
+                key(scene, frame) {
                     val scope = PreviewSceneScope(
                         states = scene.states,
-                        frame = updateTransition(state),
+                        frame = updateTransition(frame),
+                    )
+                    scene.content(scope)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun <T> ScenePreview(
+    storyboard: Storyboard,
+    scene: Scene<T>,
+    frame: Frame<T>,
+    modifier: Modifier = Modifier,
+    displayType: DisplayType = DisplayType.Preview,
+) {
+    // Always disable interaction with the state of a story in a preview.
+    CompositionLocalProvider(LocalStoryState provides null, LocalStoryboard provides storyboard) {
+        SceneWrapper(storyboard.size, storyboard.decorator, displayType, modifier) {
+            AnimatedVisibility(true) {
+                key(scene, frame) {
+                    val scope = PreviewSceneScope(
+                        states = scene.states,
+                        frame = updateTransition(frame),
                     )
                     scene.content(scope)
                 }

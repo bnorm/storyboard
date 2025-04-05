@@ -19,12 +19,14 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.*
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.*
+import dev.bnorm.storyboard.core.Frame
 import dev.bnorm.storyboard.core.Storyboard
 import dev.bnorm.storyboard.easel.internal.aspectRatio
 import dev.bnorm.storyboard.easel.internal.requestFocus
@@ -39,10 +41,12 @@ fun StoryOverview(
     modifier: Modifier = Modifier,
 ) {
     BoxWithConstraints(modifier = modifier.onOverviewNavigation(overview, onExitOverview, animatedVisibilityScope)) {
-        val boxWithConstraintsScope = this
-        val itemSize = boxWithConstraintsScope.toItemSize(overview.storyState.storyboard.size)
-        val verticalPaddingDp = (boxWithConstraintsScope.maxHeight - itemSize.height).coerceAtLeast(0.dp) / 2
-        val horizontalPaddingDp = (boxWithConstraintsScope.maxWidth - itemSize.width).coerceAtLeast(0.dp) / 2
+        val itemSize = calculateItemSize(
+            viewSize = DpSize(maxWidth, maxHeight),
+            itemSize = overview.storyState.storyboard.size
+        )
+        val verticalPaddingDp = (maxHeight - itemSize.height).coerceAtLeast(0.dp) / 2
+        val horizontalPaddingDp = (maxWidth - itemSize.width).coerceAtLeast(0.dp) / 2
         val horizontalScrollOffset = with(LocalDensity.current) { horizontalPaddingDp.toPx() }
 
         val hIndex = overview.currentColumnIndex
@@ -57,8 +61,9 @@ fun StoryOverview(
         ) {
             itemsIndexed(overview.columns) { columnIndex, column ->
                 val isCurrentColumn = overview.currentColumnIndex == columnIndex
-                val vIndex = column.currentItemIndex
+                val vIndex = column.currentItemIndex + if (column.start) 1 else 0
                 val vState = rememberLazyListState(vIndex)
+                // TODO scroll offset if transitional scene
                 LaunchedEffect(vIndex, verticalPaddingDp) { vState.animateScrollToItem(vIndex) }
 
                 LazyColumn(
@@ -67,46 +72,63 @@ fun StoryOverview(
                     contentPadding = PaddingValues(vertical = verticalPaddingDp),
                     modifier = Modifier.fillMaxHeight()
                 ) {
+                    if (column.start) {
+                        item("start") {
+                            Item(itemSize) {
+                                ScenePreview(
+                                    storyboard = overview.storyState.storyboard,
+                                    scene = column.scene,
+                                    frame = Frame.Start,
+                                    modifier = Modifier.alpha(0.25f),
+                                )
+                            }
+                        }
+                    }
+
                     itemsIndexed(column.items) { itemIndex, item ->
                         val isCurrentIndex = isCurrentColumn && column.currentItemIndex == itemIndex
-                        val targetColor = if (isCurrentIndex) MaterialTheme.colors.primary else Color.Transparent
+                        val targetColor = if (isCurrentIndex) MaterialTheme.colors.secondary else Color.Transparent
                         val currentColor by animateColorAsState(targetColor)
-                        Box(
-                            Modifier.height(itemSize.height)
-                                .padding(4.dp)
-                                .border(2.dp, currentColor, RoundedCornerShape(6.dp))
-                                .padding(8.dp)
-                                .aspectRatio(overview.storyState.storyboard.size.aspectRatio)
-                        ) {
-                            val sharedElementModifier = when (isCurrentIndex) {
-                                false -> Modifier
-                                true -> with(sharedTransitionScope) {
-                                    Modifier.sharedElement(
-                                        rememberSharedContentState(OverviewCurrentIndex),
-                                        animatedVisibilityScope = animatedVisibilityScope,
-                                    )
+
+                        Item(
+                            size = itemSize,
+                            borderColor = currentColor,
+                            onClick = {
+                                if (isCurrentIndex) {
+                                    onExitOverview(item.index)
+                                } else {
+                                    if (column.items.size > 1) {
+                                        overview.jumpTo(columnIndex, itemIndex)
+                                    }
                                 }
                             }
-
+                        ) {
                             ScenePreview(
                                 storyboard = overview.storyState.storyboard,
                                 index = item.index,
-                                modifier = sharedElementModifier
+                                modifier = when (isCurrentIndex) {
+                                    false -> Modifier
+                                    true -> with(sharedTransitionScope) {
+                                        Modifier.sharedElement(
+                                            rememberSharedContentState(OverviewCurrentIndex),
+                                            animatedVisibilityScope = animatedVisibilityScope,
+                                        )
+                                    }
+                                }
                             )
+                        }
+                    }
 
-                            // Cover the scene content with a clickable modifier
-                            // to disable interaction while in overview.
-                            Box(
-                                modifier = Modifier.fillMaxSize()
-                                    .pointerHoverIcon(PointerIcon.Hand)
-                                    .clickable(
-                                        interactionSource = null, indication = null, // disable ripple effect
-                                        onClick = {
-                                            if (isCurrentIndex) onExitOverview(item.index)
-                                            else overview.jumpTo(columnIndex, itemIndex)
-                                        }
-                                    )
-                            )
+                    if (column.end) {
+                        item("end") {
+                            Item(itemSize) {
+                                ScenePreview(
+                                    storyboard = overview.storyState.storyboard,
+                                    scene = column.scene,
+                                    frame = Frame.End,
+                                    modifier = Modifier.alpha(0.25f),
+                                )
+                            }
                         }
                     }
                 }
@@ -122,30 +144,70 @@ fun StoryOverview(
     }
 }
 
+@Composable
+private fun Item(
+    size: DpSize,
+    borderColor: Color = Color.Transparent,
+    onClick: () -> Unit = {},
+    content: @Composable () -> Unit,
+) {
+    Box(
+        Modifier
+            .size(size)
+            // !!! Make sure this padding is set in the default parameter of `toItemSize` !!!
+            .padding(4.dp)
+            .border(2.dp, borderColor, RoundedCornerShape(6.dp))
+            .padding(4.dp)
+    ) {
+        content()
+
+        // Cover the scene content with a clickable modifier
+        // to disable interaction while in overview.
+        Box(
+            modifier = Modifier.fillMaxSize()
+                .pointerHoverIcon(PointerIcon.Hand)
+                .clickable(
+                    interactionSource = null, indication = null, // disable ripple effect
+                    onClick = { onClick() }
+                )
+        )
+    }
+}
+
 internal object OverviewCurrentIndex
 
-private fun BoxWithConstraintsScope.toItemSize(
-    size: DpSize,
-    scale: Float = 1f / 5f,
-    min: Dp = 250.dp,
-    max: Dp = 500.dp,
+private fun calculateItemSize(
+    viewSize: DpSize,
+    itemSize: DpSize,
+    scale: Float = 5f,
+    itemPadding: Dp = 20.dp,
+    min: Dp = 256.dp,
+    max: Dp = 512.dp,
 ): DpSize {
-    val aspectRatio = size.aspectRatio
-    return if ((maxWidth / maxHeight) < aspectRatio) {
-        if (aspectRatio > 1f) {
-            val width = (scale * maxWidth).coerceIn(min, max)
-            DpSize(height = width / aspectRatio, width = width)
-        } else {
-            val height = (scale * maxWidth / aspectRatio).coerceIn(min, max)
-            DpSize(height = height, width = height * aspectRatio)
+    val aspectRatio = itemSize.aspectRatio
+
+    fun fromWidth(itemWidth: Dp): DpSize = DpSize(
+        height = itemPadding + itemWidth / aspectRatio,
+        width = itemPadding + itemWidth,
+    )
+
+    fun fromHeight(itemHeight: Dp): DpSize = DpSize(
+        height = itemPadding + itemHeight,
+        width = itemPadding + itemHeight * aspectRatio,
+    )
+
+    val maxItemWidth = viewSize.width / scale - itemPadding
+    val maxItemHeight = viewSize.height / scale - itemPadding
+
+    return if (maxItemWidth / maxItemHeight < aspectRatio) {
+        when (aspectRatio > 1f) {
+            true -> fromWidth(itemWidth = maxItemWidth.coerceIn(min, max))
+            false -> fromHeight(itemHeight = (maxItemWidth / aspectRatio).coerceIn(min, max))
         }
     } else {
-        if (aspectRatio > 1f) {
-            val width = (scale * maxHeight * aspectRatio).coerceIn(min, max)
-            DpSize(height = width / aspectRatio, width = width)
-        } else {
-            val height = (scale * maxHeight).coerceIn(min, max)
-            DpSize(height = height, width = height * aspectRatio)
+        when (aspectRatio > 1f) {
+            true -> fromWidth(itemWidth = (maxItemHeight * aspectRatio).coerceIn(min, max))
+            false -> fromHeight(itemHeight = maxItemHeight.coerceIn(min, max))
         }
     }
 }
@@ -156,7 +218,7 @@ private fun Modifier.onOverviewNavigation(
     onExitOverview: (Storyboard.Index) -> Unit,
     animatedVisibilityScope: AnimatedContentScope,
 ): Modifier {
-    // TODO handle transitional scenes? render with alpha = 0.5f ?
+    // TODO handle transitional scenes? render with alpha = 0.25f ?
     fun handle(event: KeyEvent): Boolean {
         // Disable navigation until enter/exit animation is complete
         if (animatedVisibilityScope.transition.isRunning) return false
