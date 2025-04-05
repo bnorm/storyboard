@@ -1,8 +1,6 @@
-package dev.bnorm.storyboard.ui
+package dev.bnorm.storyboard
 
 import androidx.compose.runtime.compositionLocalOf
-import dev.bnorm.storyboard.core.DisplayType
-import dev.bnorm.storyboard.core.Storyboard
 
 val LocalStoryboard = compositionLocalOf<Storyboard?> { null }
 

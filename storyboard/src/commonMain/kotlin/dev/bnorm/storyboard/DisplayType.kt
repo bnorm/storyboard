@@ -1,7 +1,7 @@
-package dev.bnorm.storyboard.core
+package dev.bnorm.storyboard
 
-import dev.bnorm.storyboard.core.DisplayType.Preview
-import dev.bnorm.storyboard.core.DisplayType.Story
+import dev.bnorm.storyboard.DisplayType.Preview
+import dev.bnorm.storyboard.DisplayType.Story
 
 /**
  * How a scene is being displayed. Currently, there are two types: [Story] and [Preview].

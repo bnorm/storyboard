@@ -17,7 +17,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.unit.dp
-import dev.bnorm.storyboard.core.AdvanceDirection
+import dev.bnorm.storyboard.AdvanceDirection
 import dev.bnorm.storyboard.easel.StoryState
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch

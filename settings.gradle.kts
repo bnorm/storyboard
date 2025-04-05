@@ -28,9 +28,9 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "storyboard"
+rootProject.name = "storyboard-root"
 
-include(":storyboard-core")
+include(":storyboard")
 include(":storyboard-easel")
 include(":storyboard-text")
 

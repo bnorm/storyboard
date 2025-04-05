@@ -7,10 +7,10 @@ import androidx.compose.animation.core.rememberTransition
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.snapshots.Snapshot
-import dev.bnorm.storyboard.core.AdvanceDirection
-import dev.bnorm.storyboard.core.Frame
-import dev.bnorm.storyboard.core.Scene
-import dev.bnorm.storyboard.core.Storyboard
+import dev.bnorm.storyboard.AdvanceDirection
+import dev.bnorm.storyboard.Frame
+import dev.bnorm.storyboard.Scene
+import dev.bnorm.storyboard.Storyboard
 import kotlin.math.abs
 import kotlin.properties.Delegates
 

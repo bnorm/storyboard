@@ -1,4 +1,4 @@
-package dev.bnorm.storyboard.core
+package dev.bnorm.storyboard
 
 enum class AdvanceDirection {
     Forward,

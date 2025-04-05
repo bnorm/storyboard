@@ -10,7 +10,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.times
-import dev.bnorm.storyboard.core.AdvanceDirection
+import dev.bnorm.storyboard.AdvanceDirection
 
 fun SceneEnter(
     alignment: Alignment,

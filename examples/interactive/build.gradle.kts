@@ -21,7 +21,7 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
-                implementation(project(":storyboard-core"))
+                implementation(project(":storyboard"))
                 implementation(project(":storyboard-easel"))
                 implementation(project(":storyboard-text"))
 

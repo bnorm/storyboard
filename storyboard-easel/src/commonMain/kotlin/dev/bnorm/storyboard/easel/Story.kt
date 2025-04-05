@@ -9,7 +9,7 @@ import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.*
-import dev.bnorm.storyboard.core.AdvanceDirection
+import dev.bnorm.storyboard.AdvanceDirection
 import dev.bnorm.storyboard.easel.internal.requestFocus
 import dev.bnorm.storyboard.easel.overlay.StoryOverlay
 import dev.bnorm.storyboard.easel.overlay.StoryOverlayScope

@@ -3,8 +3,8 @@ import androidx.compose.material.Surface
 import androidx.compose.material.Typography
 import androidx.compose.material.darkColors
 import androidx.compose.ui.graphics.Color
-import dev.bnorm.storyboard.core.SceneDecorator
-import dev.bnorm.storyboard.core.Storyboard
+import dev.bnorm.storyboard.SceneDecorator
+import dev.bnorm.storyboard.Storyboard
 
 val BASIC_STORYBOARD by lazy {
     Storyboard.build(

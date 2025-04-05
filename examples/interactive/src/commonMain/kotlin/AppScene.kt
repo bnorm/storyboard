@@ -11,14 +11,14 @@ import androidx.compose.material.darkColors
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import dev.bnorm.storyboard.core.StoryboardBuilder
-import dev.bnorm.storyboard.easel.rememberStoryState
+import dev.bnorm.storyboard.StoryboardBuilder
+import dev.bnorm.storyboard.easel.StoryScene
 import dev.bnorm.storyboard.easel.overlay.OverlayNavigation
 import dev.bnorm.storyboard.easel.overlay.StoryOverlay
+import dev.bnorm.storyboard.easel.rememberStoryState
 import dev.bnorm.storyboard.easel.template.Body
 import dev.bnorm.storyboard.easel.template.Header
 import dev.bnorm.storyboard.easel.template.RevealEach
-import dev.bnorm.storyboard.easel.StoryScene
 
 @OptIn(ExperimentalTransitionApi::class)
 fun StoryboardBuilder.AppScene() {

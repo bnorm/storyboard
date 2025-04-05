@@ -11,11 +11,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.unit.dp
-import dev.bnorm.storyboard.core.Storyboard
+import dev.bnorm.storyboard.Storyboard
+import dev.bnorm.storyboard.easel.ScenePreview
 import dev.bnorm.storyboard.easel.StoryState
 import dev.bnorm.storyboard.easel.internal.requestFocus
 import dev.bnorm.storyboard.easel.onStoryboardNavigation
-import dev.bnorm.storyboard.easel.ScenePreview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 

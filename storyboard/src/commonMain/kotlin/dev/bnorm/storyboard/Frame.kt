@@ -1,6 +1,4 @@
-package dev.bnorm.storyboard.core
-
-import dev.bnorm.storyboard.core.Frame.*
+package dev.bnorm.storyboard
 
 sealed class Frame<out T> {
     data object Start : Frame<Nothing>()
@@ -11,9 +9,9 @@ sealed class Frame<out T> {
 
 fun <R, T> Frame<T>.map(transform: (T) -> R): Frame<R> {
     return when (this) {
-        Start -> Start
-        End -> End
-        is State -> State(transform(state))
+        Frame.Start -> Frame.Start
+        Frame.End -> Frame.End
+        is Frame.State -> Frame.State(transform(state))
     }
 }
 
@@ -24,9 +22,9 @@ fun <R, T> Frame<T>.map(transform: (T) -> R): Frame<R> {
  */
 fun <T> Frame<T>.toState(start: T, end: T): T {
     return when (this) {
-        Start -> start
-        End -> end
-        is State -> state
+        Frame.Start -> start
+        Frame.End -> end
+        is Frame.State -> state
     }
 }
 

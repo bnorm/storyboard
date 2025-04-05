@@ -86,13 +86,13 @@ and can be used to adjust theming, provide composition locals, or add a shared b
 
 ## Libraries
 
-There are two main libraries in Storyboard: Core and Easel.
-The Core library contains the building blocks for Storyboards,
+There are two main libraries in Storyboard: Storyboard and Easel.
+The Storyboard library contains the building blocks for Storyboards,
 while Easel contains UI components which make Storyboard usable on desktop and web.
 
 ```kotlin
 dependencies {
-    implementation("dev.bnorm.storyboard:storyboard-core")
+    implementation("dev.bnorm.storyboard:storyboard")
     implementation("dev.bnorm.storyboard:storyboard-easel")
 }
 ```
@@ -138,10 +138,10 @@ Want to see Storyboard in action?
 
 [//]: # (Storyboard Links)
 
-[SceneScope]: /storyboard-core/src/commonMain/kotlin/dev/bnorm/storyboard/core/SceneScope.kt
-[SceneDecorator]: /storyboard-core/src/commonMain/kotlin/dev/bnorm/storyboard/core/SceneDecorator.kt
-[Storyboard]: storyboard-core/src/commonMain/kotlin/dev/bnorm/storyboard/core/Storyboard.kt
-[StoryboardBuilder]: storyboard-core/src/commonMain/kotlin/dev/bnorm/storyboard/core/StoryboardBuilder.kt
+[SceneScope]: /storyboard/src/commonMain/kotlin/dev/bnorm/storyboard/SceneScope.kt
+[SceneDecorator]: /storyboard/src/commonMain/kotlin/dev/bnorm/storyboard/SceneDecorator.kt
+[Storyboard]: storyboard/src/commonMain/kotlin/dev/bnorm/storyboard/Storyboard.kt
+[StoryboardBuilder]: storyboard/src/commonMain/kotlin/dev/bnorm/storyboard/StoryboardBuilder.kt
 
 [//]: # (Compose Links)
 

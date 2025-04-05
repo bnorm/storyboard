@@ -1,8 +1,8 @@
 package dev.bnorm.storyboard.easel.overview
 
 import androidx.compose.runtime.*
-import dev.bnorm.storyboard.core.Scene
-import dev.bnorm.storyboard.core.Storyboard
+import dev.bnorm.storyboard.Scene
+import dev.bnorm.storyboard.Storyboard
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 

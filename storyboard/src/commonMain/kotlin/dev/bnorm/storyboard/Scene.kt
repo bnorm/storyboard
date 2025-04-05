@@ -1,4 +1,4 @@
-package dev.bnorm.storyboard.core
+package dev.bnorm.storyboard
 
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition

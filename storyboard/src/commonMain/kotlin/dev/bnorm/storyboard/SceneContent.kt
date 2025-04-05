@@ -1,4 +1,4 @@
-package dev.bnorm.storyboard.core
+package dev.bnorm.storyboard
 
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.SharedTransitionScope

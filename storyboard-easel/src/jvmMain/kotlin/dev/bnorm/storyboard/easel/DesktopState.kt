@@ -2,7 +2,7 @@ package dev.bnorm.storyboard.easel
 
 import androidx.compose.runtime.*
 import androidx.compose.ui.window.WindowState
-import dev.bnorm.storyboard.core.Storyboard
+import dev.bnorm.storyboard.Storyboard
 import dev.bnorm.storyboard.easel.internal.WindowStateSerializer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runInterruptible

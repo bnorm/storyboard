@@ -30,7 +30,7 @@ kotlin {
 
         commonMain {
             dependencies {
-                api(project(":storyboard-core"))
+                api(project(":storyboard"))
                 api(compose.ui)
                 api(compose.material)
 

@@ -23,13 +23,13 @@ import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.*
-import dev.bnorm.storyboard.core.Frame
+import dev.bnorm.storyboard.Frame
+import dev.bnorm.storyboard.Storyboard
+import dev.bnorm.storyboard.easel.ScenePreview
 import dev.bnorm.storyboard.easel.StoryState
-import dev.bnorm.storyboard.core.Storyboard
 import dev.bnorm.storyboard.easel.internal.requestFocus
 import dev.bnorm.storyboard.easel.rememberSharedContentState
 import dev.bnorm.storyboard.easel.sharedElement
-import dev.bnorm.storyboard.easel.ScenePreview
 
 // TODO keep assistant up-to-date?
 // TODO disable assistant navigation while in overview?
