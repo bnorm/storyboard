@@ -12,6 +12,7 @@ import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.DpSize
 import dev.bnorm.storyboard.core.*
+import kotlinx.collections.immutable.ImmutableList
 
 @Composable
 fun StoryScene(storyState: StoryState, modifier: Modifier = Modifier) {
@@ -37,6 +38,14 @@ fun StoryScene(storyState: StoryState, modifier: Modifier = Modifier) {
             }
         }
     }
+}
+
+private class StoryboardSceneScope<T>(
+    private val storyState: StoryState,
+    override val states: ImmutableList<T>,
+    override val frame: Transition<out Frame<T>>,
+) : SceneScope<T> {
+    override val direction: AdvanceDirection get() = storyState.currentDirection
 }
 
 @Composable

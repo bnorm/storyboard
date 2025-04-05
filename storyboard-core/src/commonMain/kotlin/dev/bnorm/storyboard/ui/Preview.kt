@@ -1,6 +1,7 @@
 package dev.bnorm.storyboard.ui
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.Transition
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -18,6 +19,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import dev.bnorm.storyboard.core.*
+import kotlinx.collections.immutable.ImmutableList
+
+private class PreviewSceneScope<T>(
+    override val states: ImmutableList<T>,
+    override val frame: Transition<out Frame<T>>,
+) : SceneScope<T> {
+    override val direction: AdvanceDirection get() = AdvanceDirection.Forward
+}
 
 @Composable
 internal fun <T> ScenePreview(

@@ -6,7 +6,7 @@ import dev.bnorm.storyboard.core.Frame.*
 import kotlinx.collections.immutable.ImmutableList
 
 @Stable
-sealed interface SceneScope<T> {
+interface SceneScope<T> {
     val states: ImmutableList<T>
     val frame: Transition<out Frame<T>>
 
@@ -25,19 +25,4 @@ sealed interface SceneScope<T> {
             is State -> state
         }
     }
-}
-
-internal class PreviewSceneScope<T>(
-    override val states: ImmutableList<T>,
-    override val frame: Transition<out Frame<T>>,
-) : SceneScope<T> {
-    override val direction: AdvanceDirection get() = AdvanceDirection.Forward
-}
-
-internal class StoryboardSceneScope<T>(
-    private val storyState: StoryState,
-    override val states: ImmutableList<T>,
-    override val frame: Transition<out Frame<T>>,
-) : SceneScope<T> {
-    override val direction: AdvanceDirection get() = storyState.currentDirection
 }
