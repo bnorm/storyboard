@@ -23,18 +23,18 @@ class StoryOverviewState private constructor(
             _isVisible.value = value
         }
 
-    var currentColumnIndex by mutableStateOf(0)
+    internal var currentColumnIndex by mutableStateOf(0)
     internal val currentItem: StateItem<*>
         get() = columns[currentColumnIndex].let { it.items[it.currentItemIndex] }
 
-    fun jumpTo(columnIndex: Int, itemIndex: Int) {
+    internal fun jumpTo(columnIndex: Int, itemIndex: Int) {
         val coercedColumnIndex = columnIndex.coerceIn(columns.indices)
         currentColumnIndex = coercedColumnIndex
         val column = columns[coercedColumnIndex]
         column.currentItemIndex = itemIndex.coerceIn(column.items.indices)
     }
 
-    fun jumpTo(columnIndex: Int) {
+    internal fun jumpTo(columnIndex: Int) {
         val coercedColumnIndex = columnIndex.coerceIn(columns.indices)
         currentColumnIndex = coercedColumnIndex
     }
@@ -85,7 +85,7 @@ class StoryOverviewState private constructor(
                             index = Storyboard.Index(sceneIndex, stateIndex),
                             state = state,
                         )
-                    }.toImmutableList<StateItem<T>>(),
+                    }.toImmutableList(),
                 )
             }
 

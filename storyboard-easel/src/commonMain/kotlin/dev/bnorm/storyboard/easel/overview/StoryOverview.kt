@@ -45,7 +45,7 @@ fun StoryOverview(
             viewSize = DpSize(maxWidth, maxHeight),
             itemSize = overview.storyState.storyboard.size
         )
-        val verticalPaddingDp = (maxHeight - itemSize.height).coerceAtLeast(0.dp) / 2
+
         val horizontalPaddingDp = (maxWidth - itemSize.width).coerceAtLeast(0.dp) / 2
         val horizontalScrollOffset = with(LocalDensity.current) { horizontalPaddingDp.toPx() }
 
@@ -60,11 +60,18 @@ fun StoryOverview(
             modifier = Modifier.fillMaxSize(),
         ) {
             itemsIndexed(overview.columns) { columnIndex, column ->
-                val isCurrentColumn = overview.currentColumnIndex == columnIndex
+                // TODO how to keep the user from scrolling to a start or end frame?
+                val verticalPaddingDp = (maxHeight - itemSize.height).coerceAtLeast(0.dp) / 2
+                val verticalScrollOffset = when (column.items.isEmpty()) {
+                    true -> with(LocalDensity.current) { itemSize.height.toPx() / 2 }
+                    false -> 0
+                }
+
                 val vIndex = column.currentItemIndex + if (column.start) 1 else 0
-                val vState = rememberLazyListState(vIndex)
-                // TODO scroll offset if transitional scene
-                LaunchedEffect(vIndex, verticalPaddingDp) { vState.animateScrollToItem(vIndex) }
+                val vState = rememberLazyListState(vIndex, -verticalScrollOffset.toInt())
+                LaunchedEffect(vIndex, verticalPaddingDp, verticalScrollOffset) {
+                    vState.animateScrollToItem(vIndex, -verticalScrollOffset.toInt())
+                }
 
                 LazyColumn(
                     state = vState,
@@ -72,6 +79,8 @@ fun StoryOverview(
                     contentPadding = PaddingValues(vertical = verticalPaddingDp),
                     modifier = Modifier.fillMaxHeight()
                 ) {
+                    val isCurrentColumn = overview.currentColumnIndex == columnIndex
+
                     if (column.start) {
                         item("start") {
                             Item(itemSize) {
@@ -218,9 +227,8 @@ private fun Modifier.onOverviewNavigation(
     onExitOverview: (Storyboard.Index) -> Unit,
     animatedVisibilityScope: AnimatedContentScope,
 ): Modifier {
-    // TODO handle transitional scenes? render with alpha = 0.25f ?
     fun handle(event: KeyEvent): Boolean {
-        // Disable navigation until enter/exit animation is complete
+        // Disable navigation until enter/exit animation is complete.
         if (animatedVisibilityScope.transition.isRunning) return false
 
         if (event.type == KeyEventType.KeyDown) {
@@ -232,12 +240,16 @@ private fun Modifier.onOverviewNavigation(
                 }
 
                 Key.DirectionRight -> {
-                    overview.jumpTo(currentColumnIndex + 1)
+                    var index = currentColumnIndex + 1
+                    while (index < overview.columns.size && overview.columns[index].items.isEmpty()) index += 1
+                    overview.jumpTo(index)
                     return true
                 }
 
                 Key.DirectionLeft -> {
-                    overview.jumpTo(currentColumnIndex - 1)
+                    var index = currentColumnIndex - 1
+                    while (index >= 0 && overview.columns[index].items.isEmpty()) index -= 1
+                    overview.jumpTo(index)
                     return true
                 }
 
