@@ -8,6 +8,7 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.snapshots.Snapshot
 import kotlin.math.abs
+import kotlin.properties.Delegates
 
 @RequiresOptIn
 annotation class ExperimentalStoryStateApi
@@ -39,9 +40,8 @@ class StoryState @ExperimentalStoryStateApi constructor(
     val storyboard: Storyboard
         get() = _storyboard ?: error("Storyboard uninitialized.")
 
-    // TODO this cross dependency between StoryState and Storyboard is *UGLY*
-    private val frames get() = storyboard.frames
-    private val byIndex get() = storyboard.framesByIndex
+    private var frames: List<StateFrame<*>> by Delegates.notNull()
+    private var byIndex: Map<Storyboard.Index, StateFrame<*>> by Delegates.notNull()
 
     var currentDirection: AdvanceDirection by mutableStateOf(AdvanceDirection.Forward)
         private set
@@ -163,26 +163,64 @@ class StoryState @ExperimentalStoryStateApi constructor(
     // Perform without read observation, so reads do not cause a state reset.
     fun updateStoryboard(storyboard: Storyboard) = Snapshot.withoutReadObservation {
         if (this._storyboard == storyboard) return
-        val currentIndex = currentIndex
 
         this._storyboard = storyboard
-        val frame = storyboard.framesByIndex[currentIndex]
+        this.frames = buildFrames(storyboard.scenes)
+        this.byIndex = frames.filter { it.storyboardIndex.stateIndex >= 0 }.associateBy { it.storyboardIndex }
+
+        val currentIndex = currentIndex
+        val frame = byIndex[currentIndex]
         if (frame == null) {
-            val searchIndex = storyboard.frames.binarySearch { it.storyboardIndex.compareTo(currentIndex) }
+            val searchIndex = frames.binarySearch { it.storyboardIndex.compareTo(currentIndex) }
             require(searchIndex < 0) { "current index not expected to be in storyboard: $currentIndex" }
 
             // Back up from the search index until a state frame is found.
             // Since the first frame of a storyboard is always a state frame,
             // this loop will never run out of bounds.
             var initialFrameIndex = -searchIndex - 1
-            while (storyboard.frames[initialFrameIndex].frame !is Frame.State) {
+            while (frames[initialFrameIndex].frame !is Frame.State) {
                 initialFrameIndex--
             }
 
-            val storyboardIndex = storyboard.frames[initialFrameIndex].storyboardIndex
+            val storyboardIndex = frames[initialFrameIndex].storyboardIndex
             this.currentIndex = storyboardIndex
             this.targetIndex = storyboardIndex
             this.frameIndex = SeekableTransitionState(initialFrameIndex)
+        }
+    }
+
+    private fun buildFrames(scenes: List<Scene<*>>) = buildList {
+        require(scenes.isNotEmpty()) { "cannot build frames for empty list of scenes" }
+
+        val first = scenes.first()
+        val last = scenes.last()
+        require(first.states.isNotEmpty() && last.states.isNotEmpty()) { "first and last scene must have states" }
+
+        var frameIndex = 0
+        fun <T> MutableList<StateFrame<*>>.addStates(scene: StateScene<T>) {
+            for ((stateIndex, state) in scene.scene.states.withIndex()) {
+                val index = StateFrame(
+                    frameIndex = frameIndex++,
+                    scene = scene,
+                    frame = Frame.State(state),
+                    storyboardIndex = Storyboard.Index(scene.sceneIndex, stateIndex),
+                )
+                add(index)
+            }
+        }
+
+        for ((sceneIndex, scene) in scenes.withIndex()) {
+            val slide = StateScene(sceneIndex, scene)
+            if (scene != first) add(
+                StateFrame(
+                    frameIndex++,
+                    slide,
+                    Frame.Start,
+                    Storyboard.Index(sceneIndex, -1)
+                )
+            )
+            addStates(slide)
+            if (scene != last) add(StateFrame(frameIndex++, slide, Frame.End, Storyboard.Index(sceneIndex, -2)))
         }
     }
 
