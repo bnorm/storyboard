@@ -28,17 +28,14 @@ internal fun <T> ScenePreview(
     decorator: SceneDecorator = SceneDecorator.None,
     displayType: DisplayType = DisplayType.Preview,
 ) {
-    // Always disable interaction with the state of a story in a preview.
-    CompositionLocalProvider(LocalStoryState provides null) {
-        SceneWrapper(size, decorator, displayType, modifier) {
-            AnimatedVisibility(true) {
-                key(scene, stateIndex) {
-                    val scope = PreviewSceneScope(
-                        states = scene.states,
-                        frame = updateTransition(Frame.State(scene.states[stateIndex])),
-                    )
-                    scene.content(scope)
-                }
+    SceneWrapper(size, decorator, displayType, modifier) {
+        AnimatedVisibility(true) {
+            key(scene, stateIndex) {
+                val scope = PreviewSceneScope(
+                    states = scene.states,
+                    frame = updateTransition(Frame.State(scene.states[stateIndex])),
+                )
+                scene.content(scope)
             }
         }
     }
@@ -53,17 +50,14 @@ fun <T> ScenePreview(
     decorator: SceneDecorator = SceneDecorator.None,
     displayType: DisplayType = DisplayType.Preview,
 ) {
-    // Always disable interaction with the state of a story in a preview.
-    CompositionLocalProvider(LocalStoryState provides null) {
-        SceneWrapper(size, decorator, displayType, modifier) {
-            AnimatedVisibility(true) {
-                key(scene, frame) {
-                    val scope = PreviewSceneScope(
-                        states = scene.states,
-                        frame = updateTransition(frame),
-                    )
-                    scene.content(scope)
-                }
+    SceneWrapper(size, decorator, displayType, modifier) {
+        AnimatedVisibility(true) {
+            key(scene, frame) {
+                val scope = PreviewSceneScope(
+                    states = scene.states,
+                    frame = updateTransition(frame),
+                )
+                scene.content(scope)
             }
         }
     }
@@ -77,8 +71,7 @@ fun <T> ScenePreview(
     modifier: Modifier = Modifier,
     displayType: DisplayType = DisplayType.Preview,
 ) {
-    // Always disable interaction with the state of a story in a preview.
-    CompositionLocalProvider(LocalStoryState provides null, LocalStoryboard provides storyboard) {
+    CompositionLocalProvider(LocalStoryboard provides storyboard) {
         SceneWrapper(storyboard.size, storyboard.decorator, displayType, modifier) {
             AnimatedVisibility(true) {
                 key(scene, frame) {

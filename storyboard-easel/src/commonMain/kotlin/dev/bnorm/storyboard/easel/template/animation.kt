@@ -5,8 +5,8 @@ package dev.bnorm.storyboard.easel.template
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import dev.bnorm.storyboard.core.AdvanceDirection
-import dev.bnorm.storyboard.core.Frame
 import dev.bnorm.storyboard.core.SceneScope
+import dev.bnorm.storyboard.core.Frame
 import kotlin.experimental.ExperimentalTypeInference
 
 /**
