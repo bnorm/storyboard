@@ -14,7 +14,9 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.MaterialTheme
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -23,14 +25,10 @@ import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.*
-import dev.bnorm.storyboard.core.Scene
 import dev.bnorm.storyboard.core.Storyboard
-import dev.bnorm.storyboard.core.StoryState
 import dev.bnorm.storyboard.easel.internal.aspectRatio
 import dev.bnorm.storyboard.easel.internal.requestFocus
 import dev.bnorm.storyboard.ui.ScenePreview
-import kotlinx.collections.immutable.ImmutableList
-import kotlinx.collections.immutable.toImmutableList
 
 @Composable
 fun StoryOverview(
@@ -49,17 +47,19 @@ fun StoryOverview(
 
         val hIndex = overview.currentColumnIndex
         val hState = rememberLazyListState(hIndex, -horizontalScrollOffset.toInt())
-        LaunchedEffect(hIndex) { hState.animateScrollToItem(hIndex, -horizontalScrollOffset.toInt()) }
+        LaunchedEffect(hIndex, horizontalScrollOffset) {
+            hState.animateScrollToItem(hIndex, -horizontalScrollOffset.toInt())
+        }
 
         LazyRow(
             state = hState,
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier.fillMaxSize(),
         ) {
             itemsIndexed(overview.columns) { columnIndex, column ->
                 val isCurrentColumn = overview.currentColumnIndex == columnIndex
                 val vIndex = column.currentItemIndex
                 val vState = rememberLazyListState(vIndex)
-                LaunchedEffect(vIndex) { vState.animateScrollToItem(vIndex) }
+                LaunchedEffect(vIndex, verticalPaddingDp) { vState.animateScrollToItem(vIndex) }
 
                 LazyColumn(
                     state = vState,
@@ -122,105 +122,31 @@ fun StoryOverview(
     }
 }
 
-class StoryOverviewState private constructor(
-    val storyState: StoryState,
-    internal val columns: ImmutableList<SceneColumn>,
-) {
-    private var _isVisible = mutableStateOf(false)
-    var isVisible: Boolean
-        get() = _isVisible.value
-        set(value) {
-            // If the overview becomes visible, make sure it is on the correct frame.
-            if (value == true) jumpToFrame()
-            _isVisible.value = value
-        }
-
-    var currentColumnIndex by mutableStateOf(0)
-    internal val currentItem: Item
-        get() = columns[currentColumnIndex].let { it.items[it.currentItemIndex] }
-
-    fun jumpTo(columnIndex: Int, itemIndex: Int) {
-        val coercedColumnIndex = columnIndex.coerceIn(columns.indices)
-        currentColumnIndex = coercedColumnIndex
-        val column = columns[coercedColumnIndex]
-        column.currentItemIndex = itemIndex.coerceIn(column.items.indices)
-    }
-
-    fun jumpTo(columnIndex: Int) {
-        val coercedColumnIndex = columnIndex.coerceIn(columns.indices)
-        currentColumnIndex = coercedColumnIndex
-    }
-
-    private fun jumpToFrame() {
-        val currentFrame = storyState.currentIndex
-
-        currentColumnIndex =
-            columns.binarySearch { compareValues(it.index, currentFrame.sceneIndex) }
-                .coerceAtLeast(0)
-
-        val column = columns[currentColumnIndex]
-        column.currentItemIndex =
-            column.items.binarySearch { compareValues(it.index.stateIndex, currentFrame.stateIndex) }
-                .coerceAtLeast(0)
-    }
-
-    @Immutable
-    internal class SceneColumn(
-        val scene: Scene<*>,
-        val index: Int,
-        val items: ImmutableList<Item>,
-    ) {
-        var currentItemIndex by mutableStateOf(0)
-    }
-
-    @Immutable
-    internal class Item(
-        val index: Storyboard.Index,
-    )
-
-    companion object {
-        fun of(storyState: StoryState): StoryOverviewState {
-            val columns = storyState.storyboard.scenes
-                .mapIndexed { sceneIndex, scene ->
-                    val items = scene.states
-                        .mapIndexed { stateIndex, _ ->
-                            Item(index = Storyboard.Index(sceneIndex, stateIndex))
-                        }
-                        .toImmutableList()
-
-                    SceneColumn(
-                        scene = scene,
-                        index = sceneIndex,
-                        items = items,
-                    )
-                }
-                .filter { it.items.isNotEmpty() }
-                .toImmutableList()
-
-            return StoryOverviewState(
-                storyState = storyState,
-                columns = columns,
-            )
-        }
-    }
-}
-
 internal object OverviewCurrentIndex
 
 private fun BoxWithConstraintsScope.toItemSize(
     size: DpSize,
     scale: Float = 1f / 5f,
-    min: Dp = 150.dp,
-    max: Dp = 250.dp,
+    min: Dp = 250.dp,
+    max: Dp = 500.dp,
 ): DpSize {
     val aspectRatio = size.aspectRatio
-    val height = (scale * maxHeight).coerceIn(min, max)
-    val width = (scale * maxWidth).coerceIn(min, max)
-
-    return if (width / aspectRatio < height * aspectRatio) {
-        DpSize(height = height, width = height * aspectRatio)
+    return if ((maxWidth / maxHeight) < aspectRatio) {
+        if (aspectRatio > 1f) {
+            val width = (scale * maxWidth).coerceIn(min, max)
+            DpSize(height = width / aspectRatio, width = width)
+        } else {
+            val height = (scale * maxWidth / aspectRatio).coerceIn(min, max)
+            DpSize(height = height, width = height * aspectRatio)
+        }
     } else {
-        DpSize(height = width / aspectRatio, width = width)
+        if (aspectRatio > 1f) {
+            val width = (scale * maxHeight * aspectRatio).coerceIn(min, max)
+            DpSize(height = width / aspectRatio, width = width)
+        } else {
+            val height = (scale * maxHeight).coerceIn(min, max)
+            DpSize(height = height, width = height * aspectRatio)
+        }
     }
 }
 
