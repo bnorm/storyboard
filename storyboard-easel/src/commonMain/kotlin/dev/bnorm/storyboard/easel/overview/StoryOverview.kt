@@ -24,35 +24,45 @@ import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.*
 import dev.bnorm.storyboard.core.Frame
+import dev.bnorm.storyboard.core.StoryState
 import dev.bnorm.storyboard.core.Storyboard
-import dev.bnorm.storyboard.easel.internal.aspectRatio
 import dev.bnorm.storyboard.easel.internal.requestFocus
 import dev.bnorm.storyboard.easel.rememberSharedContentState
 import dev.bnorm.storyboard.easel.sharedElement
 import dev.bnorm.storyboard.ui.ScenePreview
 
+// TODO keep assistant up-to-date?
+// TODO disable assistant navigation while in overview?
 @Composable
 context(_: AnimatedVisibilityScope, _: SharedTransitionScope)
 fun StoryOverview(
-    overview: StoryOverviewState,
+    storyState: StoryState,
+    storyOverviewState: StoryOverviewState,
     onExitOverview: (Storyboard.Index) -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
-    BoxWithConstraints(modifier = modifier.onOverviewNavigation(overview, onExitOverview)) {
+    fun onClick(columnIndex: Int, itemIndex: Int, item: StoryOverviewState.StateItem<*>) {
+        if (item == storyOverviewState.currentItem) {
+            onExitOverview(item.index)
+        }
+        storyOverviewState.jumpTo(columnIndex, itemIndex)
+    }
+
+    BoxWithConstraints(modifier = modifier.onOverviewNavigation(storyOverviewState, onExitOverview)) {
         val viewSize = DpSize(maxWidth, maxHeight)
         val itemSize = calculateItemSize(
             viewSize = viewSize,
-            itemSize = overview.storyState.storyboard.size
+            itemSize = storyState.storyboard.size
         )
 
-        val hState = rememberOverviewSceneScroll(viewSize, itemSize, overview)
+        val hState = rememberOverviewSceneScroll(viewSize, itemSize, storyOverviewState)
 
         LazyRow(
             state = hState,
             modifier = Modifier.fillMaxSize(),
         ) {
-            itemsIndexed(overview.columns) { columnIndex, column ->
-                val isCurrentColumn = columnIndex == overview.currentColumnIndex
+            itemsIndexed(storyOverviewState.columns) { columnIndex, column ->
+                val isCurrentColumn = columnIndex == storyOverviewState.currentColumnIndex
                 val verticalPaddingDp = (maxHeight - itemSize.height).coerceAtLeast(0.dp) / 2
                 val vState = rememberOverviewStateScroll(itemSize, column)
 
@@ -60,20 +70,17 @@ fun StoryOverview(
                 //  - invisible padding item with different content padding?
                 OverviewLazyColumn(
                     state = vState,
-                    storyboard = overview.storyState.storyboard,
+                    storyboard = storyState.storyboard,
                     column = column,
                     verticalPaddingDp = verticalPaddingDp,
                     itemSize = itemSize,
                     isCurrentColumn = isCurrentColumn,
-                    onClick = { index, item ->
-                        val isCurrentIndex = isCurrentColumn && column.currentItemIndex == index
-                        if (isCurrentIndex) {
-                            onExitOverview(item.index)
-                        } else {
-                            if (column.items.isNotEmpty()) {
-                                overview.jumpTo(columnIndex, index)
-                            }
-                        }
+                    onClick = { itemIndex, item ->
+                        onClick(
+                            columnIndex = columnIndex,
+                            itemIndex = itemIndex,
+                            item = item
+                        )
                     },
                 )
             }
@@ -234,7 +241,7 @@ private fun calculateItemSize(
     min: Dp = 256.dp,
     max: Dp = 512.dp,
 ): DpSize {
-    val aspectRatio = itemSize.aspectRatio
+    val aspectRatio = itemSize.width / itemSize.height
 
     fun fromWidth(itemWidth: Dp): DpSize = DpSize(
         height = itemPadding + itemWidth / aspectRatio,

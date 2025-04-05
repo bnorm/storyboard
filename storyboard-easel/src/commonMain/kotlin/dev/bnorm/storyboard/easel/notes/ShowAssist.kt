@@ -13,7 +13,6 @@ import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.unit.dp
 import dev.bnorm.storyboard.core.Storyboard
 import dev.bnorm.storyboard.core.StoryState
-import dev.bnorm.storyboard.easel.internal.aspectRatio
 import dev.bnorm.storyboard.easel.internal.requestFocus
 import dev.bnorm.storyboard.easel.onStoryboardNavigation
 import dev.bnorm.storyboard.ui.ScenePreview
@@ -89,7 +88,7 @@ private fun ClickableScenePreview(
     var job by remember { mutableStateOf<Job?>(null) }
 
     // TODO share with StoryboardOverview?
-    Box(modifier.aspectRatio(storyboard.storyboard.size.aspectRatio)) {
+    Box(modifier) {
         ScenePreview(
             storyboard = storyboard.storyboard,
             index = index,

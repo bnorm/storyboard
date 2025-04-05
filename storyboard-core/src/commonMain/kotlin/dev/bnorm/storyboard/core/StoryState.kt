@@ -4,11 +4,8 @@ import androidx.compose.animation.core.SeekableTransitionState
 import androidx.compose.animation.core.Transition
 import androidx.compose.animation.core.createChildTransition
 import androidx.compose.animation.core.rememberTransition
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.Snapshot
 import kotlin.math.abs
 
@@ -34,6 +31,7 @@ fun rememberStoryState(
     return rememberSaveable { StoryState(initialIndex) }
 }
 
+@Stable
 class StoryState @ExperimentalStoryStateApi constructor(
     initialIndex: Storyboard.Index,
 ) {

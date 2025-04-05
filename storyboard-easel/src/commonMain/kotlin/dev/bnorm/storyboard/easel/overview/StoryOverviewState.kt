@@ -1,31 +1,30 @@
 package dev.bnorm.storyboard.easel.overview
 
-import androidx.compose.runtime.Immutable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import dev.bnorm.storyboard.core.Scene
-import dev.bnorm.storyboard.core.StoryState
 import dev.bnorm.storyboard.core.Storyboard
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 
-class StoryOverviewState private constructor(
-    val storyState: StoryState,
-    internal val columns: ImmutableList<SceneColumn<*>>,
+@Stable
+class StoryOverviewState internal constructor(
+    internal val columns: List<SceneColumn<*>>,
 ) {
-    private var _isVisible = mutableStateOf(false)
-    var isVisible: Boolean
-        get() = _isVisible.value
-        set(value) {
-            // If the overview becomes visible, make sure it is on the correct frame.
-            if (value == true) jumpToFrame()
-            _isVisible.value = value
-        }
-
     internal var currentColumnIndex by mutableStateOf(0)
     internal val currentItem: StateItem<*>
         get() = columns[currentColumnIndex].let { it.items[it.currentItemIndex] }
+
+    fun jumpToIndex(index: Storyboard.Index) {
+        // TODO this can probably be optimized since we don't hide scenes anymore...
+        currentColumnIndex =
+            columns.binarySearch { compareValues(it.index, index.sceneIndex) }
+                .coerceAtLeast(0)
+
+        val column = columns[currentColumnIndex]
+        column.currentItemIndex =
+            column.items.binarySearch { compareValues(it.index.stateIndex, index.stateIndex) }
+                .coerceAtLeast(0)
+    }
 
     internal fun jumpTo(columnIndex: Int, itemIndex: Int) {
         val coercedColumnIndex = columnIndex.coerceIn(columns.indices)
@@ -37,19 +36,6 @@ class StoryOverviewState private constructor(
     internal fun jumpTo(columnIndex: Int) {
         val coercedColumnIndex = columnIndex.coerceIn(columns.indices)
         currentColumnIndex = coercedColumnIndex
-    }
-
-    private fun jumpToFrame() {
-        val currentFrame = storyState.currentIndex
-
-        currentColumnIndex =
-            columns.binarySearch { compareValues(it.index, currentFrame.sceneIndex) }
-                .coerceAtLeast(0)
-
-        val column = columns[currentColumnIndex]
-        column.currentItemIndex =
-            column.items.binarySearch { compareValues(it.index.stateIndex, currentFrame.stateIndex) }
-                .coerceAtLeast(0)
     }
 
     @Immutable
@@ -71,8 +57,8 @@ class StoryOverviewState private constructor(
     )
 
     companion object {
-        fun of(storyState: StoryState): StoryOverviewState {
-            val lastSceneIndex = storyState.storyboard.scenes.lastIndex
+        internal fun of(storyboard: Storyboard): StoryOverviewState {
+            val lastSceneIndex = storyboard.scenes.lastIndex
 
             fun <T> SceneColumn(scene: Scene<T>, sceneIndex: Int): SceneColumn<T> {
                 return SceneColumn(
@@ -89,12 +75,11 @@ class StoryOverviewState private constructor(
                 )
             }
 
-            val columns = storyState.storyboard.scenes
+            val columns = storyboard.scenes
                 .mapIndexed { sceneIndex, scene -> SceneColumn(scene, sceneIndex) }
                 .toImmutableList()
 
             return StoryOverviewState(
-                storyState = storyState,
                 columns = columns,
             )
         }

@@ -24,7 +24,6 @@ import kotlinx.coroutines.launch
 @Composable
 fun Story(
     storyState: StoryState,
-    storyOverviewState: StoryOverviewState = remember(storyState.storyboard) { StoryOverviewState.of(storyState) },
     overlay: @Composable StoryOverlayScope.() -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
@@ -33,9 +32,14 @@ fun Story(
 
     val holder = rememberSaveableStateHolder()
 
+    val storyboard = storyState.storyboard
+    val storyOverviewState = remember(storyboard) { StoryOverviewState.of(storyboard) }
+    var overviewVisible by remember { mutableStateOf(false) } // TODO support initial visibility?
+
     fun handleKeyEvent(event: KeyEvent): Boolean {
         if (event.type == KeyEventType.KeyUp && event.key == Key.Escape) {
-            storyOverviewState.isVisible = true
+            storyOverviewState.jumpToIndex(storyState.currentIndex)
+            overviewVisible = true
             return true
         }
         return false
@@ -44,25 +48,26 @@ fun Story(
     Box(contentAlignment = Alignment.Center, modifier = modifier) {
         SharedTransitionLayout {
             AnimatedContent(
-                targetState = storyOverviewState.isVisible,
+                targetState = overviewVisible,
                 transitionSpec = { fadeIn(tween(300)) togetherWith fadeOut(tween(300)) }
             ) { isOverview ->
                 if (isOverview) {
                     StoryOverview(
-                        overview = storyOverviewState,
+                        storyState = storyState,
+                        storyOverviewState = storyOverviewState,
                         onExitOverview = {
                             job?.cancel()
                             job = coroutineScope.launch {
                                 storyState.jumpTo(it)
                                 job = null
-                                storyOverviewState.isVisible = false
+                                overviewVisible = false
                             }
                         },
                         modifier = Modifier.fillMaxSize(),
                     )
                 } else {
-                    holder.SaveableStateProvider(storyState.storyboard) {
-                        Box(contentAlignment = Alignment.Center, modifier = modifier.fillMaxSize()) {
+                    holder.SaveableStateProvider(storyboard) {
+                        Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
                             StoryOverlay(overlay = overlay) {
                                 StoryScene(
                                     storyState = storyState,

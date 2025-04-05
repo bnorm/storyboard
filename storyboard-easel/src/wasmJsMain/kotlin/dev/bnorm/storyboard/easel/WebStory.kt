@@ -12,7 +12,6 @@ import dev.bnorm.storyboard.core.StoryState
 import dev.bnorm.storyboard.core.Storyboard
 import dev.bnorm.storyboard.easel.overlay.OverlayNavigation
 import dev.bnorm.storyboard.easel.overlay.StoryOverlayScope
-import dev.bnorm.storyboard.easel.overview.StoryOverviewState
 import kotlinx.browser.window
 import org.w3c.dom.url.URL
 import org.w3c.dom.url.URLSearchParams
@@ -48,22 +47,10 @@ fun WebStory(
         OverlayNavigation(storyState)
     },
 ) {
-    val overview = remember(storyState.storyboard) { StoryOverviewState.of(storyState) }
-
-    // TODO should we be exposing overview as a param?
-    //  - we don't support this on desktop...
-    remember {
-        val params = URLSearchParams(window.location.search.toJsString())
-        if (params.get("overview").toBoolean()) {
-            overview.isVisible = true
-        }
-    }
-
-    LaunchedWindowHistoryUpdate(storyState, overview)
+    LaunchedWindowHistoryUpdate(storyState)
 
     Story(
         storyState = storyState,
-        storyOverviewState = overview,
         overlay = {
             // TODO if this is a mobile device, prefer touch navigation
             overlay()
@@ -74,23 +61,16 @@ fun WebStory(
 }
 
 @Composable
-private fun LaunchedWindowHistoryUpdate(storyState: StoryState, storyOverviewState: StoryOverviewState) {
+private fun LaunchedWindowHistoryUpdate(storyState: StoryState) {
     val frame = storyState.currentIndex
-    val overviewVisible = storyOverviewState.isVisible
     // TODO LaunchedEffect?
     //  - maybe remember would be better since this more of a side effect?
-    LaunchedEffect(frame, overviewVisible) {
+    LaunchedEffect(frame) {
         val url = URL(window.location.toString())
 
         val index = storyState.storyboard.indices.binarySearch(frame)
         if (index >= 0) {
             url.searchParams.set("frame", index.toString())
-        }
-
-        if (overviewVisible) {
-            url.searchParams.set("overview", "true")
-        } else {
-            url.searchParams.delete("overview")
         }
 
         window.history.replaceState(null, "", url.toString())
