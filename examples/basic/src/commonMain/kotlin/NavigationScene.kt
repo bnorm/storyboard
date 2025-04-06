@@ -8,14 +8,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import dev.bnorm.storyboard.StoryboardBuilder
-import dev.bnorm.storyboard.currentState
 import dev.bnorm.storyboard.easel.notes.NotesTab
 import dev.bnorm.storyboard.easel.template.Body
 import dev.bnorm.storyboard.easel.template.Header
+import dev.bnorm.storyboard.toState
 
 fun StoryboardBuilder.NavigationScene() = scene(
     stateCount = 5,
 ) {
+    val currentState = frame.currentState.toState()
+
     Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
         Header { Text("Navigation") }
         Divider(color = MaterialTheme.colors.primary)

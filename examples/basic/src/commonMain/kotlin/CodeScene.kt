@@ -18,7 +18,6 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.bnorm.storyboard.StoryboardBuilder
-import dev.bnorm.storyboard.currentState
 import dev.bnorm.storyboard.easel.template.Body
 import dev.bnorm.storyboard.easel.template.Header
 import dev.bnorm.storyboard.easel.template.SceneEnter
@@ -112,7 +111,7 @@ fun StoryboardBuilder.CodeScene() = scene(
             Divider(color = MaterialTheme.colors.primary)
             Body {
                 Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                    val currentState = currentState
+                    val currentState = frame.currentState.toState()
                     Text(currentState.description)
 
                     @OptIn(ExperimentalTransitionApi::class)

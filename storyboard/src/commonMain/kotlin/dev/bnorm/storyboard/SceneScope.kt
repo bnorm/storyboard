@@ -10,22 +10,3 @@ interface SceneScope<T> {
     val states: ImmutableList<T>
     val frame: Transition<out Frame<T>>
 }
-
-// TODO do we want this?
-val <T> SceneScope<T>.currentState: T
-    get() {
-        require(states.isNotEmpty()) { "implicit conversion to state requires non-empty states" }
-        return frame.currentState.toState()
-    }
-
-// TODO where's the best place for this?
-context(sceneScope: SceneScope<T>)
-fun <T, R : T> Frame<R>.toState(): T {
-    require(sceneScope.states.isNotEmpty()) { "implicit conversion to state requires non-empty states" }
-    return when (this) {
-        Frame.Start -> sceneScope.states.first()
-        Frame.End -> sceneScope.states.last()
-        is Frame.State -> state
-    }
-}
-

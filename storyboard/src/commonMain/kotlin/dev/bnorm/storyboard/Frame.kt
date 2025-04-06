@@ -1,26 +1,23 @@
 package dev.bnorm.storyboard
 
 sealed class Frame<out T> {
-    data object Start : Frame<Nothing>()
-    data object End : Frame<Nothing>()
+    data object Start : Frame<Nothing>() {
+        override fun toString(): String = "Frame.Start"
+    }
+
+    data object End : Frame<Nothing>() {
+        override fun toString(): String = "Frame.End"
+    }
 
     class State<out T>(val state: T) : Frame<T>() {
-        override fun toString(): String = "State($state)"
+        override fun toString(): String = "Frame.State($state)"
     }
 }
 
 operator fun <T : Comparable<T>> Frame<T>.compareTo(other: Frame<T>): Int {
     return when (this) {
-        Frame.Start -> when (other) {
-            Frame.Start -> 0
-            else -> -1
-        }
-
-        Frame.End -> when (other) {
-            Frame.End -> 0
-            else -> 1
-        }
-
+        Frame.Start -> if (other == Frame.Start) 0 else -1
+        Frame.End -> if (other == Frame.End) 0 else 1
         is Frame.State -> when (other) {
             Frame.Start -> 1
             Frame.End -> -1
@@ -34,6 +31,25 @@ fun <T, R> Frame<T>.map(transform: (T) -> R): Frame<R> {
         Frame.Start -> Frame.Start
         Frame.End -> Frame.End
         is Frame.State -> Frame.State(transform(state))
+    }
+}
+
+/**
+ * Converts the [Frame] of type [T] to just a value of type `T`; where [start] is the default
+ * representation for [Frame.Start], and [end] is the default representation for
+ * [Frame.End].
+ * By default, the first and last states of the scene will be used
+ * and must be specified if the scene has no states.
+ */
+context(sceneScope: SceneScope<T>)
+fun <T, R : T> Frame<R>.toState(
+    start: T = sceneScope.states.firstOrNull() ?: error("implicit conversion to state requires non-empty states"),
+    end: T = sceneScope.states.lastOrNull() ?: error("implicit conversion to state requires non-empty states"),
+): T {
+    return when (this) {
+        Frame.Start -> start
+        Frame.End -> end
+        is Frame.State -> state
     }
 }
 

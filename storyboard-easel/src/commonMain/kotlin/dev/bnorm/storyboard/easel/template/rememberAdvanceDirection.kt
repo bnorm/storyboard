@@ -28,5 +28,14 @@ fun <T : Comparable<T>> SceneScope<T>.rememberAdvanceDirection(): AdvanceDirecti
         )
     }
 
-    return memory.fold(AdvanceDirection.from(frame.currentState, frame.targetState, Frame<T>::compareTo))
+    return memory.fold(toDirection(frame.currentState, frame.targetState, Frame<T>::compareTo))
+}
+
+private fun <T> toDirection(current: T, target: T, comparator: Comparator<T>): AdvanceDirection? {
+    val compare = comparator.compare(current, target)
+    return when {
+        compare < 0 -> AdvanceDirection.Forward
+        compare > 0 -> AdvanceDirection.Backward
+        else -> null
+    }
 }
