@@ -41,6 +41,10 @@ class Storyboard private constructor(
             decorator: SceneDecorator = SceneDecorator.None,
             block: StoryboardBuilder.() -> Unit,
         ): Storyboard {
+            // TODO it's possible for someone to use`Storyboard.build` during composition
+            //  - this can potentially trigger recompositions if state is captured.
+            //  - should we forcibly disable state reads for this function?
+            //  - also seems to trigger an error with SeekableTransitionState being reused?
             val builder = StoryboardBuilderImpl()
             builder.block()
             return Storyboard(title, description, builder.build().toImmutableList(), size, decorator)

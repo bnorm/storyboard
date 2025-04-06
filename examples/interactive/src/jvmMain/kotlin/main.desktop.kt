@@ -5,8 +5,8 @@ import androidx.compose.ui.window.application
 import dev.bnorm.storyboard.easel.DesktopStory
 
 fun main() {
+    val storyboard = createStoryboard()
     application {
-        val storyboard = createStoryboard()
         MaterialTheme(colors = lightColors(background = Color.Gray)) {
             DesktopStory(storyboard)
         }

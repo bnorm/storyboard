@@ -25,8 +25,8 @@ fun StoryboardBuilder.NavigationScene() = scene(
             Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
                 Text("After scene gains focus, advance with arrow keys.")
                 if (currentState >= 1) Text("    • Scenes can also be advanced with the mouse.")
-                if (currentState >= 3) Text("    • Press 'Esc' to see overview! (arrows to navigate and 'Enter' to open scene)")
-                if (currentState >= 4) Text("    • Press 'F2' to see next scene preview and notes. (Desktop only!)")
+                if (currentState >= 3) Text("    • Press 'Esc' to see the overview! (arrows to navigate and 'Enter' to open scene)")
+                if (currentState >= 4) Text("    • Press 'F2' to see next scene preview and captions. (Desktop only!)")
             }
 
             if (currentState >= 2) {
@@ -35,7 +35,7 @@ fun StoryboardBuilder.NavigationScene() = scene(
         }
     }
 
-    SceneCaption("Captions") {
+    SceneCaption {
         Text("Hello! I'm a caption!")
     }
 }

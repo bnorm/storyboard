@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import dev.bnorm.storyboard.Frame
 import dev.bnorm.storyboard.StoryboardBuilder
+import dev.bnorm.storyboard.easel.assist.SceneCaption
 import dev.bnorm.storyboard.easel.template.Body
 import dev.bnorm.storyboard.easel.template.Header
 import dev.bnorm.storyboard.scene
@@ -52,10 +53,9 @@ fun StoryboardBuilder.StateScene() = scene(
         title = "Hello, State!",
     ),
 ) {
+    val currentState = frame.currentState.toState()
+    val index = currentState.index
     Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-        val currentState = frame.currentState.toState()
-        val index = currentState.index
-
         Header { Text(currentState.title) }
         Divider(color = MaterialTheme.colors.primary)
         Body {
@@ -77,6 +77,13 @@ fun StoryboardBuilder.StateScene() = scene(
                     if (index >= 6) Text("        ◦ This helps with animations between scenes!")
                 }
             }
+        }
+    }
+
+    SceneCaption {
+        when (index) {
+            in 0..3 -> Text("Nice to meeting you!")
+            else -> Text("How are you today?")
         }
     }
 }

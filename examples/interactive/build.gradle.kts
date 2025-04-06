@@ -2,6 +2,7 @@ import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 
 plugins {
     kotlin("multiplatform")
+    kotlin("plugin.serialization")
     kotlin("plugin.compose")
     id("org.jetbrains.compose")
 }
@@ -19,6 +20,7 @@ kotlin {
     }
 
     sourceSets {
+        val ktor_version = "3.1.1"
         commonMain {
             dependencies {
                 implementation(project(":storyboard"))
@@ -31,11 +33,21 @@ kotlin {
                 implementation(compose.foundation)
                 implementation(compose.material)
                 implementation(compose.components.resources)
+
+                implementation("io.ktor:ktor-client-core:${ktor_version}")
+                implementation("io.ktor:ktor-client-content-negotiation:${ktor_version}")
+                implementation("io.ktor:ktor-serialization-kotlinx-json:${ktor_version}")
             }
         }
         jvmMain {
             dependencies {
                 implementation(compose.desktop.currentOs)
+                implementation("io.ktor:ktor-client-okhttp:$ktor_version")
+            }
+        }
+        wasmJsMain {
+            dependencies {
+                implementation("io.ktor:ktor-client-js:$ktor_version")
             }
         }
     }

@@ -9,6 +9,7 @@ fun createStoryboard(): Storyboard {
     ) {
         ButtonScene()
         TextFieldScene()
+        HttpClientScene()
         AppScene()
         NextScene()
     }

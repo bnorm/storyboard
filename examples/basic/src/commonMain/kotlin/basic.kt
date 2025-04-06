@@ -6,8 +6,8 @@ import androidx.compose.ui.graphics.Color
 import dev.bnorm.storyboard.SceneDecorator
 import dev.bnorm.storyboard.Storyboard
 
-val BASIC_STORYBOARD by lazy {
-    Storyboard.build(
+fun createStoryboard(): Storyboard {
+    return Storyboard.build(
         title = "Basic Storyboard",
         size = Storyboard.DEFAULT_SIZE,
         decorator = theme,

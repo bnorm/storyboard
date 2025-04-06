@@ -6,9 +6,10 @@ import dev.bnorm.storyboard.easel.WebStory
 
 @OptIn(ExperimentalComposeUiApi::class)
 fun main() {
-    CanvasBasedWindow(canvasElementId = "ComposeTarget", title = BASIC_STORYBOARD.title) {
+    val storyboard = createStoryboard()
+    CanvasBasedWindow(canvasElementId = "ComposeTarget", title = storyboard.title) {
         MaterialTheme(colors = darkColors()) {
-            WebStory(BASIC_STORYBOARD)
+            WebStory(storyboard)
         }
     }
 }
