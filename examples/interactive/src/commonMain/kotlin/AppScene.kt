@@ -12,7 +12,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import dev.bnorm.storyboard.StoryboardBuilder
-import dev.bnorm.storyboard.easel.StoryScene
+import dev.bnorm.storyboard.easel.Story
 import dev.bnorm.storyboard.easel.overlay.OverlayNavigation
 import dev.bnorm.storyboard.easel.overlay.StoryOverlay
 import dev.bnorm.storyboard.easel.rememberStoryState
@@ -44,7 +44,7 @@ fun StoryboardBuilder.AppScene() {
                                     overlay = { OverlayNavigation(state) },
                                     modifier = Modifier.requiredSize(state.storyboard.size / 3)
                                 ) {
-                                    StoryScene(state)
+                                    Story(state)
                                 }
                             }
                         }

@@ -67,7 +67,7 @@ fun StoryEasel(
                     holder.SaveableStateProvider(storyboard) {
                         Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
                             StoryOverlay(overlay = overlay) {
-                                StoryScene(
+                                Story(
                                     storyState = storyState,
                                     modifier = Modifier
                                         .sharedElement(

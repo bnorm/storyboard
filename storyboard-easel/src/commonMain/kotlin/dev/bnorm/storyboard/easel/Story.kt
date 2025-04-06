@@ -16,7 +16,7 @@ import dev.bnorm.storyboard.easel.internal.FixedSize
 import kotlinx.collections.immutable.ImmutableList
 
 @Composable
-fun StoryScene(storyState: StoryState, modifier: Modifier = Modifier) {
+fun Story(storyState: StoryState, modifier: Modifier = Modifier) {
     val holder = rememberSaveableStateHolder()
     CompositionLocalProvider(LocalStoryboard provides storyState.storyboard) {
         SceneWrapper(storyState.storyboard.size, storyState.storyboard.decorator, DisplayType.Story, modifier) {
