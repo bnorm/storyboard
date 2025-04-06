@@ -21,7 +21,7 @@ import dev.bnorm.storyboard.Storyboard
 import dev.bnorm.storyboard.easel.ScenePreview
 import dev.bnorm.storyboard.easel.StoryState
 import dev.bnorm.storyboard.easel.internal.requestFocus
-import dev.bnorm.storyboard.easel.onStoryboardNavigation
+import dev.bnorm.storyboard.easel.onStoryNavigation
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
@@ -30,7 +30,7 @@ fun StoryAssistant(assistantState: StoryAssistantState, modifier: Modifier = Mod
     Surface(
         modifier = Modifier.fillMaxSize()
             .requestFocus()
-            .onStoryboardNavigation(storyboard = assistantState.storyState)
+            .onStoryNavigation(storyState = assistantState.storyState)
     ) {
         Column(modifier.padding(16.dp)) {
             Row(horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth()) {

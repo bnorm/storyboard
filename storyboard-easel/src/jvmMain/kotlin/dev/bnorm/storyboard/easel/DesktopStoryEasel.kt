@@ -22,10 +22,10 @@ import dev.bnorm.storyboard.easel.overlay.StoryOverlayScope
 
 @OptIn(ExperimentalStoryStateApi::class)
 @Composable
-fun ApplicationScope.DesktopStory(storyboard: Storyboard) {
+fun ApplicationScope.DesktopStoryEasel(storyboard: Storyboard) {
     val storyState = rememberStoryState()
     storyState.updateStoryboard(storyboard)
-    DesktopStory(storyState)
+    DesktopStoryEasel(storyState)
 }
 
 /**
@@ -35,7 +35,7 @@ fun ApplicationScope.DesktopStory(storyboard: Storyboard) {
  */
 @Composable
 @ExperimentalStoryStateApi
-fun ApplicationScope.DesktopStory(
+fun ApplicationScope.DesktopStoryEasel(
     storyState: StoryState,
     overlay: @Composable StoryOverlayScope.() -> Unit = {
         OverlayNavigation(storyState)
@@ -59,7 +59,7 @@ fun ApplicationScope.DesktopStory(
         }
     }
 
-    StoryWindow(
+    StoryEaselWindow(
         storyState = storyState,
         onCloseRequest = ::exitApplication,
         windowState = desktopState.story,
@@ -76,7 +76,7 @@ fun ApplicationScope.DesktopStory(
 }
 
 @Composable
-private fun StoryWindow(
+private fun StoryEaselWindow(
     storyState: StoryState,
     onCloseRequest: () -> Unit,
     modifier: Modifier = Modifier,
@@ -92,7 +92,7 @@ private fun StoryWindow(
     ) {
         MenuBar { menuBar() }
 
-        Story(
+        StoryEasel(
             storyState = storyState,
             overlay = {
                 // Only display overlay navigation when *not* fullscreen.

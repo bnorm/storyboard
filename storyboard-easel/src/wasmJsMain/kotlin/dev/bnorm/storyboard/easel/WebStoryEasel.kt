@@ -16,7 +16,7 @@ import org.w3c.dom.url.URLSearchParams
 
 @OptIn(ExperimentalStoryStateApi::class)
 @Composable
-fun WebStory(storyboard: Storyboard) {
+fun WebStoryEasel(storyboard: Storyboard) {
     val storyState = remember(storyboard) {
         val params = URLSearchParams(window.location.search.toJsString())
 
@@ -35,11 +35,11 @@ fun WebStory(storyboard: Storyboard) {
         }
     }
 
-    WebStory(storyState)
+    WebStoryEasel(storyState)
 }
 
 @Composable
-fun WebStory(
+fun WebStoryEasel(
     storyState: StoryState,
     overlay: @Composable StoryOverlayScope.() -> Unit = {
         OverlayNavigation(storyState)
@@ -47,7 +47,7 @@ fun WebStory(
 ) {
     LaunchedWindowHistoryUpdate(storyState)
 
-    Story(
+    StoryEasel(
         storyState = storyState,
         overlay = {
             // TODO if this is a mobile device, prefer touch navigation

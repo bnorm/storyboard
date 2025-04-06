@@ -41,7 +41,7 @@ fun StoryScene(storyState: StoryState, modifier: Modifier = Modifier) {
     }
 }
 
-private class StoryboardSceneScope<T>(
+private class StorySceneScope<T>(
     override val states: ImmutableList<T>,
     override val frame: Transition<out Frame<T>>,
 ) : SceneScope<T>
@@ -62,7 +62,7 @@ private fun <T> SceneContent(
     }
 
     val scope = remember(scene, frame) {
-        StoryboardSceneScope(
+        StorySceneScope(
             states = scene.states,
             frame = frame,
         )

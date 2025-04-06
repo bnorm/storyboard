@@ -19,11 +19,8 @@ import dev.bnorm.storyboard.easel.overview.StoryOverviewState
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
-// TODO rename:
-//  - Story -> StoryAndOverview?
-//  - StoryScene -> Story?
 @Composable
-fun Story(
+fun StoryEasel(
     storyState: StoryState,
     overlay: @Composable StoryOverlayScope.() -> Unit = {},
     modifier: Modifier = Modifier,
@@ -78,7 +75,7 @@ fun Story(
                                             animatedVisibilityScope = this@AnimatedContent
                                         )
                                         .requestFocus()
-                                        .onStoryboardNavigation(storyboard = storyState)
+                                        .onStoryNavigation(storyState = storyState)
                                         .onKeyEvent { handleKeyEvent(it) }
                                 )
                             }
@@ -91,7 +88,7 @@ fun Story(
 }
 
 @Composable
-internal fun Modifier.onStoryboardNavigation(storyboard: StoryState): Modifier {
+internal fun Modifier.onStoryNavigation(storyState: StoryState): Modifier {
     val coroutineScope = rememberCoroutineScope()
     var job by remember { mutableStateOf<Job?>(null) }
 
@@ -106,7 +103,7 @@ internal fun Modifier.onStoryboardNavigation(storyboard: StoryState): Modifier {
                         -> {
                         job?.cancel()
                         job = coroutineScope.launch {
-                            storyboard.advance(AdvanceDirection.Forward)
+                            storyState.advance(AdvanceDirection.Forward)
                             job = null
                         }
                         return true
@@ -118,7 +115,7 @@ internal fun Modifier.onStoryboardNavigation(storyboard: StoryState): Modifier {
                         -> {
                         job?.cancel()
                         job = coroutineScope.launch {
-                            storyboard.advance(AdvanceDirection.Backward)
+                            storyState.advance(AdvanceDirection.Backward)
                             job = null
                         }
                         return true
