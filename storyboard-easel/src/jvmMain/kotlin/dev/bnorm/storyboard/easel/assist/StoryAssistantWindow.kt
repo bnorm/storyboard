@@ -17,7 +17,7 @@ fun StoryAssistantWindow(
         Window(
             onCloseRequest = { assistantState.visible = false },
             state = windowState,
-            title = "Notes",
+            title = "Assistant",
         ) {
             MenuBar {
                 menuBar()

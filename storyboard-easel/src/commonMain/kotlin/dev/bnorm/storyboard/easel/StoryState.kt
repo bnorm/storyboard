@@ -38,7 +38,7 @@ fun rememberStoryState(
 
 @Stable
 class StoryState @ExperimentalStoryStateApi constructor(
-    initialIndex: Storyboard.Index,
+    initialIndex: Storyboard.Index = Storyboard.Index(0, 0),
 ) {
     private var _storyboard: Storyboard? by mutableStateOf(null)
     val storyboard: Storyboard
@@ -46,9 +46,6 @@ class StoryState @ExperimentalStoryStateApi constructor(
 
     private var frames: List<StateFrame<*>> by Delegates.notNull()
     private var byIndex: Map<Storyboard.Index, StateFrame<*>> by Delegates.notNull()
-
-    var currentDirection: AdvanceDirection by mutableStateOf(AdvanceDirection.Forward)
-        private set
 
     // TODO the mutable state is a workaround for SeekableTransitionState not
     //  supporting `snapTo` without a transition.
@@ -61,6 +58,26 @@ class StoryState @ExperimentalStoryStateApi constructor(
 
     var targetIndex: Storyboard.Index by mutableStateOf(initialIndex)
         private set
+
+    val storyDistance: Float
+        get() {
+            if (_storyboard == null) return 0f
+            return frames.lastIndex.toFloat()
+        }
+
+    val storyProgress: Float
+        get() {
+            if (_storyboard == null) return 0f
+            val current = frameIndex.currentState
+            val target = frameIndex.targetState
+            val fraction = when {
+                current == target -> 0f
+                target > current -> frameIndex.fraction
+                else -> -frameIndex.fraction
+            }
+
+            return current.toFloat() + fraction
+        }
 
     val advancementDistance: Float
         get() {
@@ -87,8 +104,6 @@ class StoryState @ExperimentalStoryStateApi constructor(
     //  - do we need to be careful about which scope the advancement runs in?
     suspend fun advance(direction: AdvanceDirection): Boolean {
         if (_storyboard == null) return false // Cannot advance without Storyboard.
-
-        this.currentDirection = direction
 
         val currentDirection = toDirection(frameIndex.currentState, frameIndex.targetState)
         if (currentDirection == null || currentDirection == direction) {
@@ -161,6 +176,31 @@ class StoryState @ExperimentalStoryStateApi constructor(
         if (frameIndex.currentState != targetState) {
             frameIndex = SeekableTransitionState(targetState)
         }
+    }
+
+    internal suspend fun seek(fraction: Float) {
+        if (_storyboard == null) return // Cannot seek without Storyboard.
+        val progress = fraction * frames.lastIndex
+        val index = progress.toInt()
+        val fraction = progress - index
+
+        if (frameIndex.currentState != index) {
+            frameIndex.snapTo(index)
+
+            var currentState = index
+            while (currentState >= 0 && frames[currentState].frame !is Frame.State) currentState--
+            currentIndex = frames[currentState].storyboardIndex
+
+            var targetState = index + if (fraction > 0f) 1 else 0
+            while (targetState < frames.size && frames[targetState].frame !is Frame.State) targetState++
+            targetIndex = frames[targetState].storyboardIndex
+        }
+
+        // TODO there seems to be some serious bugs with SeekableTransitionState still...
+        //  - seeking backwards seems to be broken for the opening animation
+        //  - seeking backwards in general actually seems a little broken
+        //  maybe I can create a minimal reproducer?
+        frameIndex.seekTo(fraction, index + 1)
     }
 
     @ExperimentalStoryStateApi

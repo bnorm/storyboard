@@ -48,39 +48,43 @@ private fun ScenePreview(assistantState: StoryAssistantState) {
     val coroutineScope = rememberCoroutineScope()
     var job by remember { mutableStateOf<Job?>(null) }
 
-    Row(modifier = Modifier.fillMaxWidth().padding(top = 16.dp)) {
-        Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
-            // TODO should "current" actually be target index?
-            Text("Current Frame")
-            CompositionLocalProvider(LocalCaptions provides assistantState.captions) {
-                ClickableScenePreview(storyState.storyboard, storyState.currentIndex)
+    Column {
+        Row(modifier = Modifier.fillMaxWidth().padding(top = 16.dp)) {
+            Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
+                // TODO should "current" actually be target index?
+                Text("Current Frame")
+                CompositionLocalProvider(LocalCaptions provides assistantState.captions) {
+                    ClickableScenePreview(storyState.storyboard, storyState.currentIndex)
+                }
+                SceneAnimationProgressIndicator(storyState)
             }
-            SceneAnimationProgressIndicator(storyState)
+            Spacer(Modifier.width(16.dp))
+            Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
+                Text("Next Frame")
+                val nextIndex by derivedStateOf {
+                    val i = storyState.storyboard.indices.binarySearch(storyState.currentIndex)
+                    require(i >= 0) { "targetIndex not found in storyboard" }
+                    storyState.storyboard.indices.getOrNull(i + 1)
+                }
+                nextIndex?.let {
+                    ClickableScenePreview(
+                        storyboard = storyState.storyboard,
+                        index = it,
+                        onClick = {
+                            job?.cancel()
+                            job = coroutineScope.launch {
+                                storyState.jumpTo(it)
+                                job = null
+                            }
+                        },
+                    )
+                }
+            }
+            // TODO previous frame?
+            // TODO highlight frame which is being advanced to?
         }
-        Spacer(Modifier.width(16.dp))
-        Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
-            Text("Next Frame")
-            val nextIndex by derivedStateOf {
-                val i = storyState.storyboard.indices.binarySearch(storyState.currentIndex)
-                require(i >= 0) { "targetIndex not found in storyboard" }
-                storyState.storyboard.indices.getOrNull(i + 1)
-            }
-            nextIndex?.let {
-                ClickableScenePreview(
-                    storyboard = storyState.storyboard,
-                    index = it,
-                    onClick = {
-                        job?.cancel()
-                        job = coroutineScope.launch {
-                            storyState.jumpTo(it)
-                            job = null
-                        }
-                    },
-                )
-            }
-        }
-        // TODO previous frame?
-        // TODO highlight frame which is being advanced to?
+
+        StorySlider(storyState, modifier = Modifier.fillMaxWidth().padding(top = 16.dp))
     }
 }
 
