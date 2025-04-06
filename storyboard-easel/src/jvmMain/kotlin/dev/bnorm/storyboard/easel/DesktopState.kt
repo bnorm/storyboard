@@ -23,9 +23,9 @@ import kotlin.io.path.writeText
 @Serializable
 class DesktopState(
     @Serializable(with = WindowStateSerializer::class)
-    val storyboard: WindowState = WindowState(),
+    val story: WindowState = WindowState(),
     @Serializable(with = WindowStateSerializer::class)
-    val notes: WindowState = WindowState(),
+    val assistant: WindowState = WindowState(),
 )
 
 @Composable
@@ -62,8 +62,8 @@ fun rememberDesktopState(path: Path, format: StringFormat = Json): DesktopState?
 private fun LaunchedStateWriter(state: DesktopState?, file: Path, format: StringFormat) {
     state ?: return
 
-    var hash = state.storyboard.hash()
-    hash = 31 * hash + state.notes.hash()
+    var hash = state.story.hash()
+    hash = 31 * hash + state.assistant.hash()
 
     LaunchedEffect(hash, file) {
         try {

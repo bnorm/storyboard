@@ -1,10 +1,11 @@
-package dev.bnorm.storyboard.easel.notes
+package dev.bnorm.storyboard.easel.assist
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -20,73 +21,84 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 @Composable
-fun StoryNotes(storyState: StoryState, notes: StoryNotes, modifier: Modifier = Modifier) {
-    val coroutineScope = rememberCoroutineScope()
-    var job by remember { mutableStateOf<Job?>(null) }
-
+fun StoryAssistant(assistantState: StoryAssistantState, modifier: Modifier = Modifier) {
     Surface(
         modifier = Modifier.fillMaxSize()
             .requestFocus()
-            .onStoryboardNavigation(storyboard = storyState)
+            .onStoryboardNavigation(storyboard = assistantState.storyState)
     ) {
         Column(modifier.padding(16.dp)) {
             Row(horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth()) {
                 StoryTimer()
             }
+            ScenePreview(assistantState)
+            Captions(assistantState.captions)
+        }
+    }
+}
 
-            Row(modifier = Modifier.fillMaxWidth().padding(top = 16.dp)) {
-                Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text("Current Frame")
-                    CompositionLocalProvider(LocalStoryNotes provides notes) {
-                        ClickableScenePreview(storyboard = storyState.storyboard, storyState.currentIndex)
-                    }
-                    SceneAnimationProgressIndicator(storyState)
-                }
-                Spacer(Modifier.width(16.dp))
-                Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text("Next Frame")
-                    val nextIndex by derivedStateOf {
-                        val i = storyState.storyboard.indices.binarySearch(storyState.currentIndex)
-                        require(i >= 0) { "targetIndex not found in storyboard" }
-                        storyState.storyboard.indices.getOrNull(i + 1)
-                    }
-                    nextIndex?.let {
-                        ClickableScenePreview(
-                            storyboard = storyState.storyboard,
-                            index = it,
-                            onClick = {
-                                job?.cancel()
-                                job = coroutineScope.launch {
-                                    storyState.jumpTo(it)
-                                    job = null
-                                }
-                            },
+@Composable
+private fun ScenePreview(assistantState: StoryAssistantState) {
+    val storyState = assistantState.storyState
+    val coroutineScope = rememberCoroutineScope()
+    var job by remember { mutableStateOf<Job?>(null) }
+
+    Row(modifier = Modifier.fillMaxWidth().padding(top = 16.dp)) {
+        Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
+            Text("Current Frame")
+            CompositionLocalProvider(LocalCaptions provides assistantState.captions) {
+                ClickableScenePreview(storyState.storyboard, storyState.currentIndex)
+            }
+            SceneAnimationProgressIndicator(storyState)
+        }
+        Spacer(Modifier.width(16.dp))
+        Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
+            Text("Next Frame")
+            val nextIndex by derivedStateOf {
+                val i = storyState.storyboard.indices.binarySearch(storyState.currentIndex)
+                require(i >= 0) { "targetIndex not found in storyboard" }
+                storyState.storyboard.indices.getOrNull(i + 1)
+            }
+            nextIndex?.let {
+                ClickableScenePreview(
+                    storyboard = storyState.storyboard,
+                    index = it,
+                    onClick = {
+                        job?.cancel()
+                        job = coroutineScope.launch {
+                            storyState.jumpTo(it)
+                            job = null
+                        }
+                    },
+                )
+            }
+        }
+        // TODO previous frame?
+        // TODO highlight frame which is being advanced to?
+    }
+}
+
+@Composable
+private fun Captions(captions: SnapshotStateList<Caption>) {
+    // TODO present these in a different way?
+    //  - vertical list of cards?
+    if (captions.isNotEmpty()) {
+        var selectedTabIndex by remember { mutableStateOf(0) }
+        Scaffold(
+            topBar = {
+                TabRow(selectedTabIndex = selectedTabIndex) {
+                    captions.forEachIndexed { index, tab ->
+                        Tab(
+                            text = { Text(tab.title) },
+                            selected = selectedTabIndex == index,
+                            onClick = { selectedTabIndex = index }
                         )
                     }
                 }
-                // TODO previous frame?
-                // TODO highlight frame which is being advanced to?
-            }
-
-            if (notes.tabs.isNotEmpty()) {
-                var state by remember { mutableStateOf(0) }
-                Scaffold(
-                    topBar = {
-                        TabRow(selectedTabIndex = state) {
-                            notes.tabs.forEachIndexed { index, tab ->
-                                Tab(
-                                    text = { Text(tab.title) },
-                                    selected = state == index,
-                                    onClick = { state = index }
-                                )
-                            }
-                        }
-                    },
-                ) {
-                    val tab = notes.tabs[state]
-                    tab.content()
-                }
-            }
+            },
+        ) {
+            val tab = captions[selectedTabIndex]
+            tab.content()
         }
     }
 }
@@ -142,4 +154,3 @@ private fun SceneAnimationProgressIndicator(storyboard: StoryState) {
         }
     }
 }
-

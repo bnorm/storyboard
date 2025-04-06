@@ -22,13 +22,12 @@ import java.nio.file.Path
 import java.nio.file.StandardOpenOption
 import kotlin.io.path.writeBytes
 
-class StoryboardPdfExporter(
-    private val storyboard: Storyboard,
-) {
+class StoryboardPdfExporter {
     var status by mutableStateOf<ExportStatus?>(null)
         private set
 
     suspend fun export(
+        storyboard: Storyboard,
         width: Int = storyboard.size.width.value.toInt(),
         height: Int = storyboard.size.height.value.toInt(),
     ) {
@@ -43,6 +42,7 @@ class StoryboardPdfExporter(
             withContext(Dispatchers.IO) {
                 runInterruptible {
                     exportAsPdf(
+                        storyboard = storyboard,
                         path = file.file.toPath(),
                         width = width,
                         height = height,
@@ -52,7 +52,12 @@ class StoryboardPdfExporter(
         }
     }
 
-    private fun exportAsPdf(path: Path, width: Int, height: Int) {
+    private fun exportAsPdf(
+        storyboard: Storyboard,
+        path: Path,
+        width: Int,
+        height: Int,
+    ) {
         try {
             val doc = PDDocument()
 

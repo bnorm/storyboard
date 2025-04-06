@@ -1,4 +1,4 @@
-package dev.bnorm.storyboard.easel.notes
+package dev.bnorm.storyboard.easel.assist
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.SharedTransitionLayout
@@ -37,8 +37,24 @@ import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.TimeMark
 import kotlin.time.TimeSource
 
+@Composable
+fun StoryTimer(timeSource: TimeSource = TimeSource.Monotonic) {
+    val timer = remember(timeSource) { Timer(timeSource) }
+    LaunchedEffect(timer.state) { timer.await() }
+
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Text(
+            timer.toString(),
+            fontSize = 32.sp,
+            fontFamily = FontFamily.Monospace
+        )
+
+        TimerButtons(timer)
+    }
+}
+
 @Stable
-class Timer(
+private class Timer(
     val timeSource: TimeSource = TimeSource.Monotonic,
 ) {
     enum class State {
@@ -85,22 +101,6 @@ class Timer(
     override fun toString(): String {
         fun Long.pad(): String = toString().padStart(2, padChar = '0')
         return "${duration.inWholeHours.pad()}h ${(duration.inWholeMinutes % 60).pad()}m ${(duration.inWholeSeconds % 60).pad()}s"
-    }
-}
-
-@Composable
-fun StoryTimer(timeSource: TimeSource = TimeSource.Monotonic) {
-    val timer = remember(timeSource) { Timer(timeSource) }
-    LaunchedEffect(timer.state) { timer.await() }
-
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        Text(
-            timer.toString(),
-            fontSize = 32.sp,
-            fontFamily = FontFamily.Monospace
-        )
-
-        TimerButtons(timer)
     }
 }
 

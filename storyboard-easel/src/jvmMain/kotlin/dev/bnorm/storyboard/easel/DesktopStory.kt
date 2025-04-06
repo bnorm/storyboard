@@ -4,19 +4,21 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.movableContentWithReceiverOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyShortcut
 import androidx.compose.ui.window.*
 import dev.bnorm.storyboard.Storyboard
+import dev.bnorm.storyboard.easel.assist.StoryAssistantMenu
+import dev.bnorm.storyboard.easel.assist.StoryAssistantState
+import dev.bnorm.storyboard.easel.assist.StoryAssistantWindow
+import dev.bnorm.storyboard.easel.export.ExportMenu
 import dev.bnorm.storyboard.easel.export.ExportProgressPopup
 import dev.bnorm.storyboard.easel.export.StoryboardPdfExporter
-import dev.bnorm.storyboard.easel.notes.StoryNotes
 import dev.bnorm.storyboard.easel.overlay.OverlayNavigation
 import dev.bnorm.storyboard.easel.overlay.StoryOverlayScope
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalStoryStateApi::class)
 @Composable
@@ -39,11 +41,9 @@ fun ApplicationScope.DesktopStory(
         OverlayNavigation(storyState)
     },
 ) {
-    val notes = remember { StoryNotes() }
     val desktopState = rememberDesktopState(storyState.storyboard)
-
-    val coroutineScope = rememberCoroutineScope()
-    val exporter = remember { StoryboardPdfExporter(storyState.storyboard) }
+    val assistantState = remember(storyState) { StoryAssistantState(storyState) }
+    val exporter = remember(storyState.storyboard) { StoryboardPdfExporter() }
 
     if (desktopState == null) {
         // Need a window to keep the application from closing.
@@ -52,37 +52,42 @@ fun ApplicationScope.DesktopStory(
         return
     }
 
-    @Composable
-    fun MenuBarScope.menuBar() {
-        Menu("Play") {
-            Item(text = "Fullscreen", shortcut = KeyShortcut(Key.P, alt = true, meta = true)) {
-                // TODO keynote seems to create a new window which fades in over the entire screen
-                //  - is this a better experience then converting the window to full screen?
-                //  - would *just* the overview be shown when not in full screen?
-                desktopState.storyboard.placement = when (desktopState.storyboard.placement) {
-                    WindowPlacement.Floating -> WindowPlacement.Fullscreen
-                    WindowPlacement.Maximized -> WindowPlacement.Fullscreen
-                    WindowPlacement.Fullscreen -> WindowPlacement.Floating // TODO go back to float or max?
-                }
-            }
-        }
-        Menu("Notes") {
-            CheckboxItem(text = "Visible", checked = notes.visible, shortcut = KeyShortcut(Key.F2)) {
-                notes.visible = it
-            }
-        }
-        Menu("Export") {
-            Item(
-                text = "PDF",
-                enabled = exporter.status == null,
-                onClick = { coroutineScope.launch { exporter.export() } },
-            )
+    val menuBar = movableContentWithReceiverOf<MenuBarScope> {
+        DesktopMenu(desktopState.story) {
+            StoryAssistantMenu(assistantState)
+            ExportMenu(exporter, storyState)
         }
     }
 
-    Window(
+    StoryWindow(
+        storyState = storyState,
         onCloseRequest = ::exitApplication,
-        state = desktopState.storyboard,
+        windowState = desktopState.story,
+        menuBar = menuBar,
+        overlay = overlay,
+        exporter = exporter,
+    )
+
+    StoryAssistantWindow(
+        assistantState = assistantState,
+        menuBar = menuBar,
+        windowState = desktopState.assistant,
+    )
+}
+
+@Composable
+private fun StoryWindow(
+    storyState: StoryState,
+    onCloseRequest: () -> Unit,
+    modifier: Modifier = Modifier,
+    windowState: WindowState = rememberWindowState(),
+    menuBar: @Composable MenuBarScope.() -> Unit = {},
+    overlay: @Composable StoryOverlayScope.() -> Unit = {},
+    exporter: StoryboardPdfExporter,
+) {
+    Window(
+        onCloseRequest = onCloseRequest,
+        state = windowState,
         title = storyState.storyboard.title,
     ) {
         MenuBar { menuBar() }
@@ -91,29 +96,35 @@ fun ApplicationScope.DesktopStory(
             storyState = storyState,
             overlay = {
                 // Only display overlay navigation when *not* fullscreen.
-                if (desktopState.storyboard.placement != WindowPlacement.Fullscreen) {
+                if (windowState.placement != WindowPlacement.Fullscreen) {
                     overlay()
                 }
             },
-            modifier = Modifier.fillMaxSize()
+            modifier = modifier.fillMaxSize()
                 .background(MaterialTheme.colors.background),
         )
 
         exporter.status?.let { ExportProgressPopup(it) }
     }
+}
 
-    if (notes.visible) {
-        Window(
-            onCloseRequest = { notes.visible = false },
-            state = desktopState.notes,
-            title = "Notes",
-        ) {
-            MenuBar { menuBar() }
 
-            StoryNotes(
-                storyState = storyState,
-                notes = notes,
-            )
+@Composable
+fun MenuBarScope.DesktopMenu(
+    windowState: WindowState,
+    content: @Composable MenuBarScope.() -> Unit,
+) {
+    Menu("Play") {
+        Item(text = "Fullscreen", shortcut = KeyShortcut(Key.P, alt = true, meta = true)) {
+            // TODO keynote seems to create a new window which fades in over the entire screen
+            //  - is this a better experience then converting the window to full screen?
+            //  - would *just* the overview be shown when not in full screen?
+            windowState.placement = when (windowState.placement) {
+                WindowPlacement.Floating -> WindowPlacement.Fullscreen
+                WindowPlacement.Maximized -> WindowPlacement.Fullscreen
+                WindowPlacement.Fullscreen -> WindowPlacement.Floating // TODO go back to float or max?
+            }
         }
     }
+    content()
 }

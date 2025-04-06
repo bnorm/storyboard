@@ -8,7 +8,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import dev.bnorm.storyboard.StoryboardBuilder
-import dev.bnorm.storyboard.easel.notes.NotesTab
+import dev.bnorm.storyboard.easel.assist.SceneCaption
 import dev.bnorm.storyboard.easel.template.Body
 import dev.bnorm.storyboard.easel.template.Header
 import dev.bnorm.storyboard.toState
@@ -35,7 +35,7 @@ fun StoryboardBuilder.NavigationScene() = scene(
         }
     }
 
-    NotesTab("Notes") {
-        Text("Hello! I'm a note!")
+    SceneCaption("Captions") {
+        Text("Hello! I'm a caption!")
     }
 }
