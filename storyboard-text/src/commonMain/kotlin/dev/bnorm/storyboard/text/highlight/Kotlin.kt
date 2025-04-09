@@ -10,7 +10,7 @@ import org.antlr.v4.kotlinruntime.Token
 
 internal fun highlightKotlin(
     text: String,
-    codeStyle: Highlighting,
+    codeStyle: CodeStyle,
     identifierStyle: (String) -> SpanStyle? = { null },
 ): AnnotatedString {
     return buildAnnotatedString {

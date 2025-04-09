@@ -8,11 +8,11 @@ enum class Language {
 }
 
 fun String.highlight(
-    highlighting: Highlighting,
+    codeStyle: CodeStyle,
     language: Language,
     identifierStyle: (String) -> SpanStyle? = { null },
 ): AnnotatedString {
     when (language) {
-        Language.Kotlin -> return highlightKotlin(this, highlighting, identifierStyle)
+        Language.Kotlin -> return highlightKotlin(this, codeStyle, identifierStyle)
     }
 }

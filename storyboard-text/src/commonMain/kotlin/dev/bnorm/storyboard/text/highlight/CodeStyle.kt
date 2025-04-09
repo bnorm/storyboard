@@ -1,15 +1,11 @@
 package dev.bnorm.storyboard.text.highlight
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.text.SpanStyle
 
-// TODO name: CodeStyle?
+// TODO provide language specific extension support?
 @Immutable
-class Highlighting private constructor(
+class CodeStyle private constructor(
     val simple: SpanStyle,
     val number: SpanStyle,
     val keyword: SpanStyle,
@@ -25,16 +21,12 @@ class Highlighting private constructor(
     val typeParameters: SpanStyle,
 ) {
     companion object {
-        val current: Highlighting
-            @Composable
-            get() = LocalHighlighting.current
-
         fun build(
             base: SpanStyle = SpanStyle(),
             builder: Builder.() -> Unit,
-        ): Highlighting {
+        ): CodeStyle {
             return Builder(
-                base = Highlighting(
+                base = CodeStyle(
                     simple = base,
                     number = base,
                     keyword = base,
@@ -53,7 +45,7 @@ class Highlighting private constructor(
         }
     }
 
-    class Builder internal constructor(base: Highlighting) {
+    class Builder internal constructor(base: CodeStyle) {
         var simple: SpanStyle = base.simple
         var number: SpanStyle = base.number
         var keyword: SpanStyle = base.keyword
@@ -68,8 +60,8 @@ class Highlighting private constructor(
         var extensionFunctionCall: SpanStyle = base.extensionFunctionCall
         var typeParameters: SpanStyle = base.typeParameters
 
-        fun build(): Highlighting {
-            return Highlighting(
+        fun build(): CodeStyle {
+            return CodeStyle(
                 simple = simple,
                 number = number,
                 keyword = keyword,
@@ -86,23 +78,4 @@ class Highlighting private constructor(
             )
         }
     }
-}
-
-private val LocalHighlighting = staticCompositionLocalOf<Highlighting> {
-    // TODO provide a default highlighting
-    //  compatible with default material theme?
-    error("Highlighting is not provided")
-}
-
-@Composable
-fun Highlighting(highlighting: Highlighting, content: @Composable () -> Unit) {
-    CompositionLocalProvider(LocalHighlighting provides highlighting) {
-        content()
-    }
-}
-
-@Composable
-fun <T : Any> rememberHighlighted(vararg key: Any?, content: (Highlighting) -> T): T {
-    val highlighting = Highlighting.current
-    return rememberSaveable(highlighting, *key) { content(highlighting) }
 }
