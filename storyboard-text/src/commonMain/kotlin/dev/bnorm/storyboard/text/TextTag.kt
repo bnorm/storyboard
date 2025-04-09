@@ -3,87 +3,132 @@ package dev.bnorm.storyboard.text
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import kotlin.properties.PropertyDelegateProvider
+import kotlin.properties.ReadOnlyProperty
+import kotlin.reflect.KProperty
 
-data class TextTag(
-    val id: String,
-    val description: String,
-    val category: String? = null,
+sealed interface TextTag {
+    val id: String
+    val description: String
+    val data: Any? // TODO make generic?
+
+    val annotationStringTag: String
+}
+
+fun <R> buildTextTags(block: TextTagScope.() -> R): R {
+    return TextTagScope.Default().block()
+}
+
+abstract class TextTagScope(
+    private val tagStart: Char,
+    private val tagEnd: Char,
 ) {
-    init {
-        require(TAG_START !in id && TAG_END !in id) { "id cannot contain '$TAG_START' or '$TAG_END': $id" }
+    interface TagProvider : PropertyDelegateProvider<Any?, ReadOnlyProperty<Any?, TextTag>>
+
+    open class Default() : TextTagScope(tagStart = '⦕', tagEnd = '⦖')
+
+    private val regex = "${tagStart}(?<id>[^${tagStart}$tagEnd]+)$tagEnd".toRegex()
+    private val annotationStringTag = "${tagStart}$tagEnd"
+
+
+    private val _tags = mutableMapOf<String, TextTagImpl>()
+    val tags: Collection<TextTag> get() = _tags.values
+
+    fun tag(description: String, data: Any? = null): TagProvider {
+        return TagProviderImpl(description, data)
     }
 
-    override fun toString(): String {
-        return "$TAG_START$id$TAG_END"
-    }
+    fun extractTags(string: String): AnnotatedString {
+        val starts = mutableMapOf<TextTag, Int>()
+        val annotatedString = AnnotatedString.Builder()
+        var offset = 0
+        var removed = 0
+        for (match in regex.findAll(string)) {
+            // Build string without tags.
+            annotatedString.append(string.substring(offset, match.range.start))
+            offset = match.range.endInclusive + 1
 
-    companion object {
-        // TODO could we make these tags customizable?
-        //  - within a TextTagScope for example?
-        private const val TAG_START = '⦕'
-        private const val TAG_END = '⦖'
-        val REGEX = "$TAG_START(?<id>[^$TAG_START$TAG_END]+)$TAG_END".toRegex()
-        internal const val TAG_NAME = "$TAG_START$TAG_END"
-
-        fun extractTags(str: AnnotatedString): AnnotatedString {
-            return buildAnnotatedString {
-                // Merge the original AnnotatedString.
-                append(str)
-
-                // And extracted tags from the raw text of the original AnnotatedString.
-                val ranges = extractTags(str.text).getStringAnnotations(TAG_NAME, 0, length)
-                for (range in ranges) {
-                    addStringAnnotation(TAG_NAME, range.item, range.start, range.end)
-                }
-            }
-        }
-
-        fun extractTags(str: String): AnnotatedString {
-            val starts = mutableMapOf<TextTag, Int>()
-            val annotatedString = AnnotatedString.Builder()
-
-            var offset = 0
-            var removed = 0
-            for (match in REGEX.findAll(str)) {
-                // Build string without tags.
-                annotatedString.append(str.substring(offset, match.range.start))
-                offset = match.range.endInclusive + 1
-
-                // Build a list of tag ranges.
-                val tag = TextTag(match.groupValues[1], "", null)
-                val last = starts.remove(tag)
-                if (last != null) {
-                    val range = last..<(match.range.start - removed)
-                    annotatedString.addStringAnnotation(
-                        tag = TAG_NAME,
-                        annotation = tag.id,
-                        start = range.start,
-                        end = range.endInclusive + 1
-                    )
-                } else {
-                    starts.put(tag, match.range.start - removed)
-                }
-                removed += match.value.length
-            }
-
-            // Add remaining text to string.
-            if (offset < str.length) {
-                annotatedString.append(str.substring(offset, str.length))
-            }
-
-            // Add remaining tags to string.
-            // TODO should this be an error?
-            for ((tag, start) in starts) {
-                val range = (start - removed)..(str.length - removed)
+            // Build a list of tag ranges.
+            val tagId = match.groupValues[1]
+            val tag = _tags[tagId] ?: error("unknown tag: $tagId")
+            val last = starts.remove(tag)
+            if (last != null) {
+                val range = last..<(match.range.start - removed)
                 annotatedString.addStringAnnotation(
-                    tag = TAG_NAME,
+                    tag = annotationStringTag,
                     annotation = tag.id,
                     start = range.start,
                     end = range.endInclusive + 1
                 )
+            } else {
+                starts.put(tag, match.range.start - removed)
             }
+            removed += match.value.length
+        }
 
-            return annotatedString.toAnnotatedString()
+        // Add remaining text to string.
+        if (offset < string.length) {
+            annotatedString.append(string.substring(offset, string.length))
+        }
+
+        // Add remaining tags to string.
+        // TODO should this be an error?
+        for ((tag, start) in starts) {
+            val range = (start - removed)..(string.length - removed)
+            annotatedString.addStringAnnotation(
+                tag = annotationStringTag,
+                annotation = tag.id,
+                start = range.start,
+                end = range.endInclusive + 1
+            )
+        }
+        return annotatedString.toAnnotatedString()
+    }
+
+    fun extractTags(string: AnnotatedString): AnnotatedString {
+        return buildAnnotatedString {
+            // Merge the original AnnotatedString.
+            append(string)
+
+            // And extracted tags from the raw text of the original AnnotatedString.
+            val ranges = extractTags(string.text).getStringAnnotations(annotationStringTag, 0, length)
+            for (range in ranges) {
+                addStringAnnotation(annotationStringTag, range.item, range.start, range.end)
+            }
+        }
+    }
+
+    private inner class TextTagImpl(
+        override val id: String,
+        override val description: String,
+        override val data: Any?,
+    ) : TextTag {
+        override val annotationStringTag: String
+            get() = this@TextTagScope.annotationStringTag
+
+        override fun toString(): String {
+            return "${tagStart}$id${tagEnd}"
+        }
+    }
+
+    private inner class TagProviderImpl(
+        private val description: String,
+        private val data: Any?,
+    ) : TagProvider {
+        override operator fun provideDelegate(
+            thisRef: Any?,
+            property: KProperty<*>,
+        ): ReadOnlyProperty<Any?, TextTag> {
+            val id = property.name
+            require(tagStart !in id && tagEnd !in id) { "name cannot contain '${tagStart}' or '${tagEnd}': $id" }
+
+            val tag = TextTagImpl(id, description, data)
+            val previous = _tags.put(id, tag)
+            if (previous != null) error("tag '${tag.id}' already exists")
+
+            return object : ReadOnlyProperty<Any?, TextTag> {
+                override fun getValue(thisRef: Any?, property: KProperty<*>): TextTag = tag
+            }
         }
     }
 }
@@ -95,7 +140,7 @@ fun AnnotatedString.addStyleByTag(
 ): AnnotatedString {
     if (tagged == null && untagged == null) return this
 
-    val ranges = getStringAnnotations(TextTag.TAG_NAME, 0, length).filter { it.item == tag.id }
+    val ranges = getStringAnnotations(tag.annotationStringTag, 0, length).filter { it.item == tag.id }
     if (ranges.isEmpty()) {
         return when (untagged) {
             null -> this
@@ -166,7 +211,7 @@ fun AnnotatedString.replaceAllByTag(
     tag: TextTag,
     replacement: AnnotatedString,
 ): AnnotatedString {
-    val ranges = getStringAnnotations(TextTag.TAG_NAME, 0, length).filter { it.item == tag.id }
+    val ranges = getStringAnnotations(tag.annotationStringTag, 0, length).filter { it.item == tag.id }
     if (ranges.isEmpty()) return this
 
     val builder = AnnotatedString.Builder()
@@ -179,7 +224,12 @@ fun AnnotatedString.replaceAllByTag(
         if (replacement.isNotEmpty()) {
             builder.append(replacement)
         }
-        builder.addStringAnnotation(TextTag.TAG_NAME, tag.id, builder.length - replacement.length, builder.length)
+        builder.addStringAnnotation(
+            tag.annotationStringTag,
+            tag.id,
+            builder.length - replacement.length,
+            builder.length
+        )
 
         last = range.end
     }
@@ -192,7 +242,7 @@ fun AnnotatedString.replaceAllByTag(
 }
 
 fun AnnotatedString.splitByTags(): List<AnnotatedString> {
-    val ranges = getStringAnnotations(TextTag.TAG_NAME, 0, length)
+    val ranges = getStringAnnotations(0, length)
     val splits = buildSet {
         for (range in ranges) {
             add(range.start)
