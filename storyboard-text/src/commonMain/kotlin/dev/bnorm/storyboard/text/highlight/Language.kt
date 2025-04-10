@@ -10,9 +10,10 @@ enum class Language {
 fun String.highlight(
     codeStyle: CodeStyle,
     language: Language,
+    scope: CodeScope = CodeScope.File,
     identifierStyle: (String) -> SpanStyle? = { null },
 ): AnnotatedString {
     when (language) {
-        Language.Kotlin -> return highlightKotlin(this, codeStyle, identifierStyle)
+        Language.Kotlin -> return highlightKotlin(this, codeStyle, scope, identifierStyle)
     }
 }

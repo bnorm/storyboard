@@ -5,146 +5,239 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import dev.bnorm.storyboard.text.highlight.antlr.kotlin.KotlinLexer
-import org.antlr.v4.kotlinruntime.CharStreams
-import org.antlr.v4.kotlinruntime.Token
+import dev.bnorm.storyboard.text.highlight.antlr.kotlin.KotlinParser
+import dev.bnorm.storyboard.text.highlight.antlr.kotlin.KotlinParser.Tokens
+import dev.bnorm.storyboard.text.highlight.antlr.kotlin.KotlinParserBaseListener
+import org.antlr.v4.kotlinruntime.*
+import org.antlr.v4.kotlinruntime.tree.ParseTreeWalker
+import org.antlr.v4.kotlinruntime.tree.TerminalNode
 
+// TODO support passing the scope to qualifier?
+//  - do we really want to rebuild call resolution?
+//  - could probably handle like 99% of cases without a ton of code...
 internal fun highlightKotlin(
     text: String,
     codeStyle: CodeStyle,
+    scope: CodeScope,
     identifierStyle: (String) -> SpanStyle? = { null },
 ): AnnotatedString {
     return buildAnnotatedString {
         withStyle(codeStyle.simple) { append(text) }
 
-        KotlinLexer(CharStreams.fromString(text)).run {
-            fun AnnotatedString.Builder.addIdentifierStyle(token: Token) {
-                val style = token.text?.let { identifierStyle(it) }
-                if (style != null) {
-                    addStyle(style, token)
+        val formatListener = object : KotlinParserBaseListener() {
+            private var scopes = ArrayDeque<CodeScope>().apply {
+                addFirst(scope)
+            }
+
+            override fun enterKotlinFile(ctx: KotlinParser.KotlinFileContext) {
+                scopes.addFirst(CodeScope.File)
+            }
+
+            override fun exitKotlinFile(ctx: KotlinParser.KotlinFileContext) {
+                scopes.removeLast()
+            }
+
+            override fun enterClassBody(ctx: KotlinParser.ClassBodyContext) {
+                scopes.addFirst(CodeScope.Class)
+            }
+
+            override fun exitClassBody(ctx: KotlinParser.ClassBodyContext) {
+                scopes.removeLast()
+            }
+
+            override fun enterFunctionBody(ctx: KotlinParser.FunctionBodyContext) {
+                scopes.addFirst(CodeScope.Function)
+            }
+
+            override fun exitFunctionBody(ctx: KotlinParser.FunctionBodyContext) {
+                scopes.removeLast()
+            }
+
+            override fun enterModifier(ctx: KotlinParser.ModifierContext) {
+                addStyle(codeStyle.keyword, ctx)
+            }
+
+            override fun enterPrimaryConstructor(ctx: KotlinParser.PrimaryConstructorContext) {
+                ctx.CONSTRUCTOR()?.let { addStyle(codeStyle.keyword, it.symbol) }
+            }
+
+            override fun enterAnonymousInitializer(ctx: KotlinParser.AnonymousInitializerContext) {
+                addStyle(codeStyle.keyword, ctx.INIT().symbol)
+            }
+
+            override fun enterLiteralConstant(ctx: KotlinParser.LiteralConstantContext) {
+                when {
+                    ctx.BooleanLiteral() != null -> addStyle(codeStyle.keyword, ctx)
+                    ctx.NullLiteral() != null -> addStyle(codeStyle.keyword, ctx)
+                    ctx.CharacterLiteral() != null -> addStyle(codeStyle.string, ctx)
+                    else -> addStyle(codeStyle.number, ctx)
                 }
             }
 
-            fun AnnotatedString.Builder.addStyle(token: Token): Token {
-                when (token.type) {
-                    KotlinLexer.Tokens.AS_SAFE,
-                    KotlinLexer.Tokens.GET,
-                    KotlinLexer.Tokens.SET,
-                    KotlinLexer.Tokens.FUN,
-                    KotlinLexer.Tokens.OBJECT,
-                    KotlinLexer.Tokens.PACKAGE,
-                    KotlinLexer.Tokens.CLASS,
-                    KotlinLexer.Tokens.INTERFACE,
-                    KotlinLexer.Tokens.TYPE_ALIAS,
-                    KotlinLexer.Tokens.CONSTRUCTOR,
-                    KotlinLexer.Tokens.BY,
-                    KotlinLexer.Tokens.VAL,
-                    KotlinLexer.Tokens.VAR,
-                    KotlinLexer.Tokens.COMPANION,
-                    KotlinLexer.Tokens.THIS,
-                    KotlinLexer.Tokens.IF,
-                    KotlinLexer.Tokens.ELSE,
-                    KotlinLexer.Tokens.WHEN,
-                    KotlinLexer.Tokens.TRY,
-                    KotlinLexer.Tokens.CATCH,
-                    KotlinLexer.Tokens.FINALLY,
-                    KotlinLexer.Tokens.FOR,
-                    KotlinLexer.Tokens.DO,
-                    KotlinLexer.Tokens.WHILE,
-                    KotlinLexer.Tokens.THROW,
-                    KotlinLexer.Tokens.RETURN,
-                    KotlinLexer.Tokens.AS,
-                    KotlinLexer.Tokens.IS,
-                    KotlinLexer.Tokens.IN,
-                    KotlinLexer.Tokens.NOT_IS,
-                    KotlinLexer.Tokens.NOT_IN,
-                    KotlinLexer.Tokens.PUBLIC,
-                    KotlinLexer.Tokens.PRIVATE,
-                    KotlinLexer.Tokens.PROTECTED,
-                    KotlinLexer.Tokens.INTERNAL,
-                    KotlinLexer.Tokens.ENUM,
-                    KotlinLexer.Tokens.SEALED,
-                    KotlinLexer.Tokens.ANNOTATION,
-                    KotlinLexer.Tokens.DATA,
-                    KotlinLexer.Tokens.OPERATOR,
-                    KotlinLexer.Tokens.OVERRIDE,
-                    KotlinLexer.Tokens.ABSTRACT,
-                    KotlinLexer.Tokens.NullLiteral,
-                        -> addStyle(codeStyle.keyword, token)
+            override fun enterFunctionDeclaration(ctx: KotlinParser.FunctionDeclarationContext) {
+                addStyle(codeStyle.functionDeclaration, ctx.simpleIdentifier())
+            }
 
-                    KotlinLexer.Tokens.BooleanLiteral,
-                        -> addStyle(codeStyle.keyword, token)
-
-                    KotlinLexer.Tokens.RealLiteral,
-                    KotlinLexer.Tokens.FloatLiteral,
-                    KotlinLexer.Tokens.DoubleLiteral,
-                    KotlinLexer.Tokens.IntegerLiteral,
-                    KotlinLexer.Tokens.HexLiteral,
-                    KotlinLexer.Tokens.BinLiteral,
-                    KotlinLexer.Tokens.UnsignedLiteral,
-                    KotlinLexer.Tokens.LongLiteral,
-                        -> addStyle(codeStyle.number, token)
-
-                    KotlinLexer.Tokens.CharacterLiteral,
-                        -> addStyle(codeStyle.string, token)
-
-                    KotlinLexer.Tokens.LineComment,
-                    KotlinLexer.Tokens.Inside_Comment,
-                    KotlinLexer.Tokens.DelimitedComment,
-                        -> addStyle(codeStyle.comment, token)
-
-                    KotlinLexer.Tokens.LineStrRef,
-                        -> {
-                        addStyle(codeStyle.keyword, token.startIndex, token.startIndex + 1)
-                        val style = token.text?.let { identifierStyle(it.substring(1)) }
-                        if (style != null) {
-                            addStyle(style, token)
-                        }
-                    }
-
-                    KotlinLexer.Tokens.QUOTE_OPEN,
-                    KotlinLexer.Tokens.QUOTE_CLOSE,
-                    KotlinLexer.Tokens.LineStrText,
-                        -> addStyle(codeStyle.string, token)
-
-                    KotlinLexer.Tokens.TRIPLE_QUOTE_OPEN,
-                    KotlinLexer.Tokens.TRIPLE_QUOTE_CLOSE,
-                        -> {
-                        addStyle(codeStyle.string, token)
-                        while (true) {
-                            val next = nextToken()
-                            // TODO handle string templates
-                            addStyle(codeStyle.string, next)
-                            if (next.type == KotlinLexer.Tokens.TRIPLE_QUOTE_CLOSE) {
-                                return next
-                            }
-                        }
-                    }
-
-                    KotlinLexer.Tokens.Identifier,
-                        -> addIdentifierStyle(token)
-
-                    KotlinLexer.Tokens.AT_NO_WS,
-                    KotlinLexer.Tokens.AT_PRE_WS,
-                        -> {
-                        addStyle(codeStyle.annotation, token)
-                        val next = nextToken()
-                        if (next.type == KotlinLexer.Tokens.Identifier) {
-                            addStyle(codeStyle.annotation, next)
-                        } else if (token.type >= 0) {
-                            return addStyle(token)
-                        }
-                        return next
-                    }
+            override fun enterClassParameter(ctx: KotlinParser.ClassParameterContext) {
+                if (ctx.VAL() != null || ctx.VAR() != null) {
+                    addStyle(codeStyle.property, ctx.simpleIdentifier())
                 }
+            }
 
+            override fun enterVariableDeclaration(ctx: KotlinParser.VariableDeclarationContext) {
+                if (scopes.first() == CodeScope.Function) return // Local scope
+                addStyle(codeStyle.property, ctx.simpleIdentifier())
+            }
+
+            override fun enterPrimaryExpression(ctx: KotlinParser.PrimaryExpressionContext) {
+                // Expression without a qualifier.
+                ctx.simpleIdentifier()?.let {
+                    val style = identifierStyle(it.text)
+                    if (style != null) addStyle(style, ctx)
+                }
+            }
+
+            override fun enterNavigationSuffix(ctx: KotlinParser.NavigationSuffixContext) {
+                // Expression with a qualifier.
+                ctx.simpleIdentifier()?.let {
+                    val style = identifierStyle(it.text)
+                    if (style != null) addStyle(style, ctx)
+                }
+            }
+
+            override fun enterDirectlyAssignableExpression(ctx: KotlinParser.DirectlyAssignableExpressionContext) {
+                // Direct assignment to a variable.
+                ctx.simpleIdentifier()?.let {
+                    val style = identifierStyle(it.text)
+                    if (style != null) addStyle(style, ctx)
+                }
+            }
+
+            override fun enterSingleAnnotation(ctx: KotlinParser.SingleAnnotationContext) {
+                ctx.AT_NO_WS()?.let { addStyle(codeStyle.annotation, it.symbol) }
+                ctx.AT_PRE_WS()?.let { addStyle(codeStyle.annotation, it.symbol) }
+            }
+
+            override fun enterUnescapedAnnotation(ctx: KotlinParser.UnescapedAnnotationContext) {
+                val userType = ctx.constructorInvocation()?.userType() ?: ctx.userType()
+                val stopIndex = (userType?.stop?.stopIndex ?: ctx.start!!.stopIndex) + 1
+                addStyle(codeStyle.annotation, ctx.start!!.startIndex, stopIndex)
+            }
+
+            override fun enterStringLiteral(ctx: KotlinParser.StringLiteralContext) {
+                addStyle(codeStyle.string, ctx)
+            }
+
+            override fun enterLineStringContent(ctx: KotlinParser.LineStringContentContext) {
+                ctx.LineStrRef()?.let {
+                    addStyle(codeStyle.keyword, it.symbol.startIndex, it.symbol.startIndex + 1)
+                    val style = identifierStyle(ctx.text.substring(1)) ?: codeStyle.simple
+                    addStyle(style, it.symbol.startIndex + 1, it.symbol.stopIndex + 1)
+                }
+                ctx.LineStrEscapedChar()?.let { addStyle(codeStyle.keyword, it.symbol) }
+            }
+
+            override fun enterLineStringExpression(ctx: KotlinParser.LineStringExpressionContext) {
+                addStyle(codeStyle.keyword, ctx)
+                addStyle(codeStyle.simple, ctx.expression())
+            }
+
+            override fun enterMultiLineStringContent(ctx: KotlinParser.MultiLineStringContentContext) {
+                ctx.MultiLineStrRef()?.let {
+                    addStyle(codeStyle.keyword, it.symbol.startIndex, it.symbol.startIndex + 1)
+                    val style = identifierStyle(ctx.text.substring(1)) ?: codeStyle.simple
+                    addStyle(style, it.symbol.startIndex + 1, it.symbol.stopIndex + 1)
+                }
+            }
+
+            override fun enterMultiLineStringExpression(ctx: KotlinParser.MultiLineStringExpressionContext) {
+                addStyle(codeStyle.keyword, ctx)
+                addStyle(codeStyle.simple, ctx.expression())
+            }
+
+            override fun enterValueArgument(ctx: KotlinParser.ValueArgumentContext) {
+                ctx.simpleIdentifier()?.let { addStyle(codeStyle.namedArgument, it) }
+                ctx.ASSIGNMENT()?.let { addStyle(codeStyle.namedArgument, it.symbol) }
+            }
+
+            override fun enterLabel(ctx: KotlinParser.LabelContext) {
+                addStyle(codeStyle.label, ctx.simpleIdentifier())
+                ctx.AT_NO_WS()?.let { addStyle(codeStyle.label, it.symbol) }
+                ctx.AT_POST_WS()?.let { addStyle(codeStyle.label, it.symbol) }
+            }
+
+            override fun visitTerminal(node: TerminalNode) {
+                val symbol = node.symbol
+                when (symbol.type) {
+                    Tokens.AS_SAFE,
+                    Tokens.GET,
+                    Tokens.SET,
+                    Tokens.FUN,
+                    Tokens.OBJECT,
+                    Tokens.PACKAGE,
+                    Tokens.CLASS,
+                    Tokens.INTERFACE,
+                    Tokens.TYPE_ALIAS,
+                    Tokens.BY,
+                    Tokens.VAL,
+                    Tokens.VAR,
+                    Tokens.COMPANION,
+                    Tokens.THIS,
+                    Tokens.IF,
+                    Tokens.ELSE,
+                    Tokens.WHEN,
+                    Tokens.TRY,
+                    Tokens.CATCH,
+                    Tokens.FINALLY,
+                    Tokens.FOR,
+                    Tokens.DO,
+                    Tokens.WHILE,
+                    Tokens.THROW,
+                    Tokens.RETURN,
+                    Tokens.AS,
+                    Tokens.IS,
+                    Tokens.IN,
+                    Tokens.NOT_IS,
+                    Tokens.NOT_IN,
+                        -> addStyle(codeStyle.keyword, symbol)
+
+                }
+            }
+        }
+
+        // Make sure the text ends with a new-line.
+        val stream = CharStreams.fromString(text + "\n")
+        val lexer = KotlinLexer(stream)
+
+        // The parser ignores code comments,
+        // so create a custom source which handles highlighting them.
+        val source = object : TokenSource by lexer {
+            override fun nextToken(): Token {
+                val token = lexer.nextToken()
+                when (token.type) {
+                    Tokens.LineComment,
+                    Tokens.Inside_Comment,
+                    Tokens.DelimitedComment,
+                        -> addStyle(codeStyle.comment, token)
+                }
                 return token
             }
-
-            do {
-                val token = addStyle(nextToken())
-            } while (token.type >= 0)
         }
+
+        val parser = KotlinParser(CommonTokenStream(source))
+        val context = when (scope) {
+            CodeScope.File -> parser.script()
+            CodeScope.Class -> parser.classMemberDeclarations()
+            CodeScope.Function -> parser.statements()
+        }
+
+        val walker = ParseTreeWalker()
+        walker.walk(formatListener, context)
     }
+}
+
+private fun AnnotatedString.Builder.addStyle(style: SpanStyle, ctx: ParserRuleContext) {
+    addStyle(style, ctx.start!!.startIndex, ctx.stop!!.stopIndex + 1)
 }
 
 private fun AnnotatedString.Builder.addStyle(spanStyle: SpanStyle, token: Token) {

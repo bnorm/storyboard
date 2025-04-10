@@ -19,6 +19,8 @@ class CodeStyle private constructor(
     val staticFunctionCall: SpanStyle,
     val extensionFunctionCall: SpanStyle,
     val typeParameters: SpanStyle,
+    val namedArgument: SpanStyle,
+    val label: SpanStyle,
 ) {
     companion object {
         fun build(
@@ -40,6 +42,8 @@ class CodeStyle private constructor(
                     staticFunctionCall = base,
                     extensionFunctionCall = base,
                     typeParameters = base,
+                    namedArgument = base,
+                    label = base,
                 )
             ).apply(builder).build()
         }
@@ -59,6 +63,8 @@ class CodeStyle private constructor(
         var staticFunctionCall: SpanStyle = base.staticFunctionCall
         var extensionFunctionCall: SpanStyle = base.extensionFunctionCall
         var typeParameters: SpanStyle = base.typeParameters
+        var namedArgument: SpanStyle = base.namedArgument
+        var label: SpanStyle = base.label
 
         fun build(): CodeStyle {
             return CodeStyle(
@@ -75,6 +81,8 @@ class CodeStyle private constructor(
                 staticFunctionCall = staticFunctionCall,
                 extensionFunctionCall = extensionFunctionCall,
                 typeParameters = typeParameters,
+                namedArgument = namedArgument,
+                label = label,
             )
         }
     }
