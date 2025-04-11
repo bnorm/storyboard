@@ -6,7 +6,7 @@ import org.antlr.v4.kotlinruntime.tree.ParseTreeListener
 /**
  * This interface defines a complete listener for a parse tree produced by [KotlinParser].
  */
-public interface KotlinParserListener : ParseTreeListener {
+internal interface KotlinParserListener : ParseTreeListener {
     /**
      * Enter a parse tree produced by [KotlinParser.kotlinFile].
      *

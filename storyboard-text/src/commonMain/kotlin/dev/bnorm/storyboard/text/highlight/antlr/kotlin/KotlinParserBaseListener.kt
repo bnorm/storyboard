@@ -10,7 +10,7 @@ import org.antlr.v4.kotlinruntime.tree.TerminalNode
  * which can be extended to create a listener which only needs to handle a subset
  * of the available methods.
  */
-public open class KotlinParserBaseListener : KotlinParserListener {
+internal open class KotlinParserBaseListener : KotlinParserListener {
     /**
      * The default implementation does nothing.
      */

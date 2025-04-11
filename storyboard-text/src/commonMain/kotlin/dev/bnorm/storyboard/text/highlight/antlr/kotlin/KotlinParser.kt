@@ -22,7 +22,7 @@ import kotlin.jvm.JvmField
     "ConvertSecondaryConstructorToPrimary",
     "CanBeVal",
 )
-public open class KotlinParser(input: TokenStream) : Parser(input) {
+internal open class KotlinParser(input: TokenStream) : Parser(input) {
     private companion object {
         init {
             RuntimeMetaData.checkVersion("4.13.1", RuntimeMetaData.runtimeVersion)
