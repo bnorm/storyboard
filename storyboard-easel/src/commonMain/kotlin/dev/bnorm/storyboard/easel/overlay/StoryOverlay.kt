@@ -4,7 +4,9 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.layout.*
+ import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -26,27 +28,24 @@ fun StoryOverlay(
 ) {
     val coroutineScope = rememberCoroutineScope()
     val state = remember(coroutineScope) { OverlayState(coroutineScope) }
-    Box(
-        modifier = modifier
-            .onPointerMovePress(state)
-            .height(IntrinsicSize.Min)
-            .width(IntrinsicSize.Min)
-    ) {
+    Box(modifier = modifier.onPointerMovePress(state)) {
         content()
 
-        AnimatedVisibility(
-            visible = state.visible,
-            enter = fadeIn(), exit = fadeOut()
-        ) {
-            val alpha by animateFloatAsState(if (state.inside) 0.75f else 0.25f)
-            Box(Modifier.fillMaxSize().alpha(alpha)) {
-                val scope = remember(key1 = state, key2 = this) {
-                    BoxStoryOverlayScope(
-                        state = state,
-                        boxScope = this
-                    )
+        Box(Modifier.matchParentSize()) {
+            AnimatedVisibility(
+                visible = state.visible,
+                enter = fadeIn(), exit = fadeOut()
+            ) {
+                val alpha by animateFloatAsState(if (state.inside) 0.75f else 0.25f)
+                Box(Modifier.fillMaxSize().alpha(alpha)) {
+                    val scope = remember(key1 = state, key2 = this) {
+                        BoxStoryOverlayScope(
+                            state = state,
+                            boxScope = this
+                        )
+                    }
+                    scope.overlay()
                 }
-                scope.overlay()
             }
         }
     }
