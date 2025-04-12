@@ -10,7 +10,10 @@ import dev.bnorm.storyboard.easel.StoryState
 @Stable
 class StoryAssistantState(
     internal val storyState: StoryState,
+    captions: List<Caption> = emptyList(),
 ) {
     internal var visible by mutableStateOf(false)
-    internal val captions = SnapshotStateList<Caption>()
+    internal val captions = SnapshotStateList<Caption>().apply {
+        addAll(captions)
+    }
 }

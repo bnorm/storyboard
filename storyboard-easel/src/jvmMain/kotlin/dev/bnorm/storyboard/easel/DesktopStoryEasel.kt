@@ -11,6 +11,7 @@ import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyShortcut
 import androidx.compose.ui.window.*
 import dev.bnorm.storyboard.Storyboard
+import dev.bnorm.storyboard.easel.assist.Caption
 import dev.bnorm.storyboard.easel.assist.StoryAssistantMenu
 import dev.bnorm.storyboard.easel.assist.StoryAssistantState
 import dev.bnorm.storyboard.easel.assist.StoryAssistantWindow
@@ -19,6 +20,8 @@ import dev.bnorm.storyboard.easel.export.ExportProgressPopup
 import dev.bnorm.storyboard.easel.export.StoryboardPdfExporter
 import dev.bnorm.storyboard.easel.overlay.OverlayNavigation
 import dev.bnorm.storyboard.easel.overlay.StoryOverlayScope
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
 
 @OptIn(ExperimentalStoryStateApi::class)
 @Composable
@@ -40,9 +43,10 @@ fun ApplicationScope.DesktopStoryEasel(
     overlay: @Composable StoryOverlayScope.() -> Unit = {
         OverlayNavigation(storyState)
     },
+    captions: ImmutableList<Caption> = persistentListOf(),
 ) {
     val desktopState = rememberDesktopState(storyState.storyboard)
-    val assistantState = remember(storyState) { StoryAssistantState(storyState) }
+    val assistantState = remember(storyState, captions) { StoryAssistantState(storyState, captions) }
     val exporter = remember(storyState.storyboard) { StoryboardPdfExporter() }
 
     if (desktopState == null) {

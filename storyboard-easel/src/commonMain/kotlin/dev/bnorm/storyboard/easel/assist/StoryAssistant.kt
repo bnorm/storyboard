@@ -26,7 +26,10 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 @Composable
-fun StoryAssistant(assistantState: StoryAssistantState, modifier: Modifier = Modifier) {
+fun StoryAssistant(
+    assistantState: StoryAssistantState,
+    modifier: Modifier = Modifier,
+) {
     Surface(
         modifier = Modifier.fillMaxSize()
             .requestFocus()
