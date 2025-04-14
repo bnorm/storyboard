@@ -1,16 +1,14 @@
 package dev.bnorm.storyboard.easel
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.movableContentWithReceiverOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.window.ApplicationScope
 import androidx.compose.ui.window.MenuBarScope
 import androidx.compose.ui.window.Window
 import dev.bnorm.storyboard.Storyboard
-import dev.bnorm.storyboard.easel.assist.Caption
-import dev.bnorm.storyboard.easel.assist.StoryAssistantMenu
-import dev.bnorm.storyboard.easel.assist.StoryAssistantState
-import dev.bnorm.storyboard.easel.assist.StoryAssistantWindow
+import dev.bnorm.storyboard.easel.assist.*
 import dev.bnorm.storyboard.easel.export.ExportMenu
 import dev.bnorm.storyboard.easel.export.StoryboardPdfExporter
 import dev.bnorm.storyboard.easel.overlay.OverlayNavigation
@@ -58,14 +56,16 @@ fun ApplicationScope.DesktopStoryEasel(
         }
     }
 
-    StoryEaselWindow(
-        storyState = storyState,
-        onCloseRequest = ::exitApplication,
-        windowState = desktopState.story,
-        menuBar = menuBar,
-        overlay = overlay,
-        exporter = exporter,
-    )
+    CompositionLocalProvider(LocalCaptions provides assistantState.captions) {
+        StoryEaselWindow(
+            storyState = storyState,
+            onCloseRequest = ::exitApplication,
+            windowState = desktopState.story,
+            menuBar = menuBar,
+            overlay = overlay,
+            exporter = exporter,
+        )
+    }
 
     StoryAssistantWindow(
         assistantState = assistantState,

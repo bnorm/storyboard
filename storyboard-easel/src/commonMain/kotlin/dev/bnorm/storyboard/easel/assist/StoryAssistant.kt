@@ -56,9 +56,7 @@ private fun ScenePreview(assistantState: StoryAssistantState) {
             Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
                 // TODO should "current" actually be target index?
                 Text("Current Frame")
-                CompositionLocalProvider(LocalCaptions provides assistantState.captions) {
-                    ClickableScenePreview(storyState.storyboard, storyState.currentIndex)
-                }
+                ClickableScenePreview(storyState.storyboard, storyState.currentIndex)
                 SceneAnimationProgressIndicator(storyState)
             }
             Spacer(Modifier.width(16.dp))
@@ -93,6 +91,7 @@ private fun ScenePreview(assistantState: StoryAssistantState) {
 
 @Composable
 private fun Captions(captions: SnapshotStateList<Caption>) {
+    // TODO maybe a header and surrounding box for the captions section?
     LazyColumn(
         contentPadding = PaddingValues(vertical = 8.dp),
     ) {

@@ -2,6 +2,8 @@ package dev.bnorm.storyboard.easel.assist
 
 import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshots.SnapshotStateList
+import dev.bnorm.storyboard.DisplayType
+import dev.bnorm.storyboard.LocalDisplayType
 
 @Immutable
 class Caption(
@@ -13,27 +15,20 @@ internal val LocalCaptions = compositionLocalOf<SnapshotStateList<Caption>?> { n
 /**
  * Creates a [Caption] within the [StoryAssistant].
  *
- * Captions are only created from within the Story Assistant,
- * and composition-local state is not shared between the Assistant window
- * and the Story window.
- * If state needs to be shared, consider using a view-model-like class,
- * and hoisting it to where the Storyboard is created.
- * Make sure the Storyboard is created outside of composition (or remembered)
- * so that it does not trigger recomposition!
- * See the interactive example for more details on how to achieve shared
- * state between the Assistant and the Story windows.
+ * Captions are only created when the Scene is in [Story][DisplayType.Story] mode.
+ * This means captions will disappear when the
+ * [overview][dev.bnorm.storyboard.easel.overview.StoryOverview] is opened.
  */
+// TODO should the overview be able to support gathering captions for the selected scene?
 @Composable
 fun SceneCaption(content: @Composable () -> Unit) {
     val captions = LocalCaptions.current
-    if (captions != null) {
+    if (captions != null && LocalDisplayType.current == DisplayType.Story) {
         val captionContent = rememberUpdatedState(content)
         DisposableEffect(captionContent) {
-            val tab = Caption(captionContent.value)
-            captions.add(tab)
-            onDispose {
-                captions.remove(tab)
-            }
+            val caption = Caption(captionContent.value)
+            captions.add(caption)
+            onDispose { captions.remove(caption) }
         }
     }
 }
