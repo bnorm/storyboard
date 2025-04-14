@@ -4,4 +4,4 @@ import androidx.compose.runtime.compositionLocalOf
 
 val LocalStoryboard = compositionLocalOf<Storyboard?> { null }
 
-val LocalDisplayType = compositionLocalOf<DisplayType?> { null }
+val LocalSceneMode = compositionLocalOf<SceneMode?> { null }

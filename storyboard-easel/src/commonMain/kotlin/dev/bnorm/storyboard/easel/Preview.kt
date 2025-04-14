@@ -33,9 +33,9 @@ internal fun <T> ScenePreview(
     modifier: Modifier = Modifier,
     size: DpSize = Storyboard.DEFAULT_SIZE,
     decorator: SceneDecorator = SceneDecorator.None,
-    displayType: DisplayType = DisplayType.Preview,
+    sceneMode: SceneMode = SceneMode.Preview,
 ) {
-    SceneWrapper(size, decorator, displayType, modifier) {
+    SceneWrapper(size, decorator, sceneMode, modifier) {
         AnimatedVisibility(true) {
             key(scene, stateIndex) {
                 val scope = PreviewSceneScope(
@@ -55,9 +55,9 @@ fun <T> ScenePreview(
     modifier: Modifier = Modifier,
     size: DpSize = Storyboard.DEFAULT_SIZE,
     decorator: SceneDecorator = SceneDecorator.None,
-    displayType: DisplayType = DisplayType.Preview,
+    sceneMode: SceneMode = SceneMode.Preview,
 ) {
-    SceneWrapper(size, decorator, displayType, modifier) {
+    SceneWrapper(size, decorator, sceneMode, modifier) {
         AnimatedVisibility(true) {
             key(scene, frame) {
                 val scope = PreviewSceneScope(
@@ -76,10 +76,10 @@ fun <T> ScenePreview(
     scene: Scene<T>,
     frame: Frame<T>,
     modifier: Modifier = Modifier,
-    displayType: DisplayType = DisplayType.Preview,
+    sceneMode: SceneMode = SceneMode.Preview,
 ) {
     CompositionLocalProvider(LocalStoryboard provides storyboard) {
-        SceneWrapper(storyboard.size, storyboard.decorator, displayType, modifier) {
+        SceneWrapper(storyboard.size, storyboard.decorator, sceneMode, modifier) {
             AnimatedVisibility(true) {
                 key(scene, frame) {
                     val scope = PreviewSceneScope(
@@ -98,14 +98,14 @@ fun ScenePreview(
     storyboard: Storyboard,
     index: Storyboard.Index,
     modifier: Modifier = Modifier,
-    displayType: DisplayType = DisplayType.Preview,
+    sceneMode: SceneMode = SceneMode.Preview,
 ) {
     CompositionLocalProvider(LocalStoryboard provides storyboard) {
         ScenePreview(
             scene = storyboard.scenes[index.sceneIndex],
             stateIndex = index.stateIndex,
             modifier = modifier,
-            displayType = displayType,
+            sceneMode = sceneMode,
             size = storyboard.size,
             decorator = storyboard.decorator,
         )
@@ -118,26 +118,26 @@ fun <T> SceneGallery(
     modifier: Modifier = Modifier,
     size: DpSize = Storyboard.DEFAULT_SIZE,
     decorator: SceneDecorator = SceneDecorator.None,
-    displayType: DisplayType = DisplayType.Preview,
+    sceneMode: SceneMode = SceneMode.Preview,
 ) {
     Text("Frame: Start")
     ScenePreview(
         scene, Frame.Start,
-        modifier, size, decorator, displayType
+        modifier, size, decorator, sceneMode
     )
 
     for (stateIndex in scene.states.indices) {
         Text("Frame: $stateIndex")
         ScenePreview(
             scene, Frame.State(scene.states[stateIndex]),
-            modifier, size, decorator, displayType
+            modifier, size, decorator, sceneMode
         )
     }
 
     Text("Frame: End")
     ScenePreview(
         scene, Frame.End,
-        modifier, size, decorator, displayType
+        modifier, size, decorator, sceneMode
     )
 }
 
@@ -145,11 +145,11 @@ fun <T> SceneGallery(
 fun StoryGallery(
     storyboard: Storyboard,
     modifier: Modifier = Modifier,
-    displayType: DisplayType = DisplayType.Preview,
+    sceneMode: SceneMode = SceneMode.Preview,
 ) {
     CompositionLocalProvider(LocalStoryboard provides storyboard) {
         for (scene in storyboard.scenes) {
-            SceneGallery(scene, modifier, storyboard.size, storyboard.decorator, displayType)
+            SceneGallery(scene, modifier, storyboard.size, storyboard.decorator, sceneMode)
         }
     }
 }
@@ -158,7 +158,7 @@ fun StoryGallery(
 fun StoryPreview(
     storyboard: Storyboard,
     modifier: Modifier = Modifier,
-    displayType: DisplayType = DisplayType.Preview,
+    sceneMode: SceneMode = SceneMode.Preview,
 ) {
     Column(
         verticalArrangement = Arrangement.spacedBy(16.dp),
@@ -167,7 +167,7 @@ fun StoryPreview(
             .verticalScroll(rememberScrollState())
             .background(Color.Transparent)
     ) {
-        StoryGallery(storyboard, Modifier, displayType)
+        StoryGallery(storyboard, Modifier, sceneMode)
     }
 }
 
@@ -178,13 +178,13 @@ fun StoryGallery(
     description: String? = null,
     size: DpSize = Storyboard.DEFAULT_SIZE,
     decorator: SceneDecorator = SceneDecorator.None,
-    displayType: DisplayType = DisplayType.Preview,
+    sceneMode: SceneMode = SceneMode.Preview,
     block: StoryboardBuilder.() -> Unit,
 ) {
     StoryGallery(
         storyboard = Storyboard.build(name, description, size, decorator, block),
         modifier = modifier,
-        displayType = displayType,
+        sceneMode = sceneMode,
     )
 }
 
@@ -195,7 +195,7 @@ fun StoryPreview(
     description: String? = null,
     size: DpSize = Storyboard.DEFAULT_SIZE,
     decorator: SceneDecorator = SceneDecorator.None,
-    displayType: DisplayType = DisplayType.Preview,
+    sceneMode: SceneMode = SceneMode.Preview,
     block: StoryboardBuilder.() -> Unit,
 ) {
     Column(
@@ -210,7 +210,7 @@ fun StoryPreview(
             description = description,
             size = size,
             decorator = decorator,
-            displayType = displayType,
+            sceneMode = sceneMode,
             block = block,
         )
     }

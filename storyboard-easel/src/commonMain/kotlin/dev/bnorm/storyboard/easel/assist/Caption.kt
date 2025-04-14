@@ -2,8 +2,8 @@ package dev.bnorm.storyboard.easel.assist
 
 import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshots.SnapshotStateList
-import dev.bnorm.storyboard.DisplayType
-import dev.bnorm.storyboard.LocalDisplayType
+import dev.bnorm.storyboard.SceneMode
+import dev.bnorm.storyboard.LocalSceneMode
 
 @Immutable
 class Caption(
@@ -15,7 +15,7 @@ internal val LocalCaptions = compositionLocalOf<SnapshotStateList<Caption>?> { n
 /**
  * Creates a [Caption] within the [StoryAssistant].
  *
- * Captions are only created when the Scene is in [Story][DisplayType.Story] mode.
+ * Captions are only created when the Scene is in [Story][SceneMode.Story] mode.
  * This means captions will disappear when the
  * [overview][dev.bnorm.storyboard.easel.overview.StoryOverview] is opened.
  */
@@ -23,7 +23,7 @@ internal val LocalCaptions = compositionLocalOf<SnapshotStateList<Caption>?> { n
 @Composable
 fun SceneCaption(content: @Composable () -> Unit) {
     val captions = LocalCaptions.current
-    if (captions != null && LocalDisplayType.current == DisplayType.Story) {
+    if (captions != null && LocalSceneMode.current == SceneMode.Story) {
         val captionContent = rememberUpdatedState(content)
         DisposableEffect(captionContent) {
             val caption = Caption(captionContent.value)

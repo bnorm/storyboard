@@ -19,7 +19,7 @@ import kotlinx.collections.immutable.ImmutableList
 fun Story(storyState: StoryState, modifier: Modifier = Modifier) {
     val holder = rememberSaveableStateHolder()
     CompositionLocalProvider(LocalStoryboard provides storyState.storyboard) {
-        SceneWrapper(storyState.storyboard.size, storyState.storyboard.decorator, DisplayType.Story, modifier) {
+        SceneWrapper(storyState.storyboard.size, storyState.storyboard.decorator, SceneMode.Story, modifier) {
             val stateFrame = storyState.rememberTransition()
             stateFrame.createChildTransition { it.scene }.AnimatedContent(
                 transitionSpec = {
@@ -75,12 +75,12 @@ private fun <T> SceneContent(
 internal fun SceneWrapper(
     size: DpSize,
     decorator: SceneDecorator,
-    displayType: DisplayType,
+    sceneMode: SceneMode,
     modifier: Modifier = Modifier,
     content: @Composable context(SharedTransitionScope) () -> Unit,
 ) {
     FixedSize(size = size, modifier = modifier) {
-        CompositionLocalProvider(LocalDisplayType provides displayType) {
+        CompositionLocalProvider(LocalSceneMode provides sceneMode) {
             decorator.decorate {
                 SharedTransitionLayout {
                     content()
