@@ -15,6 +15,13 @@ import org.antlr.v4.kotlinruntime.tree.TerminalNode
 // TODO support passing the scope to qualifier?
 //  - do we really want to rebuild call resolution?
 //  - could probably handle like 99% of cases without a ton of code...
+// TODO for faster startup, should we support some kind of pre-highlighted file-cached string?
+//  - would this actually be faster since we'd need to fetch it?
+//  - would it be better to just use `by lazy {}`?
+//  - or maybe some sort of background thread that does this work?
+//  - GlobalScope?
+//  - some custom scope with limited parallelism (single threaded?) to avoid startup burst?
+//  - maybe this should all be managed outside the library; seems like there are plenty of options.
 internal fun highlightKotlin(
     text: String,
     codeStyle: CodeStyle,
@@ -93,7 +100,7 @@ internal fun highlightKotlin(
                 // Expression without a qualifier.
                 ctx.simpleIdentifier()?.let {
                     val style = identifierStyle(it.text)
-                    if (style != null) addStyle(style, ctx)
+                    if (style != null) addStyle(style, it)
                 }
             }
 
@@ -101,7 +108,7 @@ internal fun highlightKotlin(
                 // Expression with a qualifier.
                 ctx.simpleIdentifier()?.let {
                     val style = identifierStyle(it.text)
-                    if (style != null) addStyle(style, ctx)
+                    if (style != null) addStyle(style, it)
                 }
             }
 
@@ -109,7 +116,7 @@ internal fun highlightKotlin(
                 // Direct assignment to a variable.
                 ctx.simpleIdentifier()?.let {
                     val style = identifierStyle(it.text)
-                    if (style != null) addStyle(style, ctx)
+                    if (style != null) addStyle(style, it)
                 }
             }
 
