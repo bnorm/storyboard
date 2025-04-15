@@ -28,7 +28,7 @@ sealed interface StoryboardBuilder {
         exitTransition: (AdvanceDirection) -> ExitTransition = DefaultExitTransition,
         content: SceneContent<Int>,
     ): Scene<Int> {
-        require(stateCount > 0) { "stateCount must be greater than 0" }
+        require(stateCount >= 0) { "stateCount must be greater than or equal to 0" }
         return scene((0..<stateCount).toList(), enterTransition, exitTransition, content)
     }
 }
