@@ -41,10 +41,16 @@ fun <T, R> Frame<T>.map(transform: (T) -> R): Frame<R> {
  * By default, the first and last states of the scene will be used
  * and must be specified if the scene has no states.
  */
-context(sceneScope: SceneScope<T>)
+context(sceneScope: SceneScope<R>)
 fun <T, R : T> Frame<R>.toState(
-    start: T = sceneScope.states.firstOrNull() ?: error("implicit conversion to state requires non-empty states"),
-    end: T = sceneScope.states.lastOrNull() ?: error("implicit conversion to state requires non-empty states"),
+    start: T = when {
+        sceneScope.states.isNotEmpty() -> sceneScope.states.first()
+        else -> error("implicit conversion to state requires non-empty states")
+    },
+    end: T = when {
+        sceneScope.states.isNotEmpty() -> sceneScope.states.last()
+        else -> error("implicit conversion to state requires non-empty states")
+    },
 ): T {
     return when (this) {
         Frame.Start -> start
