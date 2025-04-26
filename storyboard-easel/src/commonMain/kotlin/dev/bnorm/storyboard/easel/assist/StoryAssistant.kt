@@ -122,18 +122,18 @@ private fun ClickableScenePreview(
             index = index,
         )
 
-        // Cover the scene content with a clickable modifier
-        // to disable interaction while in overview.
-        Box(
-            modifier = Modifier.fillMaxSize()
-                .pointerHoverIcon(if (onClick != null) PointerIcon.Hand else PointerIcon.Default)
-                .clickable(
-                    interactionSource = null, indication = null, // disable ripple effect
-                    onClick = {
-                        onClick?.invoke()
-                    }
-                )
-        )
+        if (onClick != null) {
+            Box(
+                modifier = Modifier.fillMaxSize()
+                    .pointerHoverIcon(PointerIcon.Hand)
+                    .clickable(
+                        interactionSource = null, indication = null, // disable ripple effect
+                        onClick = {
+                            onClick.invoke()
+                        }
+                    )
+            )
+        }
     }
 }
 

@@ -12,6 +12,14 @@ fun interface SceneDecorator {
 
     companion object {
         val None = SceneDecorator { it() }
+
+        fun from(vararg decorators: SceneDecorator): SceneDecorator {
+            return when (decorators.size) {
+                0 -> None
+                1 -> decorators[0]
+                else -> CompositeSceneDecorator(decorators.toList())
+            }
+        }
     }
 }
 
