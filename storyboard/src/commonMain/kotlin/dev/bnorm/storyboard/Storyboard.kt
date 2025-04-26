@@ -29,6 +29,10 @@ class Storyboard private constructor(
             if (cmp != 0) return cmp
             return compareValues(stateIndex, other.stateIndex)
         }
+
+        override fun toString(): String {
+            return "$sceneIndex,$stateIndex"
+        }
     }
 
     companion object {

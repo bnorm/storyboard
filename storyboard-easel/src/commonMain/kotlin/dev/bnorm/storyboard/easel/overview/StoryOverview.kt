@@ -11,6 +11,8 @@ import androidx.compose.foundation.lazy.*
 import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Surface
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -84,6 +86,23 @@ fun StoryOverview(
                     },
                 )
             }
+        }
+
+        val currentIndex = storyOverviewState.currentItem.index
+        Surface(
+            modifier = Modifier.align(Alignment.BottomStart).alpha(0.75f).padding(32.dp),
+            elevation = 4.dp,
+            shape = RoundedCornerShape(8.dp),
+        ) {
+            Text(
+                text = currentIndex.toString(),
+                style = MaterialTheme.typography.h6,
+                modifier = Modifier.padding(8.dp),
+            )
+        }
+
+        LaunchedEffect(currentIndex) {
+            storyState.jumpTo(currentIndex)
         }
 
         HorizontalScrollbar(
