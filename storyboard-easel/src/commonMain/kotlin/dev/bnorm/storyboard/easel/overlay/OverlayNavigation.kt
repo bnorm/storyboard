@@ -29,6 +29,7 @@ fun StoryOverlayScope.OverlayNavigation(
 ) {
     val coroutineScope = rememberCoroutineScope()
     var job by remember { mutableStateOf<Job?>(null) }
+    val indices = storyState.storyboard.indices
 
     Surface(
         modifier = Modifier
@@ -41,6 +42,7 @@ fun StoryOverlayScope.OverlayNavigation(
             IconButton(
                 text = "Previous",
                 icon = Icons.AutoMirrored.Rounded.ArrowBack,
+                enabled = storyState.targetIndex > indices.first(),
                 onClick = {
                     job?.cancel()
                     job = coroutineScope.launch {
@@ -52,6 +54,7 @@ fun StoryOverlayScope.OverlayNavigation(
             IconButton(
                 text = "Next",
                 icon = Icons.AutoMirrored.Rounded.ArrowForward,
+                enabled = storyState.targetIndex < indices.last(),
                 onClick = {
                     job?.cancel()
                     job = coroutineScope.launch {
