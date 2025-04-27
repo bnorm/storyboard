@@ -6,7 +6,7 @@ plugins {
     kotlin("plugin.compose")
     id("org.jetbrains.compose")
 
-    id("com.strumenta.antlr-kotlin") version "1.0.0-RC4"
+    id("com.strumenta.antlr-kotlin") version "1.0.2"
 }
 
 group = "dev.bnorm.storyboard"
@@ -35,7 +35,7 @@ kotlin {
                 api(compose.material)
 
                 api("de.cketti.unicode:kotlin-codepoints-deluxe:0.7.0")
-                implementation("com.strumenta:antlr-kotlin-runtime:1.0.0-RC4")
+                implementation("com.strumenta:antlr-kotlin-runtime:1.0.2")
             }
         }
     }

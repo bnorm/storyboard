@@ -22,6 +22,8 @@ import org.antlr.v4.kotlinruntime.tree.TerminalNode
 //  - GlobalScope?
 //  - some custom scope with limited parallelism (single threaded?) to avoid startup burst?
 //  - maybe this should all be managed outside the library; seems like there are plenty of options.
+//  - for chrome on a laptop, large samples can take >5sec to highlight
+//    - suspendable to aid in background loading?
 internal fun highlightKotlin(
     text: String,
     codeStyle: CodeStyle,
