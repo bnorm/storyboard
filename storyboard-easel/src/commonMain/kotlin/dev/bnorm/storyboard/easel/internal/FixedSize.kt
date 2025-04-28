@@ -14,7 +14,7 @@ internal fun FixedSize(
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit,
 ) {
-    val measurePolicy = remember(size) { FixedWidthMeasurePolicy(size) }
+    val measurePolicy = remember(size) { FixedSizeMeasurePolicy(size) }
     Layout(
         modifier = modifier,
         content = { Box { content() } },
@@ -22,7 +22,7 @@ internal fun FixedSize(
     )
 }
 
-class FixedWidthMeasurePolicy(private val size: DpSize) : MeasurePolicy {
+internal class FixedSizeMeasurePolicy(private val size: DpSize) : MeasurePolicy {
     override fun MeasureScope.measure(
         measurables: List<Measurable>,
         constraints: Constraints,

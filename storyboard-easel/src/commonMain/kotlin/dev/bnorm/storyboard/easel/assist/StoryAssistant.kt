@@ -7,6 +7,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
@@ -16,6 +17,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
+import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
 import dev.bnorm.storyboard.Storyboard
 import dev.bnorm.storyboard.easel.ScenePreview
@@ -30,78 +33,137 @@ fun StoryAssistant(
     assistantState: StoryAssistantState,
     modifier: Modifier = Modifier,
 ) {
+    // Box with constraints?
     Surface(
-        modifier = Modifier.fillMaxSize()
+        modifier = modifier
+            .fillMaxSize()
             .requestFocus()
             .onStoryNavigation(storyState = assistantState.storyState)
     ) {
-        Column(modifier.padding(16.dp)) {
+        Column(Modifier.padding(16.dp)) {
             Row(horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth()) {
                 StoryTimer()
             }
-            ScenePreview(assistantState)
-            Captions(assistantState.captions)
+            val storyState = assistantState.storyState
+            StorySlider(storyState)
+
+            Layout(
+                content = {
+                    CurrentFramePreview(storyState)
+                    NextFramePreview(storyState)
+                    // TODO previous frame?
+                    // TODO highlight frame which is being advanced to?
+                    Captions(assistantState.captions)
+                }
+            ) { measurables, constraints ->
+                val currentMeasurable = measurables[0]
+                val nextMeasurable = measurables[1]
+
+                val spacing = 16.dp.roundToPx()
+                val quarterBoxHeight = constraints.maxHeight / 2 - spacing
+                val quarterBoxWidth = constraints.maxWidth / 2 - spacing
+                val quarterBoxConstraints = Constraints(
+                    minWidth = 0, maxWidth = quarterBoxWidth,
+                    minHeight = 0, maxHeight = quarterBoxHeight,
+                )
+
+                val currentPlaceable = currentMeasurable.measure(quarterBoxConstraints)
+                val nextPlaceable = nextMeasurable.measure(quarterBoxConstraints)
+
+                val vertical = currentPlaceable.height < quarterBoxConstraints.maxHeight
+                val captionsConstraints = when {
+                    vertical -> Constraints.fixed(
+                        width = constraints.maxWidth,
+                        height = constraints.maxHeight - spacing - currentPlaceable.height,
+                    )
+
+                    else -> Constraints.fixed(
+                        width = constraints.maxWidth - spacing - currentPlaceable.width,
+                        height = constraints.maxHeight,
+                    )
+                }
+
+                val captionsMeasurable = measurables[2]
+                val captionsPlaceable = captionsMeasurable.measure(captionsConstraints)
+
+                layout(constraints.maxWidth, constraints.maxHeight) {
+                    currentPlaceable.placeRelative(0, 0)
+                    if (vertical) {
+                        nextPlaceable.placeRelative(currentPlaceable.width + spacing, 0)
+                        captionsPlaceable.placeRelative(0, currentPlaceable.height + spacing)
+                    } else {
+                        nextPlaceable.placeRelative(0, currentPlaceable.height + spacing)
+                        captionsPlaceable.placeRelative(currentPlaceable.width + spacing, 0)
+                    }
+                }
+            }
         }
     }
 }
 
 @Composable
-private fun ScenePreview(assistantState: StoryAssistantState) {
-    val storyState = assistantState.storyState
+private fun CurrentFramePreview(storyState: StoryState, modifier: Modifier = Modifier) {
+    Column(modifier = modifier, horizontalAlignment = Alignment.CenterHorizontally) {
+        // TODO should "current" actually be target index?
+        Text("Current Frame", style = MaterialTheme.typography.h4)
+        Spacer(Modifier.size(8.dp))
+        Box {
+            ClickableScenePreview(
+                storyState.storyboard,
+                storyState.currentIndex,
+                // Add padding for the progress indicator.
+                modifier = Modifier.padding(bottom = 2.dp),
+            )
+            Box(Modifier.matchParentSize(), contentAlignment = Alignment.BottomCenter) {
+                SceneAnimationProgressIndicator(storyState, modifier = Modifier.height(2.dp))
+            }
+        }
+    }
+}
+
+@Composable
+private fun NextFramePreview(storyState: StoryState, modifier: Modifier = Modifier) {
     val coroutineScope = rememberCoroutineScope()
     var job by remember { mutableStateOf<Job?>(null) }
 
-    Column {
-        Row(modifier = Modifier.fillMaxWidth().padding(top = 16.dp)) {
-            Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
-                // TODO should "current" actually be target index?
-                Text("Current Frame")
-                ClickableScenePreview(storyState.storyboard, storyState.currentIndex)
-                SceneAnimationProgressIndicator(storyState)
-            }
-            Spacer(Modifier.width(16.dp))
-            Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
-                Text("Next Frame")
-                val nextIndex by derivedStateOf {
-                    val i = storyState.storyboard.indices.binarySearch(storyState.currentIndex)
-                    require(i >= 0) { "targetIndex not found in storyboard" }
-                    storyState.storyboard.indices.getOrNull(i + 1)
-                }
-                nextIndex?.let {
-                    ClickableScenePreview(
-                        storyboard = storyState.storyboard,
-                        index = it,
-                        onClick = {
-                            job?.cancel()
-                            job = coroutineScope.launch {
-                                storyState.jumpTo(it)
-                                job = null
-                            }
-                        },
-                    )
-                }
-            }
-            // TODO previous frame?
-            // TODO highlight frame which is being advanced to?
+    Column(modifier = modifier, horizontalAlignment = Alignment.CenterHorizontally) {
+        Text("Next Frame", style = MaterialTheme.typography.h4)
+        Spacer(Modifier.size(8.dp))
+        val nextIndex by derivedStateOf {
+            val i = storyState.storyboard.indices.binarySearch(storyState.currentIndex)
+            require(i >= 0) { "targetIndex not found in storyboard" }
+            storyState.storyboard.indices.getOrNull(i + 1)
         }
-
-        StorySlider(storyState, modifier = Modifier.fillMaxWidth().padding(top = 16.dp))
+        nextIndex?.let {
+            ClickableScenePreview(
+                storyboard = storyState.storyboard,
+                index = it,
+                onClick = {
+                    job?.cancel()
+                    job = coroutineScope.launch {
+                        storyState.jumpTo(it)
+                        job = null
+                    }
+                },
+            )
+        }
     }
 }
 
 @Composable
-private fun Captions(captions: SnapshotStateList<Caption>) {
-    // TODO maybe a header and surrounding box for the captions section?
-    LazyColumn(
-        contentPadding = PaddingValues(vertical = 8.dp),
-    ) {
-        items(captions) { caption ->
-            Card(
-                modifier = Modifier.padding(vertical = 8.dp).fillMaxWidth(),
-                shape = RoundedCornerShape(8.dp),
-            ) {
-                Box(modifier = Modifier.padding(16.dp)) {
-                    caption.content()
+private fun Captions(captions: SnapshotStateList<Caption>, modifier: Modifier = Modifier) {
+    Column(modifier = modifier, horizontalAlignment = Alignment.CenterHorizontally) {
+        Text("Captions", style = MaterialTheme.typography.h4)
+        Spacer(Modifier.size(8.dp))
+        LazyColumn {
+            items(captions) { caption ->
+                Card(
+                    modifier = Modifier.padding(vertical = 8.dp).fillMaxWidth(),
+                    shape = RoundedCornerShape(8.dp),
+                ) {
+                    Box(modifier = Modifier.padding(16.dp)) {
+                        caption.content()
+                    }
                 }
             }
         }
@@ -116,7 +178,7 @@ private fun ClickableScenePreview(
     modifier: Modifier = Modifier,
 ) {
     // TODO share with StoryboardOverview?
-    Box(modifier.height(IntrinsicSize.Min).width(IntrinsicSize.Min)) {
+    Box(modifier) {
         ScenePreview(
             storyboard = storyboard,
             index = index,
@@ -124,7 +186,7 @@ private fun ClickableScenePreview(
 
         if (onClick != null) {
             Box(
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier.matchParentSize()
                     .pointerHoverIcon(PointerIcon.Hand)
                     .clickable(
                         interactionSource = null, indication = null, // disable ripple effect
@@ -138,13 +200,13 @@ private fun ClickableScenePreview(
 }
 
 @Composable
-private fun SceneAnimationProgressIndicator(storyboard: StoryState) {
-    Row {
+private fun SceneAnimationProgressIndicator(storyboard: StoryState, modifier: Modifier = Modifier) {
+    Row(modifier) {
         val advancementDistance = storyboard.advancementDistance
         val advancementProgress = storyboard.advancementProgress
         when {
             advancementProgress == advancementDistance -> {
-                Spacer(Modifier.height(2.dp).weight(1f).background(Color.Green))
+                Spacer(Modifier.fillMaxHeight().weight(1f).background(Color.Green))
             }
 
             else -> {
@@ -152,9 +214,9 @@ private fun SceneAnimationProgressIndicator(storyboard: StoryState) {
                 val partial = (advancementProgress % 1f) / advancementDistance
                 val remaining = 1f - complete - partial
 
-                if (complete > 0f) Spacer(Modifier.height(2.dp).weight(complete).background(Color.Green))
-                if (partial > 0f) Spacer(Modifier.height(2.dp).weight(partial).background(Color.Red))
-                if (remaining > 0f) Spacer(Modifier.height(2.dp).weight(remaining).background(Color.DarkGray))
+                if (complete > 0f) Spacer(Modifier.fillMaxHeight().weight(complete).background(Color.Green))
+                if (partial > 0f) Spacer(Modifier.fillMaxHeight().weight(partial).background(Color.Red))
+                if (remaining > 0f) Spacer(Modifier.fillMaxHeight().weight(remaining).background(Color.DarkGray))
             }
         }
     }
