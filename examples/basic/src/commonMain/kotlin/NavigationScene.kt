@@ -23,7 +23,7 @@ fun StoryboardBuilder.NavigationScene() = scene(
         Divider(color = MaterialTheme.colors.primary)
         Body {
             Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                Text("After scene gains focus, advance with arrow keys.")
+                Text("Advance scene with right and left arrow keys.")
                 if (currentState >= 1) Text("    • Scenes can also be advanced with the mouse.")
                 if (currentState >= 3) Text("    • Press 'Esc' to see the overview! (arrows to navigate and 'Enter' to open scene)")
                 if (currentState >= 4) Text("    • Press 'F2' to see next scene preview and captions. (Desktop only!)")
