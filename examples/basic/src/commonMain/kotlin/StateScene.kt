@@ -53,13 +53,13 @@ fun StoryboardBuilder.StateScene() = scene(
         title = "Hello, State!",
     ),
 ) {
-    val currentState = frame.currentState.toState()
+    val currentState = transition.currentState.toState()
     val index = currentState.index
     Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
         Header { Text(currentState.title) }
         Divider(color = MaterialTheme.colors.primary)
         Body {
-            frame.AnimatedVisibility(
+            transition.AnimatedVisibility(
                 visible = { it != Frame.End },
                 enter = fadeIn(), exit = fadeOut(),
             ) {

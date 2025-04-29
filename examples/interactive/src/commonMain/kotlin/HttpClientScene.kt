@@ -101,7 +101,7 @@ fun StoryboardBuilder.HttpClientScene() {
                     Modifier.padding(vertical = 16.dp, horizontal = 16.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp),
                 ) {
-                    RevealEach(frame.createChildTransition { it.toState() }) {
+                    RevealEach(transition.createChildTransition { it.toState() }) {
                         item { Text("• Scenes aren't the only thing that can be interactive.") }
                         item { Text("• Press 'F2' to check the Story Assistant. (Desktop only!)") }
                         item {

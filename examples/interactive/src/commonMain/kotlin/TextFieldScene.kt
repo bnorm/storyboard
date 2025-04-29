@@ -29,7 +29,7 @@ fun StoryboardBuilder.TextFieldScene() {
                 ) {
                     val text = rememberTextFieldState("World")
 
-                    RevealEach(frame.createChildTransition { it.toState() }) {
+                    RevealEach(transition.createChildTransition { it.toState() }) {
                         item { Text("• Text fields can also be used directly in scenes.") }
                         item { TextField(text, label = { Text("Name") }) }
                         item { Text("• Hello, ${text.text}!") }

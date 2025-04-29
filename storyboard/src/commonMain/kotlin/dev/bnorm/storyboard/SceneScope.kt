@@ -8,5 +8,5 @@ import kotlinx.collections.immutable.ImmutableList
 @StoryboardBuilderDsl
 interface SceneScope<T> {
     val states: ImmutableList<T>
-    val frame: Transition<out Frame<T>>
+    val transition: Transition<out Frame<T>>
 }

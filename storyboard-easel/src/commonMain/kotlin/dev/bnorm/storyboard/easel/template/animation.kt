@@ -32,8 +32,8 @@ import kotlin.experimental.ExperimentalTypeInference
  * [     ] <-{Exit}--- [     ] <-{Enter}-- [     ] // Backwards
  * ```
  *
- * This distinction is the same as the [SceneScope.frame] of a scene, which has
- * a [Frame.Start] as the first element and a [Frame.End] as the last
+ * This distinction is the same as the [SceneScope.transition] of a scene, which
+ * has a [Frame.Start] as the first element and a [Frame.End] as the last
  * element, to help manage transitions between scenes.
  */
 @Suppress("unused")

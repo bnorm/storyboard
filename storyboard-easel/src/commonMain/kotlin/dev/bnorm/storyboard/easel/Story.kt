@@ -43,7 +43,7 @@ fun Story(storyState: StoryState, modifier: Modifier = Modifier) {
 
 private class StorySceneScope<T>(
     override val states: ImmutableList<T>,
-    override val frame: Transition<out Frame<T>>,
+    override val transition: Transition<out Frame<T>>,
 ) : SceneScope<T>
 
 @Composable
@@ -64,7 +64,7 @@ private fun <T> SceneContent(
     val scope = remember(scene, frame) {
         StorySceneScope(
             states = scene.states,
-            frame = frame,
+            transition = frame,
         )
     }
 

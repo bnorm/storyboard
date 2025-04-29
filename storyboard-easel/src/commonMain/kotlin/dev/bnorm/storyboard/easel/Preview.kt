@@ -23,7 +23,7 @@ import kotlinx.collections.immutable.ImmutableList
 
 private class PreviewSceneScope<T>(
     override val states: ImmutableList<T>,
-    override val frame: Transition<out Frame<T>>,
+    override val transition: Transition<out Frame<T>>,
 ) : SceneScope<T>
 
 @Composable
@@ -40,7 +40,7 @@ internal fun <T> ScenePreview(
             key(scene, stateIndex) {
                 val scope = PreviewSceneScope(
                     states = scene.states,
-                    frame = updateTransition(Frame.State(scene.states[stateIndex])),
+                    transition = updateTransition(Frame.State(scene.states[stateIndex])),
                 )
                 scope.Render(scene.content)
             }
@@ -62,7 +62,7 @@ fun <T> ScenePreview(
             key(scene, frame) {
                 val scope = PreviewSceneScope(
                     states = scene.states,
-                    frame = updateTransition(frame),
+                    transition = updateTransition(frame),
                 )
                 scope.Render(scene.content)
             }
@@ -84,7 +84,7 @@ fun <T> ScenePreview(
                 key(scene, frame) {
                     val scope = PreviewSceneScope(
                         states = scene.states,
-                        frame = updateTransition(frame),
+                        transition = updateTransition(frame),
                     )
                     scope.Render(scene.content)
                 }

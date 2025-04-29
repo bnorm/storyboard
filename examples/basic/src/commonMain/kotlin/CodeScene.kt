@@ -86,11 +86,11 @@ fun StoryboardBuilder.CodeScene() = scene(
         Divider(color = MaterialTheme.colors.primary)
         Body {
             Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                val currentState = frame.currentState.toState()
+                val currentState = transition.currentState.toState()
                 Text(currentState.description)
 
                 @OptIn(ExperimentalTransitionApi::class)
-                val code = frame.createChildTransition { it.toState().code }
+                val code = transition.createChildTransition { it.toState().code }
                 ProvideTextStyle(TextStyle(fontFamily = JetBrainsMono)) {
                     MagicText(code, modifier = Modifier.fillMaxSize())
                 }

@@ -34,7 +34,7 @@ fun StoryboardBuilder.AppScene() {
                 ) {
                     val state = rememberStoryState(remember { createStoryboard() })
 
-                    RevealEach(frame.createChildTransition { it.toState() }) {
+                    RevealEach(transition.createChildTransition { it.toState() }) {
                         item { Text("• Storyboard is ultimately just a Compose application.") }
                         item { Text("• Anything achievable with Compose, is possible in Storyboard!") }
                         item { Text("• You could even embed a Storyboard, in a Storyboard!") }

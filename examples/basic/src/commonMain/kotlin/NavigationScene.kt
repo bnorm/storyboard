@@ -16,7 +16,7 @@ import dev.bnorm.storyboard.toState
 fun StoryboardBuilder.NavigationScene() = scene(
     stateCount = 5,
 ) {
-    val currentState = frame.currentState.toState()
+    val currentState = transition.currentState.toState()
 
     Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
         Header { Text("Navigation") }

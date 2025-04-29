@@ -23,7 +23,7 @@ fun StoryboardBuilder.AnimationScene() = scene(
     fun <T> quick(): SpringSpec<T> = spring(stiffness = Spring.StiffnessVeryLow)
 
     @OptIn(ExperimentalTransitionApi::class)
-    val state = frame.createChildTransition { it.toState() }
+    val state = transition.createChildTransition { it.toState() }
     val direction = rememberAdvanceDirection()
 
     Column(verticalArrangement = Arrangement.spacedBy(16.dp), modifier = Modifier.padding(16.dp)) {

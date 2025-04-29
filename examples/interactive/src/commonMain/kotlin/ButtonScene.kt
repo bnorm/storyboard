@@ -32,7 +32,7 @@ fun StoryboardBuilder.ButtonScene() {
                     Modifier.padding(vertical = 16.dp, horizontal = 16.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp),
                 ) {
-                    RevealEach(frame.createChildTransition { it.toState() }) {
+                    RevealEach(transition.createChildTransition { it.toState() }) {
                         item { Text("• Scenes can contain interactive content.") }
                         item { Text("• For example, buttons!") }
                         item { IncreaseDecreaseCounter() }
