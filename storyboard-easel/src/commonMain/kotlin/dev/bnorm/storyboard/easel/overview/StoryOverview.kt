@@ -176,7 +176,7 @@ private fun OverviewLazyColumn(
                         storyboard = storyboard,
                         scene = column.scene,
                         frame = Frame.Start,
-                        modifier = Modifier.alpha(0.25f),
+                        modifier = Modifier.alpha(0.5f),
                     )
                 }
             }
@@ -214,7 +214,7 @@ private fun OverviewLazyColumn(
                         storyboard = storyboard,
                         scene = column.scene,
                         frame = Frame.End,
-                        modifier = Modifier.alpha(0.25f),
+                        modifier = Modifier.alpha(0.5f),
                     )
                 }
             }
