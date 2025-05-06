@@ -32,6 +32,7 @@ kotlin {
                 api(compose.ui)
                 api(compose.material)
 
+                implementation("org.jetbrains.compose.material:material-icons-core:1.7.3")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.1")
             }
         }
