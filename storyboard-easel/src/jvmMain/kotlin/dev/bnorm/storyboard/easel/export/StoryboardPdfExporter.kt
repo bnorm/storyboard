@@ -28,8 +28,8 @@ class StoryboardPdfExporter {
 
     suspend fun export(
         storyboard: Storyboard,
-        width: Int = storyboard.size.width.value.toInt(),
-        height: Int = storyboard.size.height.value.toInt(),
+        width: Int = storyboard.size.width.value.toInt() * 2,
+        height: Int = storyboard.size.height.value.toInt() * 2,
     ) {
         val file = FileKit.saveFile(
             bytes = null,
@@ -39,20 +39,16 @@ class StoryboardPdfExporter {
             platformSettings = null,
         )
         if (file != null) {
-            withContext(Dispatchers.IO) {
-                runInterruptible {
-                    exportAsPdf(
-                        storyboard = storyboard,
-                        path = file.file.toPath(),
-                        width = width,
-                        height = height,
-                    )
-                }
-            }
+            exportAsPdf(
+                storyboard = storyboard,
+                path = file.file.toPath(),
+                width = width,
+                height = height,
+            )
         }
     }
 
-    private fun exportAsPdf(
+    private suspend fun exportAsPdf(
         storyboard: Storyboard,
         path: Path,
         width: Int,
@@ -68,36 +64,42 @@ class StoryboardPdfExporter {
                     ScenePreview(storyboard, frame)
                 }
 
-                createPage(image, page, doc, width, height)
+                withContext(Dispatchers.IO) {
+                    runInterruptible {
+                        createPage(image, page, doc)
+                    }
+                }
             }
 
             val bytes = ByteArrayOutputStream()
-            doc.save(bytes)
-            doc.close()
+            withContext(Dispatchers.IO) {
+                runInterruptible {
+                    doc.save(bytes)
+                    doc.close()
+                }
+            }
 
             status = ExportStatus(1.0f, "Saving PDF...")
-            path.writeBytes(
-                array = bytes.toByteArray(),
-                StandardOpenOption.CREATE,
-                StandardOpenOption.WRITE,
-                StandardOpenOption.TRUNCATE_EXISTING
-            )
+            withContext(Dispatchers.IO) {
+                runInterruptible {
+                    path.writeBytes(
+                        array = bytes.toByteArray(),
+                        StandardOpenOption.CREATE,
+                        StandardOpenOption.WRITE,
+                        StandardOpenOption.TRUNCATE_EXISTING
+                    )
+                }
+            }
         } finally {
             status = null
         }
     }
 
-    private fun createPage(
-        image: Image,
-        index: Int,
-        doc: PDDocument,
-        width: Int,
-        height: Int,
-    ) {
+    private fun createPage(image: Image, index: Int, doc: PDDocument) {
         val bytes = image.encodeToData(EncodedImageFormat.PNG)?.bytes
         val name = "frame-${index.toString().padStart(3, '0')}"
 
-        val page = PDPage(PDRectangle(width.toFloat(), height.toFloat()))
+        val page = PDPage(PDRectangle(image.width.toFloat(), image.height.toFloat()))
         doc.addPage(page)
 
         val contentStream = PDPageContentStream(doc, page)

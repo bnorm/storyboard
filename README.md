@@ -27,6 +27,8 @@ To see how publishing is achieved, see the [`pages.yml` workflow](.github/workfl
 > so context parameters may be used in the API design.
 > There is also a Compose animation bug that should be fixed in the Compose Multiplatform 1.8.0 release.
 
+Looking for help? Join the discussion in the [KotlinLang Slack](https://kotlinlang.slack.com/archives/C08R5V4EHDH)!
+
 ### Terminology
 
 This library is all about building _**storyboards**_.
@@ -65,9 +67,8 @@ including a [`Transition`][Transition] instance that defines the current and tar
 This allows animating values between the states of the scene and synchronizing with the storyboard advancement.
 And because of the start and end frame, scene start and end animations are also easy to achieve.
 
-An [`AnimatedContentScope`][AnimatedContentScope] and [`SharedTransitionScope`][SharedTransitionScope] are also
-provided by the SceneScope.
-(These will eventually be context parameters)
+An [`AnimatedVisibilityScope`][AnimatedVisibilityScope] and [`SharedTransitionScope`][SharedTransitionScope] are also
+provided by via context parameters.
 These scopes are provided for animating and sharing elements between scenes.
 
 Along with the Composable lambda and states, a scene is also able to define a enter and exit transition.
@@ -135,6 +136,7 @@ Want to see Storyboard in action?
 
 * **Kotlin + Power-Assert = Love** _(KotlinConf 2024)_ - [YouTube](https://www.youtube.com/watch?v=N8u-6d0iCiE)
 * **Writing Your Third Kotlin Compiler Plugin** _(KotlinConf 2025)_ - [_Coming Soon!_](https://kotlinconf.com/schedule/?session=9df8d3fd-5dc8-5d72-a362-c83079285174)
+* **(Re)creating Magic(Move) with Compose** _(droidcon NYC 2025)_ - [_Coming Soon!_](https://nyc.droidcon.com/brian-norman/)
 
 [//]: # (Storyboard Links)
 
@@ -147,6 +149,6 @@ Want to see Storyboard in action?
 
 [compose]: https://www.jetbrains.com/lp/compose-multiplatform
 
-[AnimatedContentScope]: https://developer.android.com/reference/kotlin/androidx/compose/animation/AnimatedContentScope
+[AnimatedVisibilityScope]: https://developer.android.com/reference/kotlin/androidx/compose/animation/AnimatedVisibilityScope
 [SharedTransitionScope]: https://developer.android.com/reference/kotlin/androidx/compose/animation/SharedTransitionScope
 [Transition]: https://developer.android.com/reference/kotlin/androidx/compose/animation/core/Transition

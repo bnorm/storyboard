@@ -1,0 +1,39 @@
+name: Project Build
+
+on:
+  pull_request: { }
+  workflow_dispatch: { }
+  push:
+    branches:
+      - 'main'
+    tags-ignore:
+      - '**'
+
+env:
+  GRADLE_OPTS: "-Dorg.gradle.jvmargs=-Xmx8g -Dorg.gradle.daemon=false -Dkotlin.incremental=false"
+
+jobs:
+  build:
+    name: Run Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: zulu
+          java-version: 21
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Run Gradle Tasks
+        run: ./gradlew check
+
+      - uses: mikepenz/action-junit-report@v5
+        if: success() || failure()
+        with:
+          report_paths: '**/build/test-results/test/TEST-*.xml'

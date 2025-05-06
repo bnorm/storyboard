@@ -50,7 +50,7 @@ fun ApplicationScope.DesktopStoryEasel(
     }
 
     val menuBar = movableContentWithReceiverOf<MenuBarScope> {
-        DesktopMenu(desktopState.story) {
+        DesktopMenu(storyState.storyboard, desktopState.story) {
             StoryAssistantMenu(assistantState)
             ExportMenu(exporter, storyState)
         }
