@@ -50,9 +50,9 @@ private class StorySceneScope<T>(
 context(_: AnimatedVisibilityScope, _: SharedTransitionScope)
 private fun <T> SceneContent(
     scene: Scene<T>,
-    stateFrame: Transition<StoryState.StateFrame<*>>,
+    storyFrame: Transition<StoryState.StoryFrame<*>>,
 ) {
-    val frame = stateFrame.createChildTransition {
+    val frame = storyFrame.createChildTransition {
         @Suppress("UNCHECKED_CAST")
         when {
             scene > it.scene -> Frame.Start
