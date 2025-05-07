@@ -18,19 +18,10 @@ kotlin {
     }
 
     sourceSets {
-        all {
-            languageSettings {
-                optIn("androidx.compose.animation.core.ExperimentalTransitionApi")
-                optIn("androidx.compose.animation.ExperimentalAnimationApi")
-                optIn("androidx.compose.animation.ExperimentalSharedTransitionApi")
-            }
-        }
-
         commonMain {
             dependencies {
                 api(project(":storyboard"))
-                api(compose.ui)
-                api(compose.material)
+                implementation(compose.material)
 
                 implementation("org.jetbrains.compose.material:material-icons-core:1.7.3")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.1")
@@ -39,7 +30,7 @@ kotlin {
 
         jvmMain {
             dependencies {
-                api(compose.desktop.currentOs)
+                implementation(compose.desktop.currentOs)
                 implementation("io.github.vinceglb:filekit-compose:0.8.8")
                 implementation("org.apache.pdfbox:pdfbox:3.0.1")
             }

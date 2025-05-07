@@ -16,7 +16,6 @@ import androidx.compose.runtime.key
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import dev.bnorm.storyboard.*
 import kotlinx.collections.immutable.ImmutableList
@@ -31,11 +30,11 @@ internal fun <T> ScenePreview(
     scene: Scene<T>,
     stateIndex: Int,
     modifier: Modifier = Modifier,
-    size: DpSize = Storyboard.DEFAULT_SIZE,
+    format: SceneFormat = SceneFormat.Default,
     decorator: SceneDecorator = SceneDecorator.None,
     sceneMode: SceneMode = SceneMode.Preview,
 ) {
-    SceneWrapper(size, decorator, sceneMode, modifier) {
+    SceneWrapper(format, decorator, sceneMode, modifier) {
         AnimatedVisibility(true) {
             key(scene, stateIndex) {
                 val scope = PreviewSceneScope(
@@ -53,11 +52,11 @@ fun <T> ScenePreview(
     scene: Scene<T>,
     frame: Frame<T>,
     modifier: Modifier = Modifier,
-    size: DpSize = Storyboard.DEFAULT_SIZE,
+    format: SceneFormat = SceneFormat.Default,
     decorator: SceneDecorator = SceneDecorator.None,
     sceneMode: SceneMode = SceneMode.Preview,
 ) {
-    SceneWrapper(size, decorator, sceneMode, modifier) {
+    SceneWrapper(format, decorator, sceneMode, modifier) {
         AnimatedVisibility(true) {
             key(scene, frame) {
                 val scope = PreviewSceneScope(
@@ -79,7 +78,7 @@ fun <T> ScenePreview(
     sceneMode: SceneMode = SceneMode.Preview,
 ) {
     CompositionLocalProvider(LocalStoryboard provides storyboard) {
-        SceneWrapper(storyboard.size, storyboard.decorator, sceneMode, modifier) {
+        SceneWrapper(storyboard.format, storyboard.decorator, sceneMode, modifier) {
             AnimatedVisibility(true) {
                 key(scene, frame) {
                     val scope = PreviewSceneScope(
@@ -106,7 +105,7 @@ fun ScenePreview(
             stateIndex = index.stateIndex,
             modifier = modifier,
             sceneMode = sceneMode,
-            size = storyboard.size,
+            format = storyboard.format,
             decorator = storyboard.decorator,
         )
     }
@@ -116,28 +115,28 @@ fun ScenePreview(
 fun <T> SceneGallery(
     scene: Scene<T>,
     modifier: Modifier = Modifier,
-    size: DpSize = Storyboard.DEFAULT_SIZE,
+    format: SceneFormat = SceneFormat.Default,
     decorator: SceneDecorator = SceneDecorator.None,
     sceneMode: SceneMode = SceneMode.Preview,
 ) {
     Text("Frame: Start")
     ScenePreview(
         scene, Frame.Start,
-        modifier, size, decorator, sceneMode
+        modifier, format, decorator, sceneMode
     )
 
     for (stateIndex in scene.states.indices) {
         Text("Frame: $stateIndex")
         ScenePreview(
             scene, Frame.State(scene.states[stateIndex]),
-            modifier, size, decorator, sceneMode
+            modifier, format, decorator, sceneMode
         )
     }
 
     Text("Frame: End")
     ScenePreview(
         scene, Frame.End,
-        modifier, size, decorator, sceneMode
+        modifier, format, decorator, sceneMode
     )
 }
 
@@ -149,7 +148,7 @@ fun StoryGallery(
 ) {
     CompositionLocalProvider(LocalStoryboard provides storyboard) {
         for (scene in storyboard.scenes) {
-            SceneGallery(scene, modifier, storyboard.size, storyboard.decorator, sceneMode)
+            SceneGallery(scene, modifier, storyboard.format, storyboard.decorator, sceneMode)
         }
     }
 }
@@ -176,13 +175,13 @@ fun StoryGallery(
     modifier: Modifier = Modifier,
     name: String = "Gallery",
     description: String? = null,
-    size: DpSize = Storyboard.DEFAULT_SIZE,
+    format: SceneFormat = SceneFormat.Default,
     decorator: SceneDecorator = SceneDecorator.None,
     sceneMode: SceneMode = SceneMode.Preview,
     block: StoryboardBuilder.() -> Unit,
 ) {
     StoryGallery(
-        storyboard = Storyboard.build(name, description, size, decorator, block),
+        storyboard = Storyboard.build(name, description, format, decorator, block),
         modifier = modifier,
         sceneMode = sceneMode,
     )
@@ -193,7 +192,7 @@ fun StoryPreview(
     modifier: Modifier = Modifier,
     name: String = "Preview",
     description: String? = null,
-    size: DpSize = Storyboard.DEFAULT_SIZE,
+    format: SceneFormat = SceneFormat.Default,
     decorator: SceneDecorator = SceneDecorator.None,
     sceneMode: SceneMode = SceneMode.Preview,
     block: StoryboardBuilder.() -> Unit,
@@ -208,7 +207,7 @@ fun StoryPreview(
         StoryGallery(
             name = name,
             description = description,
-            size = size,
+            format = format,
             decorator = decorator,
             sceneMode = sceneMode,
             block = block,

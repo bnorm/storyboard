@@ -44,14 +44,14 @@ class StoryState @ExperimentalStoryStateApi constructor(
     val storyboard: Storyboard
         get() = _storyboard ?: error("Storyboard uninitialized.")
 
-    private var frames: List<StateFrame<*>> by Delegates.notNull()
-    private var byIndex: Map<Storyboard.Index, StateFrame<*>> by Delegates.notNull()
+    private var frames: List<StoryFrame<*>> by Delegates.notNull()
+    private var byIndex: Map<Storyboard.Index, StoryFrame<*>> by Delegates.notNull()
 
     // TODO the mutable state is a workaround for SeekableTransitionState not
     //  supporting `snapTo` without a transition.
     // TODO report a bug?
     // Defaults to 0, but will always be updated via updateStoryboard before first use.
-    private var frameIndex by mutableStateOf(SeekableTransitionState(0))
+    private var transition by mutableStateOf(SeekableTransitionState(0))
 
     var currentIndex: Storyboard.Index by mutableStateOf(initialIndex)
         private set
@@ -68,12 +68,12 @@ class StoryState @ExperimentalStoryStateApi constructor(
     val storyProgress: Float
         get() {
             if (_storyboard == null) return 0f
-            val current = frameIndex.currentState
-            val target = frameIndex.targetState
+            val current = transition.currentState
+            val target = transition.targetState
             val fraction = when {
                 current == target -> 0f
-                target > current -> frameIndex.fraction
-                else -> -frameIndex.fraction
+                target > current -> transition.fraction
+                else -> -transition.fraction
             }
 
             return current.toFloat() + fraction
@@ -82,17 +82,17 @@ class StoryState @ExperimentalStoryStateApi constructor(
     val advancementDistance: Float
         get() {
             if (currentIndex == targetIndex) return 1f
-            val start = byIndex.getValue(currentIndex).frameIndex
-            val target = byIndex.getValue(targetIndex).frameIndex
+            val start = byIndex.getValue(currentIndex).storyIndex
+            val target = byIndex.getValue(targetIndex).storyIndex
             return abs(target - start).toFloat()
         }
 
     val advancementProgress: Float
         get() {
             if (currentIndex == targetIndex) return 1f
-            val start = byIndex.getValue(currentIndex).frameIndex
-            val current = frameIndex.currentState
-            val fraction = if (current == frameIndex.targetState) 0f else frameIndex.fraction
+            val start = byIndex.getValue(currentIndex).storyIndex
+            val current = transition.currentState
+            val fraction = if (current == transition.targetState) 0f else transition.fraction
             return abs(current - start) + fraction
         }
 
@@ -105,53 +105,53 @@ class StoryState @ExperimentalStoryStateApi constructor(
     suspend fun advance(direction: AdvanceDirection): Boolean {
         if (_storyboard == null) return false // Cannot advance without Storyboard.
 
-        val currentDirection = toDirection(frameIndex.currentState, frameIndex.targetState)
+        val currentDirection = toDirection(transition.currentState, transition.targetState)
         if (currentDirection == null || currentDirection == direction) {
             if (currentDirection == direction) {
                 // Snap to the target and continue.
                 val target = byIndex.getValue(targetIndex)
-                snapTo(target.frameIndex)
+                snapTo(target.storyIndex)
                 currentIndex = target.storyboardIndex
                 // Fall-through and continue with the next advancement.
             }
 
             // Find the next target frame index.
-            val targetFrameIndex = findTargetFrameIndex(direction) ?: return false
-            targetIndex = frames[targetFrameIndex].storyboardIndex
+            val targetFrame = findTargetFrame(direction) ?: return false
+            targetIndex = targetFrame.storyboardIndex
         } else {
             // Reverse directions.
             val tmp = currentIndex
             currentIndex = targetIndex
             targetIndex = tmp
 
-            frameIndex.animateTo(frameIndex.currentState)
+            transition.animateTo(transition.currentState)
         }
 
         // Animate to the target frame.
-        var currentFrameIndex = frameIndex.currentState
+        var currentFrameIndex = transition.currentState
         while (frames[currentFrameIndex].storyboardIndex != targetIndex) {
             currentFrameIndex += direction.toInt()
-            frameIndex.animateTo(currentFrameIndex)
+            transition.animateTo(currentFrameIndex)
         }
 
         currentIndex = targetIndex
         return true
     }
 
-    private fun findTargetFrameIndex(direction: AdvanceDirection): Int? {
-        require(frameIndex.currentState == frameIndex.targetState) {
+    private fun findTargetFrame(direction: AdvanceDirection): StoryFrame<*>? {
+        require(transition.currentState == transition.targetState) {
             "cannot find target state during transition: " +
-                    "currentState=${frameIndex.currentState} " +
-                    "targetState=${frameIndex.targetState}"
+                    "currentState=${transition.currentState} " +
+                    "targetState=${transition.targetState}"
         }
 
-        var targetState = frameIndex.currentState + direction.toInt()
+        var targetState = transition.currentState + direction.toInt()
         if (targetState !in frames.indices) return null
 
         while (frames[targetState].frame !is Frame.State) {
             targetState += direction.toInt()
         }
-        return targetState
+        return frames[targetState]
     }
 
     suspend fun jumpTo(index: Storyboard.Index): Boolean {
@@ -161,20 +161,20 @@ class StoryState @ExperimentalStoryStateApi constructor(
         if (frame == null) return false
 
         targetIndex = frame.storyboardIndex
-        snapTo(frame.frameIndex)
+        snapTo(frame.storyIndex)
 
         currentIndex = targetIndex
         return true
     }
 
     private suspend fun snapTo(targetState: Int) {
-        frameIndex.snapTo(targetState)
+        transition.snapTo(targetState)
 
         // TODO this is a workaround for SeekableTransitionState not supporting
         //  `snapTo` without a transition.
         // TODO report a bug?
-        if (frameIndex.currentState != targetState) {
-            frameIndex = SeekableTransitionState(targetState)
+        if (transition.currentState != targetState) {
+            transition = SeekableTransitionState(targetState)
         }
     }
 
@@ -184,8 +184,8 @@ class StoryState @ExperimentalStoryStateApi constructor(
         val index = progress.toInt()
         val fraction = progress - index
 
-        if (frameIndex.currentState != index) {
-            frameIndex.snapTo(index)
+        if (transition.currentState != index) {
+            transition.snapTo(index)
 
             var currentState = index
             while (currentState >= 0 && frames[currentState].frame !is Frame.State) currentState--
@@ -200,7 +200,7 @@ class StoryState @ExperimentalStoryStateApi constructor(
         //  - seeking backwards seems to be broken for the opening animation
         //  - seeking backwards in general actually seems a little broken
         //  maybe I can create a minimal reproducer?
-        frameIndex.seekTo(fraction, index + 1)
+        transition.seekTo(fraction, index + 1)
     }
 
     @ExperimentalStoryStateApi
@@ -210,7 +210,7 @@ class StoryState @ExperimentalStoryStateApi constructor(
 
         this._storyboard = storyboard
         this.frames = buildFrames(storyboard.scenes)
-        this.byIndex = frames.filter { it.storyboardIndex.stateIndex >= 0 }.associateBy { it.storyboardIndex }
+        this.byIndex = frames.associateBy { it.storyboardIndex }
 
         val currentIndex = currentIndex
         val frame = byIndex[currentIndex]
@@ -229,22 +229,22 @@ class StoryState @ExperimentalStoryStateApi constructor(
             val storyboardIndex = frames[initialFrameIndex].storyboardIndex
             this.currentIndex = storyboardIndex
             this.targetIndex = storyboardIndex
-            this.frameIndex = SeekableTransitionState(initialFrameIndex)
+            this.transition = SeekableTransitionState(initialFrameIndex)
         }
     }
 
-    private fun buildFrames(scenes: List<Scene<*>>) = buildList {
+    private fun buildFrames(scenes: List<Scene<*>>): List<StoryFrame<*>> = buildList {
         require(scenes.isNotEmpty()) { "cannot build frames for empty list of scenes" }
 
         val first = scenes.first()
         val last = scenes.last()
         require(first.states.isNotEmpty() && last.states.isNotEmpty()) { "first and last scene must have states" }
 
-        var frameIndex = 0
-        fun <T> MutableList<StateFrame<*>>.addStates(scene: Scene<T>) {
+        var storyIndex = 0
+        fun <T> MutableList<StoryFrame<*>>.addStates(scene: Scene<T>) {
             for ((stateIndex, state) in scene.states.withIndex()) {
-                val index = StateFrame(
-                    frameIndex = frameIndex++,
+                val index = StoryFrame(
+                    storyIndex = storyIndex++,
                     scene = scene,
                     frame = Frame.State(state),
                     storyboardIndex = Storyboard.Index(scene.index, stateIndex),
@@ -253,15 +253,15 @@ class StoryState @ExperimentalStoryStateApi constructor(
             }
         }
 
-        for ((sceneIndex, scene) in scenes.withIndex()) {
+        for (scene in scenes) {
             if (scene != first) {
                 // TODO don't create an invalid Storyboard.Index
                 add(
-                    StateFrame(
-                        frameIndex = frameIndex++,
+                    StoryFrame(
+                        storyIndex = storyIndex++,
                         scene = scene,
                         frame = Frame.Start,
-                        storyboardIndex = Storyboard.Index(sceneIndex, -1)
+                        storyboardIndex = Storyboard.Index(scene.index, -1)
                     )
                 )
             }
@@ -269,27 +269,27 @@ class StoryState @ExperimentalStoryStateApi constructor(
             if (scene != last) {
                 // TODO don't create an invalid Storyboard.Index
                 add(
-                    StateFrame(
-                        frameIndex = frameIndex++,
+                    StoryFrame(
+                        storyIndex = storyIndex++,
                         scene = scene,
                         frame = Frame.End,
-                        storyboardIndex = Storyboard.Index(sceneIndex, scene.states.size)
+                        storyboardIndex = Storyboard.Index(scene.index, scene.states.size)
                     )
                 )
             }
         }
     }
 
-    internal class StateFrame<T>(
-        val frameIndex: Int,
+    internal class StoryFrame<T>(
+        val storyIndex: Int,
         val scene: Scene<T>,
         val frame: Frame<T>,
         val storyboardIndex: Storyboard.Index,
     )
 
     @Composable
-    internal fun rememberTransition(): Transition<StateFrame<*>> {
-        return rememberTransition(frameIndex)
+    internal fun rememberTransition(): Transition<StoryFrame<*>> {
+        return rememberTransition(transition)
             .createChildTransition { frames[it] }
     }
 }

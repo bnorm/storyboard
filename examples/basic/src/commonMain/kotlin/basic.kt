@@ -4,12 +4,13 @@ import androidx.compose.material.Typography
 import androidx.compose.material.darkColors
 import androidx.compose.ui.graphics.Color
 import dev.bnorm.storyboard.SceneDecorator
+import dev.bnorm.storyboard.SceneFormat
 import dev.bnorm.storyboard.Storyboard
 
 fun createStoryboard(): Storyboard {
     return Storyboard.build(
         title = "Basic Storyboard",
-        size = Storyboard.DEFAULT_SIZE,
+        format = SceneFormat.Default,
         decorator = theme,
     ) {
         NavigationScene()

@@ -27,8 +27,6 @@ kotlin {
 
                 implementation(project(":examples:shared"))
 
-                implementation(compose.runtime)
-                implementation(compose.foundation)
                 implementation(compose.material)
                 implementation(compose.components.resources)
             }

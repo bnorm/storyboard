@@ -10,7 +10,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.platform.LocalDensity
 import dev.bnorm.storyboard.*
 import dev.bnorm.storyboard.easel.internal.FixedSize
 import kotlinx.collections.immutable.ImmutableList
@@ -19,7 +19,7 @@ import kotlinx.collections.immutable.ImmutableList
 fun Story(storyState: StoryState, modifier: Modifier = Modifier) {
     val holder = rememberSaveableStateHolder()
     CompositionLocalProvider(LocalStoryboard provides storyState.storyboard) {
-        SceneWrapper(storyState.storyboard.size, storyState.storyboard.decorator, SceneMode.Story, modifier) {
+        SceneWrapper(storyState.storyboard.format, storyState.storyboard.decorator, SceneMode.Story, modifier) {
             val stateFrame = storyState.rememberTransition()
             stateFrame.createChildTransition { it.scene }.AnimatedContent(
                 transitionSpec = {
@@ -50,9 +50,9 @@ private class StorySceneScope<T>(
 context(_: AnimatedVisibilityScope, _: SharedTransitionScope)
 private fun <T> SceneContent(
     scene: Scene<T>,
-    stateFrame: Transition<StoryState.StateFrame<*>>,
+    storyFrame: Transition<StoryState.StoryFrame<*>>,
 ) {
-    val frame = stateFrame.createChildTransition {
+    val frame = storyFrame.createChildTransition {
         @Suppress("UNCHECKED_CAST")
         when {
             scene > it.scene -> Frame.Start
@@ -73,14 +73,17 @@ private fun <T> SceneContent(
 
 @Composable
 internal fun SceneWrapper(
-    size: DpSize,
+    format: SceneFormat,
     decorator: SceneDecorator,
     sceneMode: SceneMode,
     modifier: Modifier = Modifier,
     content: @Composable context(SharedTransitionScope) () -> Unit,
 ) {
-    FixedSize(size = size, modifier = modifier) {
-        CompositionLocalProvider(LocalSceneMode provides sceneMode) {
+    FixedSize(size = format.size, modifier = modifier) {
+        CompositionLocalProvider(
+            LocalSceneMode provides sceneMode,
+            LocalDensity provides format.density
+        ) {
             decorator.decorate {
                 SharedTransitionLayout {
                     content()
