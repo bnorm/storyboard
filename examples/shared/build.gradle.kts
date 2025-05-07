@@ -25,8 +25,6 @@ kotlin {
                 implementation(project(":storyboard-easel"))
                 implementation(project(":storyboard-text"))
 
-                implementation(compose.runtime)
-                implementation(compose.foundation)
                 implementation(compose.material)
                 implementation(compose.components.resources)
             }

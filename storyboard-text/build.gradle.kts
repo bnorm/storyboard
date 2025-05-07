@@ -20,21 +20,12 @@ kotlin {
     }
 
     sourceSets {
-        all {
-            languageSettings {
-                optIn("androidx.compose.animation.core.ExperimentalTransitionApi")
-                optIn("androidx.compose.animation.ExperimentalAnimationApi")
-                optIn("androidx.compose.animation.ExperimentalSharedTransitionApi")
-            }
-        }
-
         commonMain {
             dependencies {
                 api(project(":storyboard"))
-                api(compose.ui)
-                api(compose.material)
+                implementation(compose.material)
 
-                api("de.cketti.unicode:kotlin-codepoints-deluxe:0.7.0")
+                implementation("de.cketti.unicode:kotlin-codepoints-deluxe:0.7.0")
                 implementation("com.strumenta:antlr-kotlin-runtime:1.0.2")
             }
         }

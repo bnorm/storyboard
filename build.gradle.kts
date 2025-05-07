@@ -14,13 +14,6 @@ group = "dev.bnorm.storyboard"
 version = "0.1-SNAPSHOT"
 
 allprojects {
-    plugins.withId("org.jetbrains.compose") {
-        // Support local development with Compose Hot-Reload.
-        extensions.configure<ComposeCompilerGradlePluginExtension> {
-            featureFlags.add(ComposeFeatureFlag.OptimizeNonSkippingGroups)
-        }
-    }
-
     plugins.withId("org.jetbrains.kotlin.multiplatform") {
         extensions.configure<KotlinMultiplatformExtension> {
             sourceSets.all {
