@@ -6,11 +6,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.*
 import androidx.compose.ui.unit.Constraints
-import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.IntSize
 
 @Composable
 internal fun FixedSize(
-    size: DpSize,
+    size: IntSize,
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit,
 ) {
@@ -22,19 +22,19 @@ internal fun FixedSize(
     )
 }
 
-internal class FixedSizeMeasurePolicy(private val size: DpSize) : MeasurePolicy {
+internal class FixedSizeMeasurePolicy(private val size: IntSize) : MeasurePolicy {
     override fun MeasureScope.measure(
         measurables: List<Measurable>,
         constraints: Constraints,
     ): MeasureResult {
         // TODO we need a code path for width and/or height being infinite?
-        val constantWidth = size.width.toPx()
-        val constantHeight = size.height.toPx()
+        val constantWidth = size.width
+        val constantHeight = size.height
         val maxWidth = constraints.maxWidth
         val maxHeight = constraints.maxHeight
 
-        val widthScale = maxWidth / constantWidth
-        val heightScale = maxHeight / constantHeight
+        val widthScale = maxWidth.toFloat() / constantWidth
+        val heightScale = maxHeight.toFloat() / constantHeight
 
         val placeableScale: Float
         val layoutWidth: Int
@@ -42,14 +42,14 @@ internal class FixedSizeMeasurePolicy(private val size: DpSize) : MeasurePolicy 
         if (widthScale < heightScale) {
             placeableScale = widthScale
             layoutWidth = maxWidth
-            layoutHeight = (maxWidth * constantHeight / constantWidth).toInt()
+            layoutHeight = maxWidth * constantHeight / constantWidth
         } else {
             placeableScale = heightScale
-            layoutWidth = (maxHeight * constantWidth / constantHeight).toInt()
+            layoutWidth = maxHeight * constantWidth / constantHeight
             layoutHeight = maxHeight
         }
 
-        val fixedConstraints = Constraints.fixed(size.width.roundToPx(), size.height.roundToPx())
+        val fixedConstraints = Constraints.fixed(size.width, size.height)
         val placeable = measurables[0].measure(fixedConstraints)
         return layout(layoutWidth, layoutHeight) {
             // Compensate for the placeable being scaled.
@@ -57,7 +57,7 @@ internal class FixedSizeMeasurePolicy(private val size: DpSize) : MeasurePolicy 
             val yDrift = (layoutHeight - constantHeight) / 2
 
             // Place and scale the placeable
-            placeable.placeWithLayer(xDrift.toInt(), yDrift.toInt()) {
+            placeable.placeWithLayer(xDrift, yDrift) {
                 scaleX = placeableScale
                 scaleY = placeableScale
             }
@@ -68,18 +68,18 @@ internal class FixedSizeMeasurePolicy(private val size: DpSize) : MeasurePolicy 
         measurables: List<IntrinsicMeasurable>,
         height: Int,
     ): Int {
-        val constantWidth = size.width.toPx()
-        val constantHeight = size.height.toPx()
-        return (height * constantWidth / constantHeight).toInt()
+        val constantWidth = size.width
+        val constantHeight = size.height
+        return height * constantWidth / constantHeight
     }
 
     override fun IntrinsicMeasureScope.minIntrinsicHeight(
         measurables: List<IntrinsicMeasurable>,
         width: Int,
     ): Int {
-        val constantWidth = size.width.toPx()
-        val constantHeight = size.height.toPx()
-        return (width * constantHeight / constantWidth).toInt()
+        val constantWidth = size.width
+        val constantHeight = size.height
+        return width * constantHeight / constantWidth
     }
 
     override fun IntrinsicMeasureScope.maxIntrinsicWidth(

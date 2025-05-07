@@ -54,7 +54,7 @@ fun StoryOverview(
         val viewSize = DpSize(maxWidth, maxHeight)
         val itemSize = calculateItemSize(
             viewSize = viewSize,
-            itemSize = storyState.storyboard.size
+            itemSize = storyState.storyboard.format.size
         )
 
         val hState = rememberOverviewSceneScroll(viewSize, itemSize, storyOverviewState)
@@ -254,13 +254,13 @@ private fun Item(
 
 private fun calculateItemSize(
     viewSize: DpSize,
-    itemSize: DpSize,
+    itemSize: IntSize,
     scale: Float = 5f,
     itemPadding: Dp = 20.dp,
     min: Dp = 256.dp,
     max: Dp = 512.dp,
 ): DpSize {
-    val aspectRatio = itemSize.width / itemSize.height
+    val aspectRatio = itemSize.width.toFloat() / itemSize.height
 
     fun fromWidth(itemWidth: Dp): DpSize = DpSize(
         height = itemPadding + itemWidth / aspectRatio,

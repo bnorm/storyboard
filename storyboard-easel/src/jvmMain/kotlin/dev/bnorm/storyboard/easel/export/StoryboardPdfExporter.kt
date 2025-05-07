@@ -28,8 +28,6 @@ class StoryboardPdfExporter {
 
     suspend fun export(
         storyboard: Storyboard,
-        width: Int = storyboard.size.width.value.toInt() * 2,
-        height: Int = storyboard.size.height.value.toInt() * 2,
     ) {
         val file = FileKit.saveFile(
             bytes = null,
@@ -42,8 +40,6 @@ class StoryboardPdfExporter {
             exportAsPdf(
                 storyboard = storyboard,
                 path = file.file.toPath(),
-                width = width,
-                height = height,
             )
         }
     }
@@ -51,8 +47,6 @@ class StoryboardPdfExporter {
     private suspend fun exportAsPdf(
         storyboard: Storyboard,
         path: Path,
-        width: Int,
-        height: Int,
     ) {
         try {
             val doc = PDDocument()
@@ -60,7 +54,12 @@ class StoryboardPdfExporter {
             val frames = storyboard.indices
             for ((page, frame) in frames.withIndex()) {
                 status = ExportStatus(page.toFloat() / frames.size, "Generating PDF...")
-                val image = renderComposeScene(width, height) {
+                val image = renderComposeScene(
+                    width = storyboard.format.size.width,
+                    height = storyboard.format.size.height,
+                    // Not needed because preview sets the density, but good for consistency.
+                    density = storyboard.format.density,
+                ) {
                     ScenePreview(storyboard, frame)
                 }
 

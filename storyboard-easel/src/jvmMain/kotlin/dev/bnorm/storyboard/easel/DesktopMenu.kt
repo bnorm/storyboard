@@ -34,29 +34,31 @@ fun MenuBarScope.DesktopMenu(
                 ?.let { DpSize((it.left + it.right).dp, (it.top + it.bottom).dp) }
                 ?: DpSize.Zero
 
+            val size = DpSize(storyboard.format.size.width.dp, storyboard.format.size.height.dp)
+
             Item(text = "200%") {
                 windowState.placement = WindowPlacement.Floating
-                windowState.size = storyboard.size * 2f + insets
+                windowState.size = size * 2f + insets
             }
             Item(text = "150%") {
                 windowState.placement = WindowPlacement.Floating
-                windowState.size = storyboard.size * 1.5f + insets
+                windowState.size = size * 1.5f + insets
             }
             Item(text = "100%") {
                 windowState.placement = WindowPlacement.Floating
-                windowState.size = storyboard.size + insets
+                windowState.size = size + insets
             }
             Item(text = "75%") {
                 windowState.placement = WindowPlacement.Floating
-                windowState.size = storyboard.size * .75f + insets
+                windowState.size = size * .75f + insets
             }
             Item(text = "50%") {
                 windowState.placement = WindowPlacement.Floating
-                windowState.size = storyboard.size * .5f + insets
+                windowState.size = size * .5f + insets
             }
             Item(text = "25%") {
                 windowState.placement = WindowPlacement.Floating
-                windowState.size = storyboard.size * .25f + insets
+                windowState.size = size * .25f + insets
             }
         }
     }

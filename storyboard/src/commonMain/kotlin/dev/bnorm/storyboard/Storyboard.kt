@@ -4,8 +4,6 @@ import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
-import androidx.compose.ui.unit.DpSize
-import androidx.compose.ui.unit.dp
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 
@@ -14,8 +12,8 @@ class Storyboard private constructor(
     val title: String,
     val description: String?,
     val scenes: ImmutableList<Scene<*>>,
-    val size: DpSize = DEFAULT_SIZE,
-    val decorator: SceneDecorator = SceneDecorator.None,
+    val format: SceneFormat,
+    val decorator: SceneDecorator,
 ) {
     @Immutable
     data class Index(
@@ -36,12 +34,10 @@ class Storyboard private constructor(
     }
 
     companion object {
-        val DEFAULT_SIZE = DpSize(960.dp, 540.dp)
-
         fun build(
             title: String,
             description: String? = null,
-            size: DpSize = DEFAULT_SIZE,
+            format: SceneFormat = SceneFormat.Default,
             decorator: SceneDecorator = SceneDecorator.None,
             block: StoryboardBuilder.() -> Unit,
         ): Storyboard {
@@ -51,7 +47,7 @@ class Storyboard private constructor(
             //  - also seems to trigger an error with SeekableTransitionState being reused?
             val builder = StoryboardBuilderImpl()
             builder.block()
-            return Storyboard(title, description, builder.build().toImmutableList(), size, decorator)
+            return Storyboard(title, description, builder.build().toImmutableList(), format, decorator)
         }
     }
 
