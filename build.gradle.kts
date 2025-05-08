@@ -1,5 +1,3 @@
-import org.jetbrains.kotlin.compose.compiler.gradle.ComposeCompilerGradlePluginExtension
-import org.jetbrains.kotlin.compose.compiler.gradle.ComposeFeatureFlag
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.targets.wasm.nodejs.WasmNodeJsRootPlugin
 
@@ -22,6 +20,8 @@ allprojects {
                     enableLanguageFeature("WhenGuards")
                     enableLanguageFeature("MultiDollarInterpolation")
 
+                    optIn("kotlinx.coroutines.ExperimentalCoroutinesApi")
+                    optIn("kotlin.time.ExperimentalTime")
                     optIn("androidx.compose.animation.core.ExperimentalTransitionApi")
                     optIn("androidx.compose.animation.ExperimentalAnimationApi")
                     optIn("androidx.compose.animation.ExperimentalSharedTransitionApi")
