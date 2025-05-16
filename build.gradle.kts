@@ -1,5 +1,4 @@
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
-import org.jetbrains.kotlin.gradle.targets.wasm.nodejs.WasmNodeJsRootPlugin
 
 plugins {
     kotlin("multiplatform") apply false
@@ -28,11 +27,5 @@ allprojects {
                 }
             }
         }
-    }
-}
-
-plugins.withType(WasmNodeJsRootPlugin::class.java) {
-    tasks.register("rootPackageJson") {
-        dependsOn(tasks.named("wasmRootPackageJson"))
     }
 }
