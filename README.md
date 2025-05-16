@@ -43,7 +43,7 @@ dependencies {
 }
 ```
 
-Snapshot documentation is available at [bnorm.github.io/storyboard/docs/latest/](https://bnorm.github.io/storyboard/docs/latest/).
+Snapshot documentation is available at [bnorm.github.io/storyboard/docs/api/latest/](https://bnorm.github.io/storyboard/docs/api/latest/).
 
 </p>
 </details>
