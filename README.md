@@ -35,11 +35,11 @@ Looking for help? Join the discussion in the [KotlinLang Slack](https://kotlinla
 
 ```kotlin
 repository {
-  mavenCentral()
-  maven("https://central.sonatype.com/repository/maven-snapshots/")
+    mavenCentral()
+    maven("https://central.sonatype.com/repository/maven-snapshots/")
 }
 dependencies {
-  implementation("dev.bnorm.storyboard:storyboard:0.1.0-SNAPSHOT")
+    implementation("dev.bnorm.storyboard:storyboard:0.1.0-SNAPSHOT")
 }
 ```
 
@@ -133,7 +133,22 @@ I welcome you to check out the repository and try running one of the examples.
 I would also welcome additional examples of complex layouts or animations.
 Please experiment and see what's possible!
 
-### 2. Git Submodule
+
+### 2. SNAPSHOTs
+
+Snapshot versions of the project are available in the Central Portal Snapshots repository.
+
+```kotlin
+repository {
+    mavenCentral()
+    maven("https://central.sonatype.com/repository/maven-snapshots/")
+}
+dependencies {
+    implementation("dev.bnorm.storyboard:storyboard:0.1.0-SNAPSHOT")
+}
+```
+
+### 3. Git Submodule
 
 (This is the setup I use for my own presentation development)
 
