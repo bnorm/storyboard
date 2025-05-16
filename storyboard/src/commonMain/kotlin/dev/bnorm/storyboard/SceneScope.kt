@@ -6,7 +6,7 @@ import kotlinx.collections.immutable.ImmutableList
 
 @Stable
 @StoryboardBuilderDsl
-interface SceneScope<T> {
-    val states: ImmutableList<T>
-    val transition: Transition<out Frame<T>>
+public interface SceneScope<T> {
+    public val states: ImmutableList<T>
+    public val transition: Transition<out Frame<T>>
 }

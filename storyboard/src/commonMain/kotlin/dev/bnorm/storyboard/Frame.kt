@@ -1,20 +1,20 @@
 package dev.bnorm.storyboard
 
-sealed class Frame<out T> {
-    data object Start : Frame<Nothing>() {
+public sealed class Frame<out T> {
+    public data object Start : Frame<Nothing>() {
         override fun toString(): String = "Frame.Start"
     }
 
-    data object End : Frame<Nothing>() {
+    public data object End : Frame<Nothing>() {
         override fun toString(): String = "Frame.End"
     }
 
-    class State<out T>(val state: T) : Frame<T>() {
+    public class State<out T>(public val state: T) : Frame<T>() {
         override fun toString(): String = "Frame.State($state)"
     }
 }
 
-operator fun <T : Comparable<T>> Frame<T>.compareTo(other: Frame<T>): Int {
+public operator fun <T : Comparable<T>> Frame<T>.compareTo(other: Frame<T>): Int {
     return when (this) {
         Frame.Start -> if (other == Frame.Start) 0 else -1
         Frame.End -> if (other == Frame.End) 0 else 1
@@ -26,7 +26,7 @@ operator fun <T : Comparable<T>> Frame<T>.compareTo(other: Frame<T>): Int {
     }
 }
 
-fun <T, R> Frame<T>.map(transform: (T) -> R): Frame<R> {
+public fun <T, R> Frame<T>.map(transform: (T) -> R): Frame<R> {
     return when (this) {
         Frame.Start -> Frame.Start
         Frame.End -> Frame.End
@@ -42,7 +42,7 @@ fun <T, R> Frame<T>.map(transform: (T) -> R): Frame<R> {
  * and must be specified if the scene has no states.
  */
 context(sceneScope: SceneScope<R>)
-fun <T, R : T> Frame<R>.toState(
+public fun <T, R : T> Frame<R>.toState(
     start: T = when {
         sceneScope.states.isNotEmpty() -> sceneScope.states.first()
         else -> error("implicit conversion to state requires non-empty states")
@@ -64,7 +64,7 @@ fun <T, R : T> Frame<R>.toState(
  * representation for [Frame.Start], and [end] is the default representation for
  * [Frame.End].
  */
-fun <T> Frame<T>.toState(start: T, end: T): T {
+public fun <T> Frame<T>.toState(start: T, end: T): T {
     return when (this) {
         Frame.Start -> start
         Frame.End -> end

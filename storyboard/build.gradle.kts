@@ -11,6 +11,8 @@ plugins {
 group = "dev.bnorm.storyboard"
 
 kotlin {
+    explicitApi()
+
     jvm {
         compilerOptions {
             jvmTarget.set(JvmTarget.JVM_11)

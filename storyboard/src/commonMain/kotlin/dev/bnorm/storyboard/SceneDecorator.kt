@@ -6,14 +6,14 @@ import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.runtime.Composable
 
-fun interface SceneDecorator {
+public fun interface SceneDecorator {
     @Composable
-    fun decorate(content: @Composable () -> Unit)
+    public fun decorate(content: @Composable () -> Unit)
 
-    companion object {
-        val None = SceneDecorator { it() }
+    public companion object {
+        public val None: SceneDecorator = SceneDecorator { it() }
 
-        fun from(vararg decorators: SceneDecorator): SceneDecorator {
+        public fun from(vararg decorators: SceneDecorator): SceneDecorator {
             return when (decorators.size) {
                 0 -> None
                 1 -> decorators[0]
@@ -23,7 +23,7 @@ fun interface SceneDecorator {
     }
 }
 
-operator fun SceneDecorator.plus(other: SceneDecorator): SceneDecorator {
+public operator fun SceneDecorator.plus(other: SceneDecorator): SceneDecorator {
     val self = this
     return when (SceneDecorator.None) {
         other -> self
@@ -59,7 +59,7 @@ private class CompositeSceneDecorator(
     }
 }
 
-fun <T> SceneContent<T>.decorated(
+public fun <T> SceneContent<T>.decorated(
     decorator: SceneDecorator,
 ): SceneContent<T> {
     return DecoratedSceneContent(this, decorator)
@@ -78,7 +78,7 @@ private class DecoratedSceneContent<T>(
     }
 }
 
-fun StoryboardBuilder.decorated(
+public fun StoryboardBuilder.decorated(
     decorator: SceneDecorator,
     block: StoryboardBuilder.() -> Unit,
 ) {

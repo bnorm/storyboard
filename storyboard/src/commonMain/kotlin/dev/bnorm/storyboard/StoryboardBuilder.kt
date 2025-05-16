@@ -7,14 +7,14 @@ import kotlin.enums.enumEntries
 @DslMarker
 internal annotation class StoryboardBuilderDsl
 
-val DefaultEnterTransition: (AdvanceDirection) -> EnterTransition = { EnterTransition.None }
+public val DefaultEnterTransition: (AdvanceDirection) -> EnterTransition = { EnterTransition.None }
 
-val DefaultExitTransition: (AdvanceDirection) -> ExitTransition = { ExitTransition.None }
+public val DefaultExitTransition: (AdvanceDirection) -> ExitTransition = { ExitTransition.None }
 
 @StoryboardBuilderDsl
-sealed interface StoryboardBuilder {
+public sealed interface StoryboardBuilder {
     @StoryboardBuilderDsl
-    fun <T> scene(
+    public fun <T> scene(
         states: List<T>,
         enterTransition: (AdvanceDirection) -> EnterTransition = DefaultEnterTransition,
         exitTransition: (AdvanceDirection) -> ExitTransition = DefaultExitTransition,
@@ -22,7 +22,7 @@ sealed interface StoryboardBuilder {
     ): Scene<T>
 
     @StoryboardBuilderDsl
-    fun scene(
+    public fun scene(
         stateCount: Int = 1,
         enterTransition: (AdvanceDirection) -> EnterTransition = DefaultEnterTransition,
         exitTransition: (AdvanceDirection) -> ExitTransition = DefaultExitTransition,
@@ -34,7 +34,7 @@ sealed interface StoryboardBuilder {
 }
 
 @StoryboardBuilderDsl
-fun <T> StoryboardBuilder.scene(
+public fun <T> StoryboardBuilder.scene(
     vararg states: T,
     enterTransition: (AdvanceDirection) -> EnterTransition = DefaultEnterTransition,
     exitTransition: (AdvanceDirection) -> ExitTransition = DefaultExitTransition,
@@ -44,7 +44,7 @@ fun <T> StoryboardBuilder.scene(
 }
 
 @StoryboardBuilderDsl
-inline fun <reified T : Enum<T>> StoryboardBuilder.sceneForEnum(
+public inline fun <reified T : Enum<T>> StoryboardBuilder.sceneForEnum(
     noinline enterTransition: (AdvanceDirection) -> EnterTransition = DefaultEnterTransition,
     noinline exitTransition: (AdvanceDirection) -> ExitTransition = DefaultExitTransition,
     content: SceneContent<T>,
@@ -53,7 +53,7 @@ inline fun <reified T : Enum<T>> StoryboardBuilder.sceneForEnum(
 }
 
 @StoryboardBuilderDsl
-fun StoryboardBuilder.sceneForBoolean(
+public fun StoryboardBuilder.sceneForBoolean(
     enterTransition: (AdvanceDirection) -> EnterTransition = DefaultEnterTransition,
     exitTransition: (AdvanceDirection) -> ExitTransition = DefaultExitTransition,
     content: SceneContent<Boolean>,
@@ -63,7 +63,7 @@ fun StoryboardBuilder.sceneForBoolean(
 }
 
 @StoryboardBuilderDsl
-fun StoryboardBuilder.sceneForTransition(
+public fun StoryboardBuilder.sceneForTransition(
     enterTransition: (AdvanceDirection) -> EnterTransition = DefaultEnterTransition,
     exitTransition: (AdvanceDirection) -> ExitTransition = DefaultExitTransition,
     content: SceneContent<Nothing>,
