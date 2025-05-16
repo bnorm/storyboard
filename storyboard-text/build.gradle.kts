@@ -5,6 +5,7 @@ plugins {
     kotlin("multiplatform")
     kotlin("plugin.compose")
     id("org.jetbrains.compose")
+    id("com.vanniktech.maven.publish")
 
     id("com.strumenta.antlr-kotlin") version "1.0.2"
 }

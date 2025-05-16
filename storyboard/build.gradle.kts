@@ -7,6 +7,7 @@ plugins {
     kotlin("plugin.compose")
     id("org.jetbrains.compose")
     id("org.jetbrains.kotlinx.binary-compatibility-validator")
+    id("com.vanniktech.maven.publish")
 }
 
 group = "dev.bnorm.storyboard"

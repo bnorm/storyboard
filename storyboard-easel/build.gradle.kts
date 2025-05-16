@@ -5,6 +5,7 @@ plugins {
     kotlin("plugin.serialization")
     kotlin("plugin.compose")
     id("org.jetbrains.compose")
+    id("com.vanniktech.maven.publish")
 }
 
 group = "dev.bnorm.storyboard"
