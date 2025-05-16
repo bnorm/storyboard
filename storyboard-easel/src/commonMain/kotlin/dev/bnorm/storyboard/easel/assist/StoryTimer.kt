@@ -2,13 +2,11 @@ package dev.bnorm.storyboard.easel.assist
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.SharedTransitionLayout
-import androidx.compose.animation.core.Transition
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.updateTransition
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Icon
@@ -20,6 +18,7 @@ import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
@@ -32,19 +31,26 @@ import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import dev.bnorm.storyboard.easel.sharedElement
 import kotlinx.coroutines.delay
-import kotlin.time.Duration.Companion.milliseconds
-import kotlin.time.TimeMark
-import kotlin.time.TimeSource
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.transformLatest
+import kotlinx.coroutines.launch
+import kotlin.time.Clock
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
+import kotlin.time.Instant
 
 @Composable
-fun StoryTimer(timeSource: TimeSource = TimeSource.Monotonic) {
-    val timer = remember(timeSource) { Timer(timeSource) }
-    LaunchedEffect(timer.state) { timer.await() }
+fun StoryTimer(clock: Clock = Clock.System) {
+    val timer = remember(clock) { Timer(clock) }
+    val duration by timer.flow.collectAsState(initial = 0.seconds)
 
-    Row(verticalAlignment = Alignment.CenterVertically) {
+    fun Long.pad(): String = toString().padStart(2, padChar = '0')
+
+    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
         Text(
-            timer.toString(),
+            "${duration.inWholeHours.pad()}h ${(duration.inWholeMinutes % 60).pad()}m ${(duration.inWholeSeconds % 60).pad()}s",
             fontSize = 32.sp,
             fontFamily = FontFamily.Monospace
         )
@@ -55,94 +61,102 @@ fun StoryTimer(timeSource: TimeSource = TimeSource.Monotonic) {
 
 @Stable
 private class Timer(
-    val timeSource: TimeSource = TimeSource.Monotonic,
+    val clock: Clock = Clock.System,
 ) {
-    enum class State {
-        Stopped,
-        Running,
-        Paused,
+    sealed class State {
+        class Running(val start: Instant) : State()
+        class Paused(val duration: Duration) : State()
+        object Stopped : State()
     }
 
     var state: State by mutableStateOf(State.Stopped)
         private set
 
-    private var start by mutableStateOf<TimeMark?>(null)
-    private var duration by mutableStateOf(0.milliseconds)
+    val flow: Flow<Duration> = snapshotFlow { state }.transformLatest { state ->
+        when (state) {
+            is State.Running -> {
+                emit(clock.now() - state.start)
+                var next = state.start + 1.seconds
+                while (true) {
+                    delay(next - clock.now())
+                    emit(next - state.start)
+                    next += 1.seconds
+                }
+            }
+
+            is State.Paused -> emit(state.duration)
+            State.Stopped -> emit(0.seconds)
+        }
+    }
 
     fun onPlayPause() {
-        if (start == null) {
-            start = timeSource.markNow() - duration
-            state = State.Running
-        } else {
-            start?.let { duration = it.elapsedNow() }
-            start = null
-            state = State.Paused
+        state = when (val s = state) {
+            is State.Running -> State.Paused(duration = (clock.now() - s.start).inWholeSeconds.seconds)
+            is State.Paused -> State.Running(start = clock.now() - s.duration)
+            State.Stopped -> State.Running(start = clock.now())
         }
     }
 
     fun onReset() {
-        duration = 0.milliseconds
-        if (start != null) {
-            start = timeSource.markNow()
-        } else {
-            state = State.Stopped
+        state = when (state) {
+            is State.Running -> State.Running(start = clock.now())
+            is State.Paused -> State.Stopped
+            State.Stopped -> State.Stopped
         }
-    }
-
-    suspend fun await() {
-        // TODO there has to be a better way to achieve this state update...
-        val mark = start ?: return
-        while (true) {
-            delay(250.milliseconds)
-            duration = mark.elapsedNow()
-        }
-    }
-
-    override fun toString(): String {
-        fun Long.pad(): String = toString().padStart(2, padChar = '0')
-        return "${duration.inWholeHours.pad()}h ${(duration.inWholeMinutes % 60).pad()}m ${(duration.inWholeSeconds % 60).pad()}s"
     }
 }
 
 @Composable
 private fun TimerButtons(timer: Timer) {
+    val coroutineScope = rememberCoroutineScope()
+    val spin = remember { Animatable(0f) }
+
     SharedTransitionLayout {
         val transition = updateTransition(timer.state)
-        transition.AnimatedContent {
-            if (it != Timer.State.Stopped) {
-                Row {
+        transition.createChildTransition { it is Timer.State.Stopped }.AnimatedContent { stopped ->
+            if (!stopped) {
+                Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                     PlayPause(
                         pause = transition,
                         onClick = { timer.onPlayPause() },
-                        modifier = Modifier.sharedElement(
-                            rememberSharedContentState("play-pause"),
-                            animatedVisibilityScope = this@AnimatedContent
-                        ),
+                        modifier = Modifier
+                            .sharedElement(rememberSharedContentState("play-pause")),
                     )
                     Reset(
-                        onClick = { timer.onReset() },
-                        modifier = Modifier.sharedElement(
-                            rememberSharedContentState("reset"),
-                            animatedVisibilityScope = this@AnimatedContent
-                        ),
+                        onClick = {
+                            coroutineScope.launch {
+                                spin.snapTo(targetValue = 0f)
+                                spin.animateTo(targetValue = -360f, animationSpec = tween(500, easing = EaseInOut))
+                            }
+                            timer.onReset()
+                        },
+                        modifier = Modifier
+                            .sharedElement(rememberSharedContentState("reset"))
+                            .rotate(spin.value),
                     )
                 }
             } else {
                 Box {
                     Reset(
-                        onClick = { timer.onReset() },
-                        modifier = Modifier.sharedElement(
-                            rememberSharedContentState("reset"),
-                            animatedVisibilityScope = this@AnimatedContent
-                        ),
+                        onClick = {
+                            coroutineScope.launch {
+                                spin.snapTo(targetValue = 0f)
+                                spin.animateTo(targetValue = -360f, animationSpec = tween(500, easing = EaseInOut))
+                            }
+                            timer.onReset()
+                        },
+                        modifier = Modifier
+                            .sharedElement(
+                                rememberSharedContentState("reset"),
+                                boundsTransform = { _, _ -> tween(300, 200, easing = EaseOut) },
+                            )
+                            .rotate(spin.value),
                     )
                     PlayPause(
                         pause = transition,
                         onClick = { timer.onPlayPause() },
-                        modifier = Modifier.sharedElement(
-                            rememberSharedContentState("play-pause"),
-                            animatedVisibilityScope = this@AnimatedContent
-                        ),
+                        modifier = Modifier
+                            .sharedElement(rememberSharedContentState("play-pause")),
                     )
                 }
             }
@@ -159,7 +173,6 @@ private fun PlayPause(
     IconButton(
         onClick = onClick,
         modifier = modifier
-            .padding(start = 16.dp)
             .pointerHoverIcon(PointerIcon.Hand)
             .background(MaterialTheme.colors.primary, shape = CircleShape)
     ) {
@@ -180,7 +193,6 @@ private fun Reset(
     IconButton(
         onClick = onClick,
         modifier = modifier
-            .padding(start = 16.dp)
             .pointerHoverIcon(PointerIcon.Hand)
             .background(MaterialTheme.colors.primary, shape = CircleShape)
     ) {
@@ -202,7 +214,9 @@ private fun PlayPauseIcon(transition: Transition<Timer.State>): VectorPainter {
         viewportHeight = 24f,
         autoMirror = false,
     ) { _, _ ->
-        val fraction by transition.animateFloat { if (it == Timer.State.Running) 1f else 0f }
+        val fraction by transition.animateFloat(
+            transitionSpec = { tween(300, easing = EaseInOut) }
+        ) { if (it is Timer.State.Running) 1f else 0f }
 
         Path(
             pathData = PathData {
