@@ -16,9 +16,9 @@ public class Storyboard private constructor(
     public val decorator: SceneDecorator,
 ) {
     @Immutable
-    public data class Index(
-        val sceneIndex: Int,
-        val stateIndex: Int,
+    public class Index(
+        public val sceneIndex: Int,
+        public val stateIndex: Int,
     ) : Comparable<Index> {
         // TODO require sceneIndex >= 0?
         // TODO require stateIndex >= 0?
@@ -30,6 +30,24 @@ public class Storyboard private constructor(
 
         override fun toString(): String {
             return "$sceneIndex,$stateIndex"
+        }
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other == null || this::class != other::class) return false
+
+            other as Index
+
+            if (sceneIndex != other.sceneIndex) return false
+            if (stateIndex != other.stateIndex) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            var result = sceneIndex
+            result = 31 * result + stateIndex
+            return result
         }
     }
 

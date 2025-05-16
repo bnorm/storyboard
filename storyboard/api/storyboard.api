@@ -132,10 +132,6 @@ public final class dev/bnorm/storyboard/Storyboard$Index : java/lang/Comparable 
 	public fun <init> (II)V
 	public fun compareTo (Ldev/bnorm/storyboard/Storyboard$Index;)I
 	public synthetic fun compareTo (Ljava/lang/Object;)I
-	public final fun component1 ()I
-	public final fun component2 ()I
-	public final fun copy (II)Ldev/bnorm/storyboard/Storyboard$Index;
-	public static synthetic fun copy$default (Ldev/bnorm/storyboard/Storyboard$Index;IIILjava/lang/Object;)Ldev/bnorm/storyboard/Storyboard$Index;
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getSceneIndex ()I
 	public final fun getStateIndex ()I
