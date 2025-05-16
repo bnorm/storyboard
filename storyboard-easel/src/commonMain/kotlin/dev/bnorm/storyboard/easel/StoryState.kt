@@ -124,14 +124,14 @@ class StoryState @ExperimentalStoryStateApi constructor(
             currentIndex = targetIndex
             targetIndex = tmp
 
-            transition.animateTo(transition.currentState)
+            animateTo(transition.currentState)
         }
 
         // Animate to the target frame.
         var currentFrameIndex = transition.currentState
         while (frames[currentFrameIndex].storyboardIndex != targetIndex) {
             currentFrameIndex += direction.toInt()
-            transition.animateTo(currentFrameIndex)
+            animateTo(currentFrameIndex)
         }
 
         currentIndex = targetIndex
@@ -172,6 +172,17 @@ class StoryState @ExperimentalStoryStateApi constructor(
 
         // TODO this is a workaround for SeekableTransitionState not supporting
         //  `snapTo` without a transition.
+        // TODO report a bug?
+        if (transition.currentState != targetState) {
+            transition = SeekableTransitionState(targetState)
+        }
+    }
+
+    private suspend fun animateTo(targetState: Int) {
+        transition.animateTo(targetState)
+
+        // TODO this is a workaround for SeekableTransitionState not supporting
+        //  `animateTo` without a transition.
         // TODO report a bug?
         if (transition.currentState != targetState) {
             transition = SeekableTransitionState(targetState)
