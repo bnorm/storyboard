@@ -1,3 +1,4 @@
+import kotlinx.validation.ExperimentalBCVApi
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
@@ -34,5 +35,13 @@ kotlin {
                 api("org.jetbrains.kotlinx:kotlinx-collections-immutable:0.3.7")
             }
         }
+    }
+}
+
+apiValidation {
+    @OptIn(ExperimentalBCVApi::class)
+    klib {
+        strictValidation = true
+        enabled = true
     }
 }
