@@ -1,6 +1,6 @@
 package dev.bnorm.storyboard
 
-enum class AdvanceDirection {
+public enum class AdvanceDirection {
     Forward,
     Backward,
 }

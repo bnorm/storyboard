@@ -30,10 +30,35 @@ jobs:
       - name: Configure Gradle
         uses: gradle/actions/setup-gradle@v4
 
-      - name: Run Gradle Tasks
-        run: ./gradlew check
+      - name: Check project
+        run: ./gradlew check --continue
 
       - uses: mikepenz/action-junit-report@v5
         if: success() || failure()
         with:
           report_paths: '**/build/test-results/test/TEST-*.xml'
+
+  publish:
+    name: Publish
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && github.repository == 'bnorm/storyboard'
+    needs: [ build ]
+
+    steps:
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: zulu
+          java-version: 21
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Publish SNAPSHOT
+        run: ./gradlew publish
+        env:
+          ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.SONATYPE_CENTRAL_USERNAME }}
+          ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.SONATYPE_CENTRAL_PASSWORD }}

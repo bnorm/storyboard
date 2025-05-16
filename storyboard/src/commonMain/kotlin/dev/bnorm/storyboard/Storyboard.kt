@@ -8,17 +8,17 @@ import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 
 @Stable
-class Storyboard private constructor(
-    val title: String,
-    val description: String?,
-    val scenes: ImmutableList<Scene<*>>,
-    val format: SceneFormat,
-    val decorator: SceneDecorator,
+public class Storyboard private constructor(
+    public val title: String,
+    public val description: String?,
+    public val scenes: ImmutableList<Scene<*>>,
+    public val format: SceneFormat,
+    public val decorator: SceneDecorator,
 ) {
     @Immutable
-    data class Index(
-        val sceneIndex: Int,
-        val stateIndex: Int,
+    public class Index(
+        public val sceneIndex: Int,
+        public val stateIndex: Int,
     ) : Comparable<Index> {
         // TODO require sceneIndex >= 0?
         // TODO require stateIndex >= 0?
@@ -31,10 +31,28 @@ class Storyboard private constructor(
         override fun toString(): String {
             return "$sceneIndex,$stateIndex"
         }
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other == null || this::class != other::class) return false
+
+            other as Index
+
+            if (sceneIndex != other.sceneIndex) return false
+            if (stateIndex != other.stateIndex) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            var result = sceneIndex
+            result = 31 * result + stateIndex
+            return result
+        }
     }
 
-    companion object {
-        fun build(
+    public companion object {
+        public fun build(
             title: String,
             description: String? = null,
             format: SceneFormat = SceneFormat.Default,
@@ -51,7 +69,7 @@ class Storyboard private constructor(
         }
     }
 
-    val indices: ImmutableList<Index> = scenes.flatMapIndexed { sceneIndex, scene ->
+    public val indices: ImmutableList<Index> = scenes.flatMapIndexed { sceneIndex, scene ->
         List(scene.states.size) { stateIndex -> Index(sceneIndex, stateIndex) }
     }.toImmutableList()
 }

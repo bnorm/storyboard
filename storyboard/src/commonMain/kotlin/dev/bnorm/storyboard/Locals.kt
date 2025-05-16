@@ -1,7 +1,8 @@
 package dev.bnorm.storyboard
 
+import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.compositionLocalOf
 
-val LocalStoryboard = compositionLocalOf<Storyboard?> { null }
+public val LocalStoryboard: ProvidableCompositionLocal<Storyboard?> = compositionLocalOf { null }
 
-val LocalSceneMode = compositionLocalOf<SceneMode?> { null }
+public val LocalSceneMode: ProvidableCompositionLocal<SceneMode?> = compositionLocalOf { null }

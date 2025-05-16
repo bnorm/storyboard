@@ -15,7 +15,7 @@ package dev.bnorm.storyboard
  * * [Preview] - Used when previewing the display of a scene.
  * For example, in the overview, assistant, or when being exported.
  */
-enum class SceneMode {
+public enum class SceneMode {
     Story,
     Preview,
 }

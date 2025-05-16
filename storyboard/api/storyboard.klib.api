@@ -1,0 +1,180 @@
+// Klib ABI Dump
+// Targets: [wasmJs]
+// Rendering settings:
+// - Signature version: 2
+// - Show manifest properties: true
+// - Show declarations: true
+
+// Library unique name: <dev.bnorm.storyboard:storyboard>
+final enum class dev.bnorm.storyboard/AdvanceDirection : kotlin/Enum<dev.bnorm.storyboard/AdvanceDirection> { // dev.bnorm.storyboard/AdvanceDirection|null[0]
+    enum entry Backward // dev.bnorm.storyboard/AdvanceDirection.Backward|null[0]
+    enum entry Forward // dev.bnorm.storyboard/AdvanceDirection.Forward|null[0]
+
+    final val entries // dev.bnorm.storyboard/AdvanceDirection.entries|#static{}entries[0]
+        final fun <get-entries>(): kotlin.enums/EnumEntries<dev.bnorm.storyboard/AdvanceDirection> // dev.bnorm.storyboard/AdvanceDirection.entries.<get-entries>|<get-entries>#static(){}[0]
+
+    final fun valueOf(kotlin/String): dev.bnorm.storyboard/AdvanceDirection // dev.bnorm.storyboard/AdvanceDirection.valueOf|valueOf#static(kotlin.String){}[0]
+    final fun values(): kotlin/Array<dev.bnorm.storyboard/AdvanceDirection> // dev.bnorm.storyboard/AdvanceDirection.values|values#static(){}[0]
+}
+
+final enum class dev.bnorm.storyboard/SceneMode : kotlin/Enum<dev.bnorm.storyboard/SceneMode> { // dev.bnorm.storyboard/SceneMode|null[0]
+    enum entry Preview // dev.bnorm.storyboard/SceneMode.Preview|null[0]
+    enum entry Story // dev.bnorm.storyboard/SceneMode.Story|null[0]
+
+    final val entries // dev.bnorm.storyboard/SceneMode.entries|#static{}entries[0]
+        final fun <get-entries>(): kotlin.enums/EnumEntries<dev.bnorm.storyboard/SceneMode> // dev.bnorm.storyboard/SceneMode.entries.<get-entries>|<get-entries>#static(){}[0]
+
+    final fun valueOf(kotlin/String): dev.bnorm.storyboard/SceneMode // dev.bnorm.storyboard/SceneMode.valueOf|valueOf#static(kotlin.String){}[0]
+    final fun values(): kotlin/Array<dev.bnorm.storyboard/SceneMode> // dev.bnorm.storyboard/SceneMode.values|values#static(){}[0]
+}
+
+abstract fun interface <#A: kotlin/Any?> dev.bnorm.storyboard/SceneContent { // dev.bnorm.storyboard/SceneContent|null[0]
+    abstract fun (context(androidx.compose.animation/AnimatedVisibilityScope, androidx.compose.animation/SharedTransitionScope), dev.bnorm.storyboard/SceneScope<#A>).Content(androidx.compose.runtime/Composer?, kotlin/Int) // dev.bnorm.storyboard/SceneContent.Content|Content(androidx.compose.animation.AnimatedVisibilityScope;androidx.compose.animation.SharedTransitionScope)@dev.bnorm.storyboard.SceneScope<1:0>(androidx.compose.runtime.Composer?;kotlin.Int){}[0]
+}
+
+abstract fun interface dev.bnorm.storyboard/SceneDecorator { // dev.bnorm.storyboard/SceneDecorator|null[0]
+    abstract fun decorate(kotlin/Function2<androidx.compose.runtime/Composer, kotlin/Int, kotlin/Unit>, androidx.compose.runtime/Composer?, kotlin/Int) // dev.bnorm.storyboard/SceneDecorator.decorate|decorate(kotlin.Function2<androidx.compose.runtime.Composer,kotlin.Int,kotlin.Unit>;androidx.compose.runtime.Composer?;kotlin.Int){}[0]
+
+    final object Companion { // dev.bnorm.storyboard/SceneDecorator.Companion|null[0]
+        final val None // dev.bnorm.storyboard/SceneDecorator.Companion.None|{}None[0]
+            final fun <get-None>(): dev.bnorm.storyboard/SceneDecorator // dev.bnorm.storyboard/SceneDecorator.Companion.None.<get-None>|<get-None>(){}[0]
+
+        final fun from(kotlin/Array<out dev.bnorm.storyboard/SceneDecorator>...): dev.bnorm.storyboard/SceneDecorator // dev.bnorm.storyboard/SceneDecorator.Companion.from|from(kotlin.Array<out|dev.bnorm.storyboard.SceneDecorator>...){}[0]
+    }
+}
+
+abstract interface <#A: kotlin/Any?> dev.bnorm.storyboard/SceneScope { // dev.bnorm.storyboard/SceneScope|null[0]
+    abstract val states // dev.bnorm.storyboard/SceneScope.states|{}states[0]
+        abstract fun <get-states>(): kotlinx.collections.immutable/ImmutableList<#A> // dev.bnorm.storyboard/SceneScope.states.<get-states>|<get-states>(){}[0]
+    abstract val transition // dev.bnorm.storyboard/SceneScope.transition|{}transition[0]
+        abstract fun <get-transition>(): androidx.compose.animation.core/Transition<out dev.bnorm.storyboard/Frame<#A>> // dev.bnorm.storyboard/SceneScope.transition.<get-transition>|<get-transition>(){}[0]
+}
+
+sealed interface dev.bnorm.storyboard/StoryboardBuilder { // dev.bnorm.storyboard/StoryboardBuilder|null[0]
+    abstract fun <#A1: kotlin/Any?> scene(kotlin.collections/List<#A1>, kotlin/Function1<dev.bnorm.storyboard/AdvanceDirection, androidx.compose.animation/EnterTransition> = ..., kotlin/Function1<dev.bnorm.storyboard/AdvanceDirection, androidx.compose.animation/ExitTransition> = ..., dev.bnorm.storyboard/SceneContent<#A1>): dev.bnorm.storyboard/Scene<#A1> // dev.bnorm.storyboard/StoryboardBuilder.scene|scene(kotlin.collections.List<0:0>;kotlin.Function1<dev.bnorm.storyboard.AdvanceDirection,androidx.compose.animation.EnterTransition>;kotlin.Function1<dev.bnorm.storyboard.AdvanceDirection,androidx.compose.animation.ExitTransition>;dev.bnorm.storyboard.SceneContent<0:0>){0§<kotlin.Any?>}[0]
+    open fun scene(kotlin/Int = ..., kotlin/Function1<dev.bnorm.storyboard/AdvanceDirection, androidx.compose.animation/EnterTransition> = ..., kotlin/Function1<dev.bnorm.storyboard/AdvanceDirection, androidx.compose.animation/ExitTransition> = ..., dev.bnorm.storyboard/SceneContent<kotlin/Int>): dev.bnorm.storyboard/Scene<kotlin/Int> // dev.bnorm.storyboard/StoryboardBuilder.scene|scene(kotlin.Int;kotlin.Function1<dev.bnorm.storyboard.AdvanceDirection,androidx.compose.animation.EnterTransition>;kotlin.Function1<dev.bnorm.storyboard.AdvanceDirection,androidx.compose.animation.ExitTransition>;dev.bnorm.storyboard.SceneContent<kotlin.Int>){}[0]
+}
+
+final class <#A: kotlin/Any?> dev.bnorm.storyboard/Scene : kotlin/Comparable<dev.bnorm.storyboard/Scene<*>> { // dev.bnorm.storyboard/Scene|null[0]
+    final val content // dev.bnorm.storyboard/Scene.content|{}content[0]
+        final fun <get-content>(): dev.bnorm.storyboard/SceneContent<#A> // dev.bnorm.storyboard/Scene.content.<get-content>|<get-content>(){}[0]
+    final val enterTransition // dev.bnorm.storyboard/Scene.enterTransition|{}enterTransition[0]
+        final fun <get-enterTransition>(): kotlin/Function1<dev.bnorm.storyboard/AdvanceDirection, androidx.compose.animation/EnterTransition> // dev.bnorm.storyboard/Scene.enterTransition.<get-enterTransition>|<get-enterTransition>(){}[0]
+    final val exitTransition // dev.bnorm.storyboard/Scene.exitTransition|{}exitTransition[0]
+        final fun <get-exitTransition>(): kotlin/Function1<dev.bnorm.storyboard/AdvanceDirection, androidx.compose.animation/ExitTransition> // dev.bnorm.storyboard/Scene.exitTransition.<get-exitTransition>|<get-exitTransition>(){}[0]
+    final val index // dev.bnorm.storyboard/Scene.index|{}index[0]
+        final fun <get-index>(): kotlin/Int // dev.bnorm.storyboard/Scene.index.<get-index>|<get-index>(){}[0]
+    final val states // dev.bnorm.storyboard/Scene.states|{}states[0]
+        final fun <get-states>(): kotlinx.collections.immutable/ImmutableList<#A> // dev.bnorm.storyboard/Scene.states.<get-states>|<get-states>(){}[0]
+
+    final fun compareTo(dev.bnorm.storyboard/Scene<*>): kotlin/Int // dev.bnorm.storyboard/Scene.compareTo|compareTo(dev.bnorm.storyboard.Scene<*>){}[0]
+}
+
+final class dev.bnorm.storyboard/SceneFormat { // dev.bnorm.storyboard/SceneFormat|null[0]
+    constructor <init>(androidx.compose.ui.unit/IntSize, androidx.compose.ui.unit/Density) // dev.bnorm.storyboard/SceneFormat.<init>|<init>(androidx.compose.ui.unit.IntSize;androidx.compose.ui.unit.Density){}[0]
+
+    final val density // dev.bnorm.storyboard/SceneFormat.density|{}density[0]
+        final fun <get-density>(): androidx.compose.ui.unit/Density // dev.bnorm.storyboard/SceneFormat.density.<get-density>|<get-density>(){}[0]
+    final val size // dev.bnorm.storyboard/SceneFormat.size|{}size[0]
+        final fun <get-size>(): androidx.compose.ui.unit/IntSize // dev.bnorm.storyboard/SceneFormat.size.<get-size>|<get-size>(){}[0]
+
+    final object Companion { // dev.bnorm.storyboard/SceneFormat.Companion|null[0]
+        final val Default // dev.bnorm.storyboard/SceneFormat.Companion.Default|{}Default[0]
+            final fun <get-Default>(): dev.bnorm.storyboard/SceneFormat // dev.bnorm.storyboard/SceneFormat.Companion.Default.<get-Default>|<get-Default>(){}[0]
+    }
+}
+
+final class dev.bnorm.storyboard/Storyboard { // dev.bnorm.storyboard/Storyboard|null[0]
+    final val decorator // dev.bnorm.storyboard/Storyboard.decorator|{}decorator[0]
+        final fun <get-decorator>(): dev.bnorm.storyboard/SceneDecorator // dev.bnorm.storyboard/Storyboard.decorator.<get-decorator>|<get-decorator>(){}[0]
+    final val description // dev.bnorm.storyboard/Storyboard.description|{}description[0]
+        final fun <get-description>(): kotlin/String? // dev.bnorm.storyboard/Storyboard.description.<get-description>|<get-description>(){}[0]
+    final val format // dev.bnorm.storyboard/Storyboard.format|{}format[0]
+        final fun <get-format>(): dev.bnorm.storyboard/SceneFormat // dev.bnorm.storyboard/Storyboard.format.<get-format>|<get-format>(){}[0]
+    final val indices // dev.bnorm.storyboard/Storyboard.indices|{}indices[0]
+        final fun <get-indices>(): kotlinx.collections.immutable/ImmutableList<dev.bnorm.storyboard/Storyboard.Index> // dev.bnorm.storyboard/Storyboard.indices.<get-indices>|<get-indices>(){}[0]
+    final val scenes // dev.bnorm.storyboard/Storyboard.scenes|{}scenes[0]
+        final fun <get-scenes>(): kotlinx.collections.immutable/ImmutableList<dev.bnorm.storyboard/Scene<*>> // dev.bnorm.storyboard/Storyboard.scenes.<get-scenes>|<get-scenes>(){}[0]
+    final val title // dev.bnorm.storyboard/Storyboard.title|{}title[0]
+        final fun <get-title>(): kotlin/String // dev.bnorm.storyboard/Storyboard.title.<get-title>|<get-title>(){}[0]
+
+    final class Index : kotlin/Comparable<dev.bnorm.storyboard/Storyboard.Index> { // dev.bnorm.storyboard/Storyboard.Index|null[0]
+        constructor <init>(kotlin/Int, kotlin/Int) // dev.bnorm.storyboard/Storyboard.Index.<init>|<init>(kotlin.Int;kotlin.Int){}[0]
+
+        final val sceneIndex // dev.bnorm.storyboard/Storyboard.Index.sceneIndex|{}sceneIndex[0]
+            final fun <get-sceneIndex>(): kotlin/Int // dev.bnorm.storyboard/Storyboard.Index.sceneIndex.<get-sceneIndex>|<get-sceneIndex>(){}[0]
+        final val stateIndex // dev.bnorm.storyboard/Storyboard.Index.stateIndex|{}stateIndex[0]
+            final fun <get-stateIndex>(): kotlin/Int // dev.bnorm.storyboard/Storyboard.Index.stateIndex.<get-stateIndex>|<get-stateIndex>(){}[0]
+
+        final fun compareTo(dev.bnorm.storyboard/Storyboard.Index): kotlin/Int // dev.bnorm.storyboard/Storyboard.Index.compareTo|compareTo(dev.bnorm.storyboard.Storyboard.Index){}[0]
+        final fun equals(kotlin/Any?): kotlin/Boolean // dev.bnorm.storyboard/Storyboard.Index.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // dev.bnorm.storyboard/Storyboard.Index.hashCode|hashCode(){}[0]
+        final fun toString(): kotlin/String // dev.bnorm.storyboard/Storyboard.Index.toString|toString(){}[0]
+    }
+
+    final object Companion { // dev.bnorm.storyboard/Storyboard.Companion|null[0]
+        final fun build(kotlin/String, kotlin/String? = ..., dev.bnorm.storyboard/SceneFormat = ..., dev.bnorm.storyboard/SceneDecorator = ..., kotlin/Function1<dev.bnorm.storyboard/StoryboardBuilder, kotlin/Unit>): dev.bnorm.storyboard/Storyboard // dev.bnorm.storyboard/Storyboard.Companion.build|build(kotlin.String;kotlin.String?;dev.bnorm.storyboard.SceneFormat;dev.bnorm.storyboard.SceneDecorator;kotlin.Function1<dev.bnorm.storyboard.StoryboardBuilder,kotlin.Unit>){}[0]
+    }
+}
+
+sealed class <#A: out kotlin/Any?> dev.bnorm.storyboard/Frame { // dev.bnorm.storyboard/Frame|null[0]
+    final class <#A1: out kotlin/Any?> State : dev.bnorm.storyboard/Frame<#A1> { // dev.bnorm.storyboard/Frame.State|null[0]
+        constructor <init>(#A1) // dev.bnorm.storyboard/Frame.State.<init>|<init>(1:0){}[0]
+
+        final val state // dev.bnorm.storyboard/Frame.State.state|{}state[0]
+            final fun <get-state>(): #A1 // dev.bnorm.storyboard/Frame.State.state.<get-state>|<get-state>(){}[0]
+
+        final fun toString(): kotlin/String // dev.bnorm.storyboard/Frame.State.toString|toString(){}[0]
+    }
+
+    final object End : dev.bnorm.storyboard/Frame<kotlin/Nothing> { // dev.bnorm.storyboard/Frame.End|null[0]
+        final fun equals(kotlin/Any?): kotlin/Boolean // dev.bnorm.storyboard/Frame.End.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // dev.bnorm.storyboard/Frame.End.hashCode|hashCode(){}[0]
+        final fun toString(): kotlin/String // dev.bnorm.storyboard/Frame.End.toString|toString(){}[0]
+    }
+
+    final object Start : dev.bnorm.storyboard/Frame<kotlin/Nothing> { // dev.bnorm.storyboard/Frame.Start|null[0]
+        final fun equals(kotlin/Any?): kotlin/Boolean // dev.bnorm.storyboard/Frame.Start.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // dev.bnorm.storyboard/Frame.Start.hashCode|hashCode(){}[0]
+        final fun toString(): kotlin/String // dev.bnorm.storyboard/Frame.Start.toString|toString(){}[0]
+    }
+}
+
+final val dev.bnorm.storyboard/DefaultEnterTransition // dev.bnorm.storyboard/DefaultEnterTransition|{}DefaultEnterTransition[0]
+    final fun <get-DefaultEnterTransition>(): kotlin/Function1<dev.bnorm.storyboard/AdvanceDirection, androidx.compose.animation/EnterTransition> // dev.bnorm.storyboard/DefaultEnterTransition.<get-DefaultEnterTransition>|<get-DefaultEnterTransition>(){}[0]
+final val dev.bnorm.storyboard/DefaultExitTransition // dev.bnorm.storyboard/DefaultExitTransition|{}DefaultExitTransition[0]
+    final fun <get-DefaultExitTransition>(): kotlin/Function1<dev.bnorm.storyboard/AdvanceDirection, androidx.compose.animation/ExitTransition> // dev.bnorm.storyboard/DefaultExitTransition.<get-DefaultExitTransition>|<get-DefaultExitTransition>(){}[0]
+final val dev.bnorm.storyboard/LocalSceneMode // dev.bnorm.storyboard/LocalSceneMode|{}LocalSceneMode[0]
+    final fun <get-LocalSceneMode>(): androidx.compose.runtime/ProvidableCompositionLocal<dev.bnorm.storyboard/SceneMode?> // dev.bnorm.storyboard/LocalSceneMode.<get-LocalSceneMode>|<get-LocalSceneMode>(){}[0]
+final val dev.bnorm.storyboard/LocalStoryboard // dev.bnorm.storyboard/LocalStoryboard|{}LocalStoryboard[0]
+    final fun <get-LocalStoryboard>(): androidx.compose.runtime/ProvidableCompositionLocal<dev.bnorm.storyboard/Storyboard?> // dev.bnorm.storyboard/LocalStoryboard.<get-LocalStoryboard>|<get-LocalStoryboard>(){}[0]
+final val dev.bnorm.storyboard/dev_bnorm_storyboard_Frame$stableprop // dev.bnorm.storyboard/dev_bnorm_storyboard_Frame$stableprop|#static{}dev_bnorm_storyboard_Frame$stableprop[0]
+final val dev.bnorm.storyboard/dev_bnorm_storyboard_Frame_End$stableprop // dev.bnorm.storyboard/dev_bnorm_storyboard_Frame_End$stableprop|#static{}dev_bnorm_storyboard_Frame_End$stableprop[0]
+final val dev.bnorm.storyboard/dev_bnorm_storyboard_Frame_Start$stableprop // dev.bnorm.storyboard/dev_bnorm_storyboard_Frame_Start$stableprop|#static{}dev_bnorm_storyboard_Frame_Start$stableprop[0]
+final val dev.bnorm.storyboard/dev_bnorm_storyboard_Frame_State$stableprop // dev.bnorm.storyboard/dev_bnorm_storyboard_Frame_State$stableprop|#static{}dev_bnorm_storyboard_Frame_State$stableprop[0]
+final val dev.bnorm.storyboard/dev_bnorm_storyboard_Scene$stableprop // dev.bnorm.storyboard/dev_bnorm_storyboard_Scene$stableprop|#static{}dev_bnorm_storyboard_Scene$stableprop[0]
+final val dev.bnorm.storyboard/dev_bnorm_storyboard_SceneFormat$stableprop // dev.bnorm.storyboard/dev_bnorm_storyboard_SceneFormat$stableprop|#static{}dev_bnorm_storyboard_SceneFormat$stableprop[0]
+final val dev.bnorm.storyboard/dev_bnorm_storyboard_Storyboard$stableprop // dev.bnorm.storyboard/dev_bnorm_storyboard_Storyboard$stableprop|#static{}dev_bnorm_storyboard_Storyboard$stableprop[0]
+final val dev.bnorm.storyboard/dev_bnorm_storyboard_Storyboard_Index$stableprop // dev.bnorm.storyboard/dev_bnorm_storyboard_Storyboard_Index$stableprop|#static{}dev_bnorm_storyboard_Storyboard_Index$stableprop[0]
+
+final fun (dev.bnorm.storyboard/SceneDecorator).dev.bnorm.storyboard/plus(dev.bnorm.storyboard/SceneDecorator): dev.bnorm.storyboard/SceneDecorator // dev.bnorm.storyboard/plus|plus@dev.bnorm.storyboard.SceneDecorator(dev.bnorm.storyboard.SceneDecorator){}[0]
+final fun (dev.bnorm.storyboard/SceneFormat).dev.bnorm.storyboard/toDpSize(): androidx.compose.ui.unit/DpSize // dev.bnorm.storyboard/toDpSize|toDpSize@dev.bnorm.storyboard.SceneFormat(){}[0]
+final fun (dev.bnorm.storyboard/StoryboardBuilder).dev.bnorm.storyboard/decorated(dev.bnorm.storyboard/SceneDecorator, kotlin/Function1<dev.bnorm.storyboard/StoryboardBuilder, kotlin/Unit>) // dev.bnorm.storyboard/decorated|decorated@dev.bnorm.storyboard.StoryboardBuilder(dev.bnorm.storyboard.SceneDecorator;kotlin.Function1<dev.bnorm.storyboard.StoryboardBuilder,kotlin.Unit>){}[0]
+final fun (dev.bnorm.storyboard/StoryboardBuilder).dev.bnorm.storyboard/sceneForBoolean(kotlin/Function1<dev.bnorm.storyboard/AdvanceDirection, androidx.compose.animation/EnterTransition> = ..., kotlin/Function1<dev.bnorm.storyboard/AdvanceDirection, androidx.compose.animation/ExitTransition> = ..., dev.bnorm.storyboard/SceneContent<kotlin/Boolean>): dev.bnorm.storyboard/Scene<kotlin/Boolean> // dev.bnorm.storyboard/sceneForBoolean|sceneForBoolean@dev.bnorm.storyboard.StoryboardBuilder(kotlin.Function1<dev.bnorm.storyboard.AdvanceDirection,androidx.compose.animation.EnterTransition>;kotlin.Function1<dev.bnorm.storyboard.AdvanceDirection,androidx.compose.animation.ExitTransition>;dev.bnorm.storyboard.SceneContent<kotlin.Boolean>){}[0]
+final fun (dev.bnorm.storyboard/StoryboardBuilder).dev.bnorm.storyboard/sceneForTransition(kotlin/Function1<dev.bnorm.storyboard/AdvanceDirection, androidx.compose.animation/EnterTransition> = ..., kotlin/Function1<dev.bnorm.storyboard/AdvanceDirection, androidx.compose.animation/ExitTransition> = ..., dev.bnorm.storyboard/SceneContent<kotlin/Nothing>): dev.bnorm.storyboard/Scene<kotlin/Nothing> // dev.bnorm.storyboard/sceneForTransition|sceneForTransition@dev.bnorm.storyboard.StoryboardBuilder(kotlin.Function1<dev.bnorm.storyboard.AdvanceDirection,androidx.compose.animation.EnterTransition>;kotlin.Function1<dev.bnorm.storyboard.AdvanceDirection,androidx.compose.animation.ExitTransition>;dev.bnorm.storyboard.SceneContent<kotlin.Nothing>){}[0]
+final fun <#A: kotlin/Any?, #B: #A> (context(dev.bnorm.storyboard/SceneScope<#B>), dev.bnorm.storyboard/Frame<#B>).dev.bnorm.storyboard/toState(#A = ..., #A = ...): #A // dev.bnorm.storyboard/toState|toState(dev.bnorm.storyboard.SceneScope<0:1>)@dev.bnorm.storyboard.Frame<0:1>(0:0;0:0){0§<kotlin.Any?>;1§<0:0>}[0]
+final fun <#A: kotlin/Any?, #B: kotlin/Any?> (dev.bnorm.storyboard/Frame<#A>).dev.bnorm.storyboard/map(kotlin/Function1<#A, #B>): dev.bnorm.storyboard/Frame<#B> // dev.bnorm.storyboard/map|map@dev.bnorm.storyboard.Frame<0:0>(kotlin.Function1<0:0,0:1>){0§<kotlin.Any?>;1§<kotlin.Any?>}[0]
+final fun <#A: kotlin/Any?> (context(androidx.compose.animation/AnimatedVisibilityScope, androidx.compose.animation/SharedTransitionScope), dev.bnorm.storyboard/SceneScope<#A>).dev.bnorm.storyboard/Render(dev.bnorm.storyboard/SceneContent<#A>, androidx.compose.runtime/Composer?, kotlin/Int) // dev.bnorm.storyboard/Render|Render(androidx.compose.animation.AnimatedVisibilityScope;androidx.compose.animation.SharedTransitionScope)@dev.bnorm.storyboard.SceneScope<0:0>(dev.bnorm.storyboard.SceneContent<0:0>;androidx.compose.runtime.Composer?;kotlin.Int){0§<kotlin.Any?>}[0]
+final fun <#A: kotlin/Any?> (dev.bnorm.storyboard/Frame<#A>).dev.bnorm.storyboard/toState(#A, #A): #A // dev.bnorm.storyboard/toState|toState@dev.bnorm.storyboard.Frame<0:0>(0:0;0:0){0§<kotlin.Any?>}[0]
+final fun <#A: kotlin/Any?> (dev.bnorm.storyboard/SceneContent<#A>).dev.bnorm.storyboard/decorated(dev.bnorm.storyboard/SceneDecorator): dev.bnorm.storyboard/SceneContent<#A> // dev.bnorm.storyboard/decorated|decorated@dev.bnorm.storyboard.SceneContent<0:0>(dev.bnorm.storyboard.SceneDecorator){0§<kotlin.Any?>}[0]
+final fun <#A: kotlin/Any?> (dev.bnorm.storyboard/StoryboardBuilder).dev.bnorm.storyboard/scene(kotlin/Array<out #A>..., kotlin/Function1<dev.bnorm.storyboard/AdvanceDirection, androidx.compose.animation/EnterTransition> = ..., kotlin/Function1<dev.bnorm.storyboard/AdvanceDirection, androidx.compose.animation/ExitTransition> = ..., dev.bnorm.storyboard/SceneContent<#A>): dev.bnorm.storyboard/Scene<#A> // dev.bnorm.storyboard/scene|scene@dev.bnorm.storyboard.StoryboardBuilder(kotlin.Array<out|0:0>...;kotlin.Function1<dev.bnorm.storyboard.AdvanceDirection,androidx.compose.animation.EnterTransition>;kotlin.Function1<dev.bnorm.storyboard.AdvanceDirection,androidx.compose.animation.ExitTransition>;dev.bnorm.storyboard.SceneContent<0:0>){0§<kotlin.Any?>}[0]
+final fun <#A: kotlin/Comparable<#A>> (dev.bnorm.storyboard/Frame<#A>).dev.bnorm.storyboard/compareTo(dev.bnorm.storyboard/Frame<#A>): kotlin/Int // dev.bnorm.storyboard/compareTo|compareTo@dev.bnorm.storyboard.Frame<0:0>(dev.bnorm.storyboard.Frame<0:0>){0§<kotlin.Comparable<0:0>>}[0]
+final fun dev.bnorm.storyboard/dev_bnorm_storyboard_Frame$stableprop_getter(): kotlin/Int // dev.bnorm.storyboard/dev_bnorm_storyboard_Frame$stableprop_getter|dev_bnorm_storyboard_Frame$stableprop_getter(){}[0]
+final fun dev.bnorm.storyboard/dev_bnorm_storyboard_Frame_End$stableprop_getter(): kotlin/Int // dev.bnorm.storyboard/dev_bnorm_storyboard_Frame_End$stableprop_getter|dev_bnorm_storyboard_Frame_End$stableprop_getter(){}[0]
+final fun dev.bnorm.storyboard/dev_bnorm_storyboard_Frame_Start$stableprop_getter(): kotlin/Int // dev.bnorm.storyboard/dev_bnorm_storyboard_Frame_Start$stableprop_getter|dev_bnorm_storyboard_Frame_Start$stableprop_getter(){}[0]
+final fun dev.bnorm.storyboard/dev_bnorm_storyboard_Frame_State$stableprop_getter(): kotlin/Int // dev.bnorm.storyboard/dev_bnorm_storyboard_Frame_State$stableprop_getter|dev_bnorm_storyboard_Frame_State$stableprop_getter(){}[0]
+final fun dev.bnorm.storyboard/dev_bnorm_storyboard_Scene$stableprop_getter(): kotlin/Int // dev.bnorm.storyboard/dev_bnorm_storyboard_Scene$stableprop_getter|dev_bnorm_storyboard_Scene$stableprop_getter(){}[0]
+final fun dev.bnorm.storyboard/dev_bnorm_storyboard_SceneFormat$stableprop_getter(): kotlin/Int // dev.bnorm.storyboard/dev_bnorm_storyboard_SceneFormat$stableprop_getter|dev_bnorm_storyboard_SceneFormat$stableprop_getter(){}[0]
+final fun dev.bnorm.storyboard/dev_bnorm_storyboard_Storyboard$stableprop_getter(): kotlin/Int // dev.bnorm.storyboard/dev_bnorm_storyboard_Storyboard$stableprop_getter|dev_bnorm_storyboard_Storyboard$stableprop_getter(){}[0]
+final fun dev.bnorm.storyboard/dev_bnorm_storyboard_Storyboard_Index$stableprop_getter(): kotlin/Int // dev.bnorm.storyboard/dev_bnorm_storyboard_Storyboard_Index$stableprop_getter|dev_bnorm_storyboard_Storyboard_Index$stableprop_getter(){}[0]
+final inline fun <#A: reified kotlin/Enum<#A>> (dev.bnorm.storyboard/StoryboardBuilder).dev.bnorm.storyboard/sceneForEnum(noinline kotlin/Function1<dev.bnorm.storyboard/AdvanceDirection, androidx.compose.animation/EnterTransition> = ..., noinline kotlin/Function1<dev.bnorm.storyboard/AdvanceDirection, androidx.compose.animation/ExitTransition> = ..., dev.bnorm.storyboard/SceneContent<#A>): dev.bnorm.storyboard/Scene<#A> // dev.bnorm.storyboard/sceneForEnum|sceneForEnum@dev.bnorm.storyboard.StoryboardBuilder(kotlin.Function1<dev.bnorm.storyboard.AdvanceDirection,androidx.compose.animation.EnterTransition>;kotlin.Function1<dev.bnorm.storyboard.AdvanceDirection,androidx.compose.animation.ExitTransition>;dev.bnorm.storyboard.SceneContent<0:0>){0§<kotlin.Enum<0:0>>}[0]
