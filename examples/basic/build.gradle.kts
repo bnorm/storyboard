@@ -43,8 +43,3 @@ compose {
     resources.publicResClass = true
     desktop.application.mainClass = "Main_desktopKt"
 }
-
-tasks.register<Sync>("site") {
-    from(tasks.named("wasmJsBrowserDistribution"))
-    into(rootProject.layout.buildDirectory.dir("_site/example/${project.name}"))
-}

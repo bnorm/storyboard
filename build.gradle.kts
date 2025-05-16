@@ -17,7 +17,6 @@ plugins {
 
 dokka {
     dokkaPublications.html {
-        outputDirectory.set(project.layout.buildDirectory.dir("docs/api/0.x"))
         includes.from(project.layout.projectDirectory.file("README.md"))
     }
 }
@@ -105,6 +104,23 @@ allprojects {
                     remoteLineSuffix = "#L"
                 }
             }
+        }
+    }
+}
+
+tasks.register<Sync>("site") {
+    into(project.layout.buildDirectory.dir("_site"))
+
+    into("docs/api/latest") {
+        from(tasks.named("dokkaGeneratePublicationHtml"))
+    }
+
+    into("examples") {
+        into("basic") {
+            from(project(":examples:basic").tasks.named("wasmJsBrowserDistribution"))
+        }
+        into("interactive") {
+            from(project(":examples:interactive").tasks.named("wasmJsBrowserDistribution"))
         }
     }
 }

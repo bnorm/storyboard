@@ -17,8 +17,8 @@ varying levels of complexity and functionality.
 Live versions of the example storyboards are available via GitHub Pages.
 To see how publishing is achieved, see the [`pages.yml` workflow](.github/workflows/pages.yml).
 
-* [Basic](https://bnorm.github.io/storyboard/example/basic)
-* [Interactive](https://bnorm.github.io/storyboard/example/interactive)
+* [Basic](https://bnorm.github.io/storyboard/examples/basic)
+* [Interactive](https://bnorm.github.io/storyboard/examples/interactive)
 
 ## Getting Started
 
@@ -28,6 +28,25 @@ To see how publishing is achieved, see the [`pages.yml` workflow](.github/workfl
 > There is also a Compose animation bug that should be fixed in the Compose Multiplatform 1.8.0 release.
 
 Looking for help? Join the discussion in the [KotlinLang Slack](https://kotlinlang.slack.com/archives/C08R5V4EHDH)!
+
+<details>
+<summary>Snapshots of the development version are available in the Central Portal Snapshots repository.</summary>
+<p>
+
+```kotlin
+repository {
+  mavenCentral()
+  maven("https://central.sonatype.com/repository/maven-snapshots/")
+}
+dependencies {
+  implementation("dev.bnorm.storyboard:storyboard:0.1.0-SNAPSHOT")
+}
+```
+
+Snapshot documentation is available at [bnorm.github.io/storyboard/docs/latest/](https://bnorm.github.io/storyboard/docs/latest/).
+
+</p>
+</details>
 
 ### Terminology
 
