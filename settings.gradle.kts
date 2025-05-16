@@ -14,6 +14,7 @@ pluginManagement {
         kotlin("plugin.serialization") version kotlinVersion
         kotlin("plugin.compose") version kotlinVersion
         id("org.jetbrains.compose") version "1.8.0"
+        id("org.jetbrains.kotlinx.binary-compatibility-validator") version "0.17.0"
     }
 }
 

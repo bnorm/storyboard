@@ -1,15 +1,22 @@
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     kotlin("multiplatform")
     kotlin("plugin.compose")
     id("org.jetbrains.compose")
+    id("org.jetbrains.kotlinx.binary-compatibility-validator")
 }
 
 group = "dev.bnorm.storyboard"
 
 kotlin {
-    jvm()
+    jvm {
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_11)
+            freeCompilerArgs.add("-Xjvm-default=all")
+        }
+    }
 
     @OptIn(ExperimentalWasmDsl::class)
     wasmJs {
