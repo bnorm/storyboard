@@ -70,6 +70,10 @@ internal fun highlightKotlin(
                 ctx.CONSTRUCTOR()?.let { addStyle(codeStyle.keyword, it.symbol) }
             }
 
+            override fun enterSecondaryConstructor(ctx: KotlinParser.SecondaryConstructorContext) {
+                addStyle(codeStyle.keyword, ctx.CONSTRUCTOR().symbol)
+            }
+
             override fun enterAnonymousInitializer(ctx: KotlinParser.AnonymousInitializerContext) {
                 addStyle(codeStyle.keyword, ctx.INIT().symbol)
             }
