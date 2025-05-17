@@ -1,11 +1,49 @@
 # Storyboard
 
-Library for building presentations using [Compose Multiplatform][compose].
+A [Compose Multiplatform][compose] library for building presentations.
+Inspired by [reveal.js](https://github.com/hakimel/reveal.js),
+[Spectacle](https://github.com/FormidableLabs/spectacle),
+and many others!
 
 > ## sto·ry·board
 > 
 > A sequence of drawings, typically with some directions and dialogue, 
 > representing the shots planned for a movie or television production.
+
+## Usage
+
+As a Compose Multiplatform library, Storyboard requires the [JetBrains Compose plugin][compose-compiler].
+With the Compose plugin present, Storyboard can be used just like any other library.
+
+```kotlin
+dependencies {
+    implementation("dev.bnorm.storyboard:storyboard:0.1.0-alpha01")
+    implementation("dev.bnorm.storyboard:storyboard-easel:0.1.0-alpha01")
+    implementation("dev.bnorm.storyboard:storyboard-text:0.1.0-alpha01")
+}
+```
+
+<details>
+<summary>Snapshots of the latest version are available in the Central Portal Snapshots repository.</summary>
+<p>
+
+```kotlin
+repository {
+    mavenCentral()
+    maven("https://central.sonatype.com/repository/maven-snapshots/")
+}
+
+dependencies {
+    implementation("dev.bnorm.storyboard:storyboard:0.1.0-SNAPSHOT")
+    implementation("dev.bnorm.storyboard:storyboard-easel:0.1.0-SNAPSHOT")
+    implementation("dev.bnorm.storyboard:storyboard-text:0.1.0-SNAPSHOT")
+}
+```
+
+Snapshot documentation is available at [bnorm.github.io/storyboard/docs/api/latest/](https://bnorm.github.io/storyboard/docs/api/latest/).
+
+</p>
+</details>
 
 ## Examples
 
@@ -22,31 +60,7 @@ To see how publishing is achieved, see the [`pages.yml` workflow](.github/workfl
 
 ## Getting Started
 
-> [!WARNING]
-> Storyboard is under active development and will not be officially released until Kotlin 2.2.0,
-> so context parameters may be used in the API design.
-> There is also a Compose animation bug that should be fixed in the Compose Multiplatform 1.8.0 release.
-
 Looking for help? Join the discussion in the [KotlinLang Slack](https://kotlinlang.slack.com/archives/C08R5V4EHDH)!
-
-<details>
-<summary>Snapshots of the development version are available in the Central Portal Snapshots repository.</summary>
-<p>
-
-```kotlin
-repository {
-    mavenCentral()
-    maven("https://central.sonatype.com/repository/maven-snapshots/")
-}
-dependencies {
-    implementation("dev.bnorm.storyboard:storyboard:0.1.0-SNAPSHOT")
-}
-```
-
-Snapshot documentation is available at [bnorm.github.io/storyboard/docs/api/latest/](https://bnorm.github.io/storyboard/docs/api/latest/).
-
-</p>
-</details>
 
 ### Terminology
 
@@ -122,55 +136,13 @@ There are also some experimental libraries which hold common utilities for build
 * _**storyboard-text**_ - Contains utilities for complex text animations and code rendering.
 * _**storyboard-diagram**_ - Todo: utilities for drawing diagrams with shapes and arrows.
 
-## Try It Out!
-
-While there are no releases of Storyboard yet,
-there are still ways to try it out and provide feedback:
-
-### 1. Examples
-
-I welcome you to check out the repository and try running one of the examples.
-I would also welcome additional examples of complex layouts or animations.
-Please experiment and see what's possible!
-
-
-### 2. SNAPSHOTs
-
-Snapshot versions of the project are available in the Central Portal Snapshots repository.
-
-```kotlin
-repository {
-    mavenCentral()
-    maven("https://central.sonatype.com/repository/maven-snapshots/")
-}
-dependencies {
-    implementation("dev.bnorm.storyboard:storyboard:0.1.0-SNAPSHOT")
-}
-```
-
-### 3. Git Submodule
-
-(This is the setup I use for my own presentation development)
-
-* Add the Storyboard repository as a Git Submodule or clone it to a local directory.
-
-```
-git submodule add -- https://github.com/bnorm/storyboard.git storyboard
-```
-
-* Include the Storyboard submodule in your Gradle build.
-
-```kotlin
-includeBuild("storyboard")
-```
-
 ## References
 
 Want to see Storyboard in action?
 
-* **Kotlin + Power-Assert = Love** _(KotlinConf 2024)_ - [YouTube](https://www.youtube.com/watch?v=N8u-6d0iCiE)
+* **Kotlin + Power-Assert = Love** _(KotlinConf 2024)_ - [Storyboard](https://deck.bnorm.dev/kotlinconf2024), [Code](https://github.com/bnorm/deck.bnorm.dev/tree/kotlinconf2024/kotlinconf2024), [Recording](https://www.youtube.com/watch?v=N8u-6d0iCiE)
 * **Writing Your Third Kotlin Compiler Plugin** _(KotlinConf 2025)_ - [_Coming Soon!_](https://kotlinconf.com/schedule/?session=9df8d3fd-5dc8-5d72-a362-c83079285174)
-* **(Re)creating Magic(Move) with Compose** _(droidcon NYC 2025)_ - [_Coming Soon!_](https://nyc.droidcon.com/brian-norman/)
+* **(Re)creating Magic(Move) with Compose** _(droidcon NYC 2025)_ - [_Coming Soon!_](https://nyc.droidcon.com/speakers/brian-norman)
 
 [//]: # (Storyboard Links)
 
@@ -182,6 +154,7 @@ Want to see Storyboard in action?
 [//]: # (Compose Links)
 
 [compose]: https://www.jetbrains.com/lp/compose-multiplatform
+[compose-compiler]: https://www.jetbrains.com/help/kotlin-multiplatform-dev/compose-compiler.html
 
 [AnimatedVisibilityScope]: https://developer.android.com/reference/kotlin/androidx/compose/animation/AnimatedVisibilityScope
 [SharedTransitionScope]: https://developer.android.com/reference/kotlin/androidx/compose/animation/SharedTransitionScope
