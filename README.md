@@ -69,7 +69,7 @@ A storyboard is analogous to a slide show in other presentation software.
 While other software may have _**slides**_ with _**advancements**_,
 Storyboard uses the terms _**scenes**_ and _**states**_ respectively.
 Building on the _**state**_-driven nature of Compose UI,
-Storyboard provides a _**state**_-based way to build your presentation,
+Storyboard provides a _**state**_-based way to build your presentation
 and requires each scene to provide a list of states.
 When a storyboard advances, it simply moves to the next state specified for your scene,
 or the first state of the next scene.
@@ -104,14 +104,16 @@ An [`AnimatedVisibilityScope`][AnimatedVisibilityScope] and [`SharedTransitionSc
 provided by via context parameters.
 These scopes are provided for animating and sharing elements between scenes.
 
-Along with the Composable lambda and states, a scene is also able to define a enter and exit transition.
+Along with the Composable lambda and states, a scene is also able to define enter and exit transitions.
 These transitions determine how the scene transitions into view
 and can be based on the current advancement direction of the storyboard.
 For example, these transitions can be used to create a carousel like animation between scenes.
 
-[When building a storyboard][Storyboard], a custom `DpSize` may be provided; otherwise the default size is used.
-The `DpSize` of the storyboard determines the _**constant render size**_ of all scenes.
-This makes it so the scenes of the storyboard automatically scale according the available space,
+[When building a storyboard][Storyboard], a custom [SceneFormat][SceneFormat] may be provided;
+otherwise the default format is used.
+The scene format is a combination of `DpSize` and `Density`
+which determines the _**constant render size**_ of all scenes.
+This makes it so the scenes of the storyboard automatically scale according to the available space,
 while maintaining a constant pixel space for defining the size and spacing of elements.
 
 A [SceneDecorator][SceneDecorator] may also be provided when building a storyboard.
@@ -131,7 +133,7 @@ dependencies {
 }
 ```
 
-There are also some experimental libraries which hold common utilities for building storyboards.
+There are also some experimental libraries that hold common utilities for building storyboards.
 
 * _**storyboard-text**_ - Contains utilities for complex text animations and code rendering.
 * _**storyboard-diagram**_ - Todo: utilities for drawing diagrams with shapes and arrows.
@@ -141,15 +143,16 @@ There are also some experimental libraries which hold common utilities for build
 Want to see Storyboard in action?
 
 * **Kotlin + Power-Assert = Love** _(KotlinConf 2024)_ - [Storyboard](https://deck.bnorm.dev/kotlinconf2024), [Code](https://github.com/bnorm/deck.bnorm.dev/tree/kotlinconf2024/kotlinconf2024), [Recording](https://www.youtube.com/watch?v=N8u-6d0iCiE)
-* **Writing Your Third Kotlin Compiler Plugin** _(KotlinConf 2025)_ - [_Coming Soon!_](https://kotlinconf.com/schedule/?session=9df8d3fd-5dc8-5d72-a362-c83079285174)
+* **Writing Your Third Kotlin Compiler Plugin** _(KotlinConf 2025)_ - [Storyboard](https://deck.bnorm.dev/kc25), [Code](https://github.com/bnorm/deck.bnorm.dev/tree/kc25/kotlinconf2025/story)
 * **(Re)creating Magic(Move) with Compose** _(droidcon NYC 2025)_ - [_Coming Soon!_](https://nyc.droidcon.com/speakers/brian-norman)
 
 [//]: # (Storyboard Links)
 
-[SceneScope]: /storyboard/src/commonMain/kotlin/dev/bnorm/storyboard/SceneScope.kt
-[SceneDecorator]: /storyboard/src/commonMain/kotlin/dev/bnorm/storyboard/SceneDecorator.kt
 [Storyboard]: storyboard/src/commonMain/kotlin/dev/bnorm/storyboard/Storyboard.kt
 [StoryboardBuilder]: storyboard/src/commonMain/kotlin/dev/bnorm/storyboard/StoryboardBuilder.kt
+[SceneDecorator]: /storyboard/src/commonMain/kotlin/dev/bnorm/storyboard/SceneDecorator.kt
+[SceneFormat]: /storyboard/src/commonMain/kotlin/dev/bnorm/storyboard/SceneFormat.kt
+[SceneScope]: /storyboard/src/commonMain/kotlin/dev/bnorm/storyboard/SceneScope.kt
 
 [//]: # (Compose Links)
 
