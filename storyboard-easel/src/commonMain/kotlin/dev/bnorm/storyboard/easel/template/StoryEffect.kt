@@ -3,8 +3,8 @@ package dev.bnorm.storyboard.easel.template
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.NonRestartableComposable
-import dev.bnorm.storyboard.SceneMode
-import dev.bnorm.storyboard.LocalSceneMode
+import dev.bnorm.storyboard.easel.SceneMode
+import dev.bnorm.storyboard.easel.LocalSceneMode
 import kotlinx.coroutines.CoroutineScope
 
 /** A [LaunchedEffect] which only runs if the current [SceneMode] is [Story][SceneMode.Story]. */

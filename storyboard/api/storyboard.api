@@ -41,11 +41,6 @@ public final class dev/bnorm/storyboard/FrameKt {
 	public static synthetic fun toState$default (Ldev/bnorm/storyboard/SceneScope;Ldev/bnorm/storyboard/Frame;Ljava/lang/Object;Ljava/lang/Object;ILjava/lang/Object;)Ljava/lang/Object;
 }
 
-public final class dev/bnorm/storyboard/LocalsKt {
-	public static final fun getLocalSceneMode ()Landroidx/compose/runtime/ProvidableCompositionLocal;
-	public static final fun getLocalStoryboard ()Landroidx/compose/runtime/ProvidableCompositionLocal;
-}
-
 public final class dev/bnorm/storyboard/Scene : java/lang/Comparable {
 	public static final field $stable I
 	public fun compareTo (Ldev/bnorm/storyboard/Scene;)I
@@ -95,14 +90,6 @@ public final class dev/bnorm/storyboard/SceneFormat$Companion {
 
 public final class dev/bnorm/storyboard/SceneFormatKt {
 	public static final fun toDpSize (Ldev/bnorm/storyboard/SceneFormat;)J
-}
-
-public final class dev/bnorm/storyboard/SceneMode : java/lang/Enum {
-	public static final field Preview Ldev/bnorm/storyboard/SceneMode;
-	public static final field Story Ldev/bnorm/storyboard/SceneMode;
-	public static fun getEntries ()Lkotlin/enums/EnumEntries;
-	public static fun valueOf (Ljava/lang/String;)Ldev/bnorm/storyboard/SceneMode;
-	public static fun values ()[Ldev/bnorm/storyboard/SceneMode;
 }
 
 public abstract interface class dev/bnorm/storyboard/SceneScope {

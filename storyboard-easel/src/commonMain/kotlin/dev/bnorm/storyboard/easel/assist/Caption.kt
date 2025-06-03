@@ -2,8 +2,8 @@ package dev.bnorm.storyboard.easel.assist
 
 import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshots.SnapshotStateList
-import dev.bnorm.storyboard.SceneMode
-import dev.bnorm.storyboard.LocalSceneMode
+import dev.bnorm.storyboard.easel.SceneMode
+import dev.bnorm.storyboard.easel.LocalSceneMode
 
 @Immutable
 class Caption(
