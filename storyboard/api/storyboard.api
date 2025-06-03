@@ -149,12 +149,3 @@ public abstract interface class dev/bnorm/storyboard/StoryboardBuilder {
 	public static synthetic fun scene$default (Ldev/bnorm/storyboard/StoryboardBuilder;Ljava/util/List;Ldev/bnorm/storyboard/SceneEnterTransition;Ldev/bnorm/storyboard/SceneExitTransition;Ldev/bnorm/storyboard/SceneContent;ILjava/lang/Object;)Ldev/bnorm/storyboard/Scene;
 }
 
-public final class dev/bnorm/storyboard/StoryboardBuilderKt {
-	public static final fun scene (Ldev/bnorm/storyboard/StoryboardBuilder;[Ljava/lang/Object;Ldev/bnorm/storyboard/SceneEnterTransition;Ldev/bnorm/storyboard/SceneExitTransition;Ldev/bnorm/storyboard/SceneContent;)Ldev/bnorm/storyboard/Scene;
-	public static synthetic fun scene$default (Ldev/bnorm/storyboard/StoryboardBuilder;[Ljava/lang/Object;Ldev/bnorm/storyboard/SceneEnterTransition;Ldev/bnorm/storyboard/SceneExitTransition;Ldev/bnorm/storyboard/SceneContent;ILjava/lang/Object;)Ldev/bnorm/storyboard/Scene;
-	public static final fun sceneForBoolean (Ldev/bnorm/storyboard/StoryboardBuilder;Ldev/bnorm/storyboard/SceneEnterTransition;Ldev/bnorm/storyboard/SceneExitTransition;Ldev/bnorm/storyboard/SceneContent;)Ldev/bnorm/storyboard/Scene;
-	public static synthetic fun sceneForBoolean$default (Ldev/bnorm/storyboard/StoryboardBuilder;Ldev/bnorm/storyboard/SceneEnterTransition;Ldev/bnorm/storyboard/SceneExitTransition;Ldev/bnorm/storyboard/SceneContent;ILjava/lang/Object;)Ldev/bnorm/storyboard/Scene;
-	public static final fun sceneForTransition (Ldev/bnorm/storyboard/StoryboardBuilder;Ldev/bnorm/storyboard/SceneEnterTransition;Ldev/bnorm/storyboard/SceneExitTransition;Ldev/bnorm/storyboard/SceneContent;)Ldev/bnorm/storyboard/Scene;
-	public static synthetic fun sceneForTransition$default (Ldev/bnorm/storyboard/StoryboardBuilder;Ldev/bnorm/storyboard/SceneEnterTransition;Ldev/bnorm/storyboard/SceneExitTransition;Ldev/bnorm/storyboard/SceneContent;ILjava/lang/Object;)Ldev/bnorm/storyboard/Scene;
-}
-
