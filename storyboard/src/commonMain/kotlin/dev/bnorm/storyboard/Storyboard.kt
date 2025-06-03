@@ -1,7 +1,5 @@
 package dev.bnorm.storyboard
 
-import androidx.compose.animation.EnterTransition
-import androidx.compose.animation.ExitTransition
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import kotlinx.collections.immutable.ImmutableList
@@ -79,8 +77,8 @@ private class StoryboardBuilderImpl : StoryboardBuilder {
 
     override fun <T> scene(
         states: List<T>,
-        enterTransition: (AdvanceDirection) -> EnterTransition,
-        exitTransition: (AdvanceDirection) -> ExitTransition,
+        enterTransition: SceneEnterTransition,
+        exitTransition: SceneExitTransition,
         content: SceneContent<T>,
     ): Scene<T> {
         val scene = Scene(

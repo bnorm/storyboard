@@ -1,8 +1,6 @@
 package dev.bnorm.storyboard
 
 import androidx.compose.animation.AnimatedVisibilityScope
-import androidx.compose.animation.EnterTransition
-import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.runtime.Composable
 
@@ -91,8 +89,8 @@ private class DecoratedStoryboardBuilder(
 ) : StoryboardBuilder {
     override fun <T> scene(
         states: List<T>,
-        enterTransition: (AdvanceDirection) -> EnterTransition,
-        exitTransition: (AdvanceDirection) -> ExitTransition,
+        enterTransition: SceneEnterTransition,
+        exitTransition: SceneExitTransition,
         content: SceneContent<T>,
     ): Scene<T> {
         return upstream.scene(
