@@ -1,7 +1,7 @@
-package dev.bnorm.storyboard
+package dev.bnorm.storyboard.easel
 
 /**
- * What mode for a [Scene] is active.
+ * What mode for a [dev.bnorm.storyboard.Scene] is active.
  * Scenes can be displayed multiple times and in multiple locations.
  * It is useful for a scene to know what mode it is in,
  * so it can change how it is rendered
@@ -15,7 +15,7 @@ package dev.bnorm.storyboard
  * * [Preview] - Used when previewing the display of a scene.
  * For example, in the overview, assistant, or when being exported.
  */
-public enum class SceneMode {
+enum class SceneMode {
     Story,
     Preview,
 }

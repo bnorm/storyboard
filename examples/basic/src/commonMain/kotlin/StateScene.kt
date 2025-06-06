@@ -15,7 +15,6 @@ import dev.bnorm.storyboard.StoryboardBuilder
 import dev.bnorm.storyboard.easel.assist.SceneCaption
 import dev.bnorm.storyboard.easel.template.Body
 import dev.bnorm.storyboard.easel.template.Header
-import dev.bnorm.storyboard.scene
 import dev.bnorm.storyboard.toState
 
 class StateSceneState(
@@ -24,34 +23,36 @@ class StateSceneState(
 )
 
 fun StoryboardBuilder.StateScene() = scene(
-    StateSceneState(
-        index = 0,
-        title = "State",
-    ),
-    StateSceneState(
-        index = 1,
-        title = "State",
-    ),
-    StateSceneState(
-        index = 2,
-        title = "State",
-    ),
-    StateSceneState(
-        index = 3,
-        title = "State",
-    ),
-    StateSceneState(
-        index = 4,
-        title = "Hello, State!",
-    ),
-    StateSceneState(
-        index = 5,
-        title = "Hello, State!",
-    ),
-    StateSceneState(
-        index = 6,
-        title = "Hello, State!",
-    ),
+    listOf(
+        StateSceneState(
+            index = 0,
+            title = "State",
+        ),
+        StateSceneState(
+            index = 1,
+            title = "State",
+        ),
+        StateSceneState(
+            index = 2,
+            title = "State",
+        ),
+        StateSceneState(
+            index = 3,
+            title = "State",
+        ),
+        StateSceneState(
+            index = 4,
+            title = "Hello, State!",
+        ),
+        StateSceneState(
+            index = 5,
+            title = "Hello, State!",
+        ),
+        StateSceneState(
+            index = 6,
+            title = "Hello, State!",
+        ),
+    )
 ) {
     val currentState = transition.currentState.toState()
     val index = currentState.index

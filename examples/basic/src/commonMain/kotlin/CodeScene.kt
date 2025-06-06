@@ -24,7 +24,6 @@ import dev.bnorm.storyboard.easel.template.SceneEnter
 import dev.bnorm.storyboard.easel.template.SceneExit
 import dev.bnorm.storyboard.example.shared.INTELLIJ_DARK_CODE_STYLE
 import dev.bnorm.storyboard.example.shared.JetBrainsMono
-import dev.bnorm.storyboard.scene
 import dev.bnorm.storyboard.text.highlight.CodeStyle
 import dev.bnorm.storyboard.text.highlight.Language
 import dev.bnorm.storyboard.text.highlight.highlight
@@ -37,45 +36,47 @@ data class CodeSceneState(
 )
 
 fun StoryboardBuilder.CodeScene() = scene(
-    CodeSceneState(
-        description = "",
-    ),
-    CodeSceneState(
-        description = "We can render Kotlin code!",
-    ),
-    CodeSceneState(
-        description = "We can render Kotlin code!",
-        code = INTELLIJ_DARK_CODE_STYLE.highlight(
-            "fun main() {", "}"
+    listOf(
+        CodeSceneState(
+            description = "",
         ),
-    ),
-    CodeSceneState(
-        description = "We can transform Kotlin code!",
-        code = INTELLIJ_DARK_CODE_STYLE.highlight(
-            "fun main() {", "\n",
-            "    // Print a ", "newline\n",
-            "    println(", ")\n",
-            "}"
+        CodeSceneState(
+            description = "We can render Kotlin code!",
         ),
-    ),
-    CodeSceneState(
-        description = "What is this, magic?!",
-        code = INTELLIJ_DARK_CODE_STYLE.highlight(
-            "fun main() {", "\n",
-            "    // Print a ", "string and ", "newline\n",
-            "    println(", "\"Hello, World!\"", ")\n",
-            "}",
-            finalizer = {
-                it.focusOn("\"Hello, World!\"", focused = SpanStyle(fontSize = 36.sp))
-            }
+        CodeSceneState(
+            description = "We can render Kotlin code!",
+            code = INTELLIJ_DARK_CODE_STYLE.highlight(
+                "fun main() {", "}"
+            ),
         ),
-    ),
-    CodeSceneState(
-        description = "Cool!",
-        code = INTELLIJ_DARK_CODE_STYLE.highlight(
-            "fun main() {", "\n",
-            "    println(", "\"Hello, World!\"", ")\n",
-            "}"
+        CodeSceneState(
+            description = "We can transform Kotlin code!",
+            code = INTELLIJ_DARK_CODE_STYLE.highlight(
+                "fun main() {", "\n",
+                "    // Print a ", "newline\n",
+                "    println(", ")\n",
+                "}"
+            ),
+        ),
+        CodeSceneState(
+            description = "What is this, magic?!",
+            code = INTELLIJ_DARK_CODE_STYLE.highlight(
+                "fun main() {", "\n",
+                "    // Print a ", "string and ", "newline\n",
+                "    println(", "\"Hello, World!\"", ")\n",
+                "}",
+                finalizer = {
+                    it.focusOn("\"Hello, World!\"", focused = SpanStyle(fontSize = 36.sp))
+                }
+            ),
+        ),
+        CodeSceneState(
+            description = "Cool!",
+            code = INTELLIJ_DARK_CODE_STYLE.highlight(
+                "fun main() {", "\n",
+                "    println(", "\"Hello, World!\"", ")\n",
+                "}"
+            ),
         ),
     ),
     enterTransition = SceneEnter(alignment = Alignment.CenterEnd),

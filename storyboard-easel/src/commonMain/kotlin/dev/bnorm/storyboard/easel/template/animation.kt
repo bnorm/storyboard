@@ -6,6 +6,8 @@ import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import dev.bnorm.storyboard.AdvanceDirection
 import dev.bnorm.storyboard.Frame
+import dev.bnorm.storyboard.SceneEnterTransition
+import dev.bnorm.storyboard.SceneExitTransition
 import dev.bnorm.storyboard.SceneScope
 import kotlin.experimental.ExperimentalTypeInference
 
@@ -55,20 +57,20 @@ inline fun AdvanceDirection.exit(
     AdvanceDirection.Backward -> start()
 }
 
-inline fun enter(
-    crossinline start: (AdvanceDirection) -> EnterTransition = { EnterTransition.None },
-    crossinline end: (AdvanceDirection) -> EnterTransition = { EnterTransition.None },
-): (AdvanceDirection) -> EnterTransition = { direction ->
+fun enter(
+    start: SceneEnterTransition = SceneEnterTransition.Default,
+    end: SceneEnterTransition = SceneEnterTransition.Default,
+): SceneEnterTransition = SceneEnterTransition { direction ->
     direction.enter(
         { start(direction) },
         { end(direction) },
     )
 }
 
-inline fun exit(
-    crossinline start: (AdvanceDirection) -> ExitTransition = { ExitTransition.None },
-    crossinline end: (AdvanceDirection) -> ExitTransition = { ExitTransition.None },
-): (AdvanceDirection) -> ExitTransition = { direction ->
+fun exit(
+    start: SceneExitTransition = SceneExitTransition.Default,
+    end: SceneExitTransition = SceneExitTransition.Default,
+): SceneExitTransition = SceneExitTransition { direction ->
     direction.exit(
         { start(direction) },
         { end(direction) },

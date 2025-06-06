@@ -10,9 +10,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.text.TextStyle
-import dev.bnorm.storyboard.LocalSceneMode
+import dev.bnorm.storyboard.easel.LocalSceneMode
 import dev.bnorm.storyboard.SceneDecorator
-import dev.bnorm.storyboard.SceneMode
+import dev.bnorm.storyboard.easel.SceneMode
 import dev.bnorm.storyboard.easel.StoryState
 
 fun SceneIndexDecorator(state: StoryState): SceneDecorator = SceneDecorator { content ->
