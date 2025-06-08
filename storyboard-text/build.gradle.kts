@@ -7,7 +7,7 @@ plugins {
     id("org.jetbrains.compose")
     id("com.vanniktech.maven.publish")
 
-    id("com.strumenta.antlr-kotlin") version "1.0.2"
+    id("com.strumenta.antlr-kotlin") version "1.0.5"
 }
 
 group = "dev.bnorm.storyboard"
@@ -27,7 +27,7 @@ kotlin {
                 implementation(compose.material)
 
                 implementation("de.cketti.unicode:kotlin-codepoints-deluxe:0.7.0")
-                implementation("com.strumenta:antlr-kotlin-runtime:1.0.2")
+                implementation("com.strumenta:antlr-kotlin-runtime:1.0.5")
             }
         }
     }

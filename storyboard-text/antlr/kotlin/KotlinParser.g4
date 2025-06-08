@@ -627,8 +627,12 @@ whenExpression
     ;
 
 whenEntry
-    : whenCondition (NL* COMMA NL* whenCondition)* (NL* COMMA)? NL* ARROW NL* controlStructureBody semi?
+    : whenConditionWithGuard (NL* COMMA NL* whenConditionWithGuard)* (NL* COMMA)? NL* ARROW NL* controlStructureBody semi?
     | ELSE NL* ARROW NL* controlStructureBody semi?
+    ;
+
+whenConditionWithGuard
+    : whenCondition (NL* IF NL* expression)?
     ;
 
 whenCondition
