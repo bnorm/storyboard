@@ -1814,18 +1814,32 @@ public interface KotlinParserListener : ParseTreeListener {
     public fun exitWhenEntry(ctx: KotlinParser.WhenEntryContext)
 
     /**
-     * Enter a parse tree produced by [KotlinParser.whenConditionWithGuard].
+     * Enter a parse tree produced by [KotlinParser.whenEntryAddition].
      *
      * @param ctx The parse tree
      */
-    public fun enterWhenConditionWithGuard(ctx: KotlinParser.WhenConditionWithGuardContext)
+    public fun enterWhenEntryAddition(ctx: KotlinParser.WhenEntryAdditionContext)
 
     /**
-     * Exit a parse tree produced by [KotlinParser.whenConditionWithGuard].
+     * Exit a parse tree produced by [KotlinParser.whenEntryAddition].
      *
      * @param ctx The parse tree
      */
-    public fun exitWhenConditionWithGuard(ctx: KotlinParser.WhenConditionWithGuardContext)
+    public fun exitWhenEntryAddition(ctx: KotlinParser.WhenEntryAdditionContext)
+
+    /**
+     * Enter a parse tree produced by [KotlinParser.whenEntryGuard].
+     *
+     * @param ctx The parse tree
+     */
+    public fun enterWhenEntryGuard(ctx: KotlinParser.WhenEntryGuardContext)
+
+    /**
+     * Exit a parse tree produced by [KotlinParser.whenEntryGuard].
+     *
+     * @param ctx The parse tree
+     */
+    public fun exitWhenEntryGuard(ctx: KotlinParser.WhenEntryGuardContext)
 
     /**
      * Enter a parse tree produced by [KotlinParser.whenCondition].

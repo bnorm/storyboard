@@ -1304,12 +1304,22 @@ public open class KotlinParserBaseListener : KotlinParserListener {
     /**
      * The default implementation does nothing.
      */
-    override fun enterWhenConditionWithGuard(ctx: KotlinParser.WhenConditionWithGuardContext) {}
+    override fun enterWhenEntryAddition(ctx: KotlinParser.WhenEntryAdditionContext) {}
 
     /**
      * The default implementation does nothing.
      */
-    override fun exitWhenConditionWithGuard(ctx: KotlinParser.WhenConditionWithGuardContext) {}
+    override fun exitWhenEntryAddition(ctx: KotlinParser.WhenEntryAdditionContext) {}
+
+    /**
+     * The default implementation does nothing.
+     */
+    override fun enterWhenEntryGuard(ctx: KotlinParser.WhenEntryGuardContext) {}
+
+    /**
+     * The default implementation does nothing.
+     */
+    override fun exitWhenEntryGuard(ctx: KotlinParser.WhenEntryGuardContext) {}
 
     /**
      * The default implementation does nothing.
