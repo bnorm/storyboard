@@ -12,7 +12,7 @@ import org.antlr.v4.kotlinruntime.misc.*
     "LocalVariableName",
     "ConstPropertyName",
 )
-internal open class KotlinLexer(input: CharStream) : Lexer(input) {
+public open class KotlinLexer(input: CharStream) : Lexer(input) {
     private companion object {
         init {
             RuntimeMetaData.checkVersion("4.13.1", RuntimeMetaData.runtimeVersion)

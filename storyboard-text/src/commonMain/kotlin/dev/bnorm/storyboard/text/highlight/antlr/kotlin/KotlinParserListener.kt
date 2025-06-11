@@ -6,7 +6,7 @@ import org.antlr.v4.kotlinruntime.tree.ParseTreeListener
 /**
  * This interface defines a complete listener for a parse tree produced by [KotlinParser].
  */
-internal interface KotlinParserListener : ParseTreeListener {
+public interface KotlinParserListener : ParseTreeListener {
     /**
      * Enter a parse tree produced by [KotlinParser.kotlinFile].
      *
@@ -1812,6 +1812,34 @@ internal interface KotlinParserListener : ParseTreeListener {
      * @param ctx The parse tree
      */
     public fun exitWhenEntry(ctx: KotlinParser.WhenEntryContext)
+
+    /**
+     * Enter a parse tree produced by [KotlinParser.whenEntryAddition].
+     *
+     * @param ctx The parse tree
+     */
+    public fun enterWhenEntryAddition(ctx: KotlinParser.WhenEntryAdditionContext)
+
+    /**
+     * Exit a parse tree produced by [KotlinParser.whenEntryAddition].
+     *
+     * @param ctx The parse tree
+     */
+    public fun exitWhenEntryAddition(ctx: KotlinParser.WhenEntryAdditionContext)
+
+    /**
+     * Enter a parse tree produced by [KotlinParser.whenEntryGuard].
+     *
+     * @param ctx The parse tree
+     */
+    public fun enterWhenEntryGuard(ctx: KotlinParser.WhenEntryGuardContext)
+
+    /**
+     * Exit a parse tree produced by [KotlinParser.whenEntryGuard].
+     *
+     * @param ctx The parse tree
+     */
+    public fun exitWhenEntryGuard(ctx: KotlinParser.WhenEntryGuardContext)
 
     /**
      * Enter a parse tree produced by [KotlinParser.whenCondition].

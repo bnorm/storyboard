@@ -10,7 +10,7 @@ import org.antlr.v4.kotlinruntime.tree.TerminalNode
  * which can be extended to create a listener which only needs to handle a subset
  * of the available methods.
  */
-internal open class KotlinParserBaseListener : KotlinParserListener {
+public open class KotlinParserBaseListener : KotlinParserListener {
     /**
      * The default implementation does nothing.
      */
@@ -1300,6 +1300,26 @@ internal open class KotlinParserBaseListener : KotlinParserListener {
      * The default implementation does nothing.
      */
     override fun exitWhenEntry(ctx: KotlinParser.WhenEntryContext) {}
+
+    /**
+     * The default implementation does nothing.
+     */
+    override fun enterWhenEntryAddition(ctx: KotlinParser.WhenEntryAdditionContext) {}
+
+    /**
+     * The default implementation does nothing.
+     */
+    override fun exitWhenEntryAddition(ctx: KotlinParser.WhenEntryAdditionContext) {}
+
+    /**
+     * The default implementation does nothing.
+     */
+    override fun enterWhenEntryGuard(ctx: KotlinParser.WhenEntryGuardContext) {}
+
+    /**
+     * The default implementation does nothing.
+     */
+    override fun exitWhenEntryGuard(ctx: KotlinParser.WhenEntryGuardContext) {}
 
     /**
      * The default implementation does nothing.
