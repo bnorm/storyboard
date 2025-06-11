@@ -207,14 +207,15 @@ internal fun highlightKotlin(
                     Tokens.WHILE,
                     Tokens.THROW,
                     Tokens.RETURN,
+                    Tokens.CONTINUE,
+                    Tokens.BREAK,
                     Tokens.AS,
                     Tokens.IS,
                     Tokens.IN,
                     Tokens.NOT_IS,
                     Tokens.NOT_IN,
-                    Tokens.CONTINUE,
-                    Tokens.BREAK,
                         -> addStyle(codeStyle.keyword, symbol)
+                    Tokens.RETURN_AT,
                     Tokens.CONTINUE_AT,
                     Tokens.BREAK_AT -> {
                         val indexOfAt = symbol.text!!.indexOf("@")
