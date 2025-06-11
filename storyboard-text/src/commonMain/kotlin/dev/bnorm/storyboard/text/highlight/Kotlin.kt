@@ -207,13 +207,21 @@ internal fun highlightKotlin(
                     Tokens.WHILE,
                     Tokens.THROW,
                     Tokens.RETURN,
+                    Tokens.CONTINUE,
+                    Tokens.BREAK,
                     Tokens.AS,
                     Tokens.IS,
                     Tokens.IN,
                     Tokens.NOT_IS,
                     Tokens.NOT_IN,
                         -> addStyle(codeStyle.keyword, symbol)
-
+                    Tokens.RETURN_AT,
+                    Tokens.CONTINUE_AT,
+                    Tokens.BREAK_AT -> {
+                        val indexOfAt = symbol.text!!.indexOf("@")
+                        addStyle(codeStyle.keyword, symbol.startIndex, symbol.startIndex + indexOfAt)
+                        addStyle(codeStyle.label, symbol.startIndex + indexOfAt, symbol.stopIndex + 1)
+                    }
                 }
             }
         }
