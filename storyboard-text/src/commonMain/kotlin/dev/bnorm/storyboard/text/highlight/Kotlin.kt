@@ -138,16 +138,18 @@ internal fun highlightKotlin(
             }
 
             override fun enterStringLiteral(ctx: KotlinParser.StringLiteralContext) {
-                addStyle(codeStyle.string, ctx)
+                addStyle(codeStyle.string, ctx.start!!.startIndex, ctx.start!!.stopIndex + 1)
+                addStyle(codeStyle.string, ctx.stop!!.startIndex, ctx.stop!!.stopIndex + 1)
             }
 
             override fun enterLineStringContent(ctx: KotlinParser.LineStringContentContext) {
                 ctx.LineStrRef()?.let {
                     addStyle(codeStyle.keyword, it.symbol.startIndex, it.symbol.startIndex + 1)
-                    val style = identifierStyle(ctx.text.substring(1)) ?: codeStyle.simple
+                    val style = identifierStyle(it.text.substring(1)) ?: codeStyle.simple
                     addStyle(style, it.symbol.startIndex + 1, it.symbol.stopIndex + 1)
                 }
                 ctx.LineStrEscapedChar()?.let { addStyle(codeStyle.keyword, it.symbol) }
+                ctx.LineStrText()?.let { addStyle(codeStyle.string, it.symbol) }
             }
 
             override fun enterLineStringExpression(ctx: KotlinParser.LineStringExpressionContext) {
@@ -161,6 +163,8 @@ internal fun highlightKotlin(
                     val style = identifierStyle(ctx.text.substring(1)) ?: codeStyle.simple
                     addStyle(style, it.symbol.startIndex + 1, it.symbol.stopIndex + 1)
                 }
+                ctx.MultiLineStringQuote()?.let { addStyle(codeStyle.string, it.symbol) }
+                ctx.MultiLineStrText()?.let { addStyle(codeStyle.string, it.symbol) }
             }
 
             override fun enterMultiLineStringExpression(ctx: KotlinParser.MultiLineStringExpressionContext) {
