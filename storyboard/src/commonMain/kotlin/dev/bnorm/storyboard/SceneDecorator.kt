@@ -3,12 +3,14 @@ package dev.bnorm.storyboard
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.runtime.Composable
+import kotlin.jvm.JvmField
 
 public fun interface SceneDecorator {
     @Composable
     public fun decorate(content: @Composable () -> Unit)
 
     public companion object {
+        @JvmField
         public val None: SceneDecorator = SceneDecorator { it() }
 
         public fun from(vararg decorators: SceneDecorator): SceneDecorator {
