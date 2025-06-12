@@ -34,15 +34,15 @@ abstract fun interface dev.bnorm.storyboard/SceneDecorator { // dev.bnorm.storyb
 
 abstract fun interface dev.bnorm.storyboard/SceneEnterTransition : kotlin/Function1<dev.bnorm.storyboard/AdvanceDirection, androidx.compose.animation/EnterTransition> { // dev.bnorm.storyboard/SceneEnterTransition|null[0]
     final object Companion { // dev.bnorm.storyboard/SceneEnterTransition.Companion|null[0]
-        final val Default // dev.bnorm.storyboard/SceneEnterTransition.Companion.Default|{}Default[0]
-            final fun <get-Default>(): dev.bnorm.storyboard/SceneEnterTransition // dev.bnorm.storyboard/SceneEnterTransition.Companion.Default.<get-Default>|<get-Default>(){}[0]
+        final val None // dev.bnorm.storyboard/SceneEnterTransition.Companion.None|{}None[0]
+            final fun <get-None>(): dev.bnorm.storyboard/SceneEnterTransition // dev.bnorm.storyboard/SceneEnterTransition.Companion.None.<get-None>|<get-None>(){}[0]
     }
 }
 
 abstract fun interface dev.bnorm.storyboard/SceneExitTransition : kotlin/Function1<dev.bnorm.storyboard/AdvanceDirection, androidx.compose.animation/ExitTransition> { // dev.bnorm.storyboard/SceneExitTransition|null[0]
     final object Companion { // dev.bnorm.storyboard/SceneExitTransition.Companion|null[0]
-        final val Default // dev.bnorm.storyboard/SceneExitTransition.Companion.Default|{}Default[0]
-            final fun <get-Default>(): dev.bnorm.storyboard/SceneExitTransition // dev.bnorm.storyboard/SceneExitTransition.Companion.Default.<get-Default>|<get-Default>(){}[0]
+        final val None // dev.bnorm.storyboard/SceneExitTransition.Companion.None|{}None[0]
+            final fun <get-None>(): dev.bnorm.storyboard/SceneExitTransition // dev.bnorm.storyboard/SceneExitTransition.Companion.None.<get-None>|<get-None>(){}[0]
     }
 }
 
