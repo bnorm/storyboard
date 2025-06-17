@@ -17,9 +17,9 @@ With the Compose plugin present, Storyboard can be used just like any other libr
 
 ```kotlin
 dependencies {
-    implementation("dev.bnorm.storyboard:storyboard:0.1.0-alpha01")
-    implementation("dev.bnorm.storyboard:storyboard-easel:0.1.0-alpha01")
-    implementation("dev.bnorm.storyboard:storyboard-text:0.1.0-alpha01")
+    implementation("dev.bnorm.storyboard:storyboard:0.1.0-alpha02")
+    implementation("dev.bnorm.storyboard:storyboard-easel:0.1.0-alpha02")
+    implementation("dev.bnorm.storyboard:storyboard-text:0.1.0-alpha02")
 }
 ```
 
