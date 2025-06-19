@@ -29,7 +29,7 @@ dependencies {
 
 allprojects {
     group = "dev.bnorm.storyboard"
-    version = "0.1.0-SNAPSHOT"
+    version = "0.1.0-alpha03"
 
     val javaVersion = JavaVersion.VERSION_11
 
