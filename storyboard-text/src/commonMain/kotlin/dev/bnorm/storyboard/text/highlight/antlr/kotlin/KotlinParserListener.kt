@@ -232,6 +232,20 @@ internal interface KotlinParserListener : ParseTreeListener {
     public fun exitClassParameter(ctx: KotlinParser.ClassParameterContext)
 
     /**
+     * Enter a parse tree produced by [KotlinParser.context].
+     *
+     * @param ctx The parse tree
+     */
+    public fun enterContext(ctx: KotlinParser.ContextContext)
+
+    /**
+     * Exit a parse tree produced by [KotlinParser.context].
+     *
+     * @param ctx The parse tree
+     */
+    public fun exitContext(ctx: KotlinParser.ContextContext)
+
+    /**
      * Enter a parse tree produced by [KotlinParser.delegationSpecifiers].
      *
      * @param ctx The parse tree
@@ -818,6 +832,20 @@ internal interface KotlinParserListener : ParseTreeListener {
      * @param ctx The parse tree
      */
     public fun exitTypeProjectionModifier(ctx: KotlinParser.TypeProjectionModifierContext)
+
+    /**
+     * Enter a parse tree produced by [KotlinParser.functionContext].
+     *
+     * @param ctx The parse tree
+     */
+    public fun enterFunctionContext(ctx: KotlinParser.FunctionContextContext)
+
+    /**
+     * Exit a parse tree produced by [KotlinParser.functionContext].
+     *
+     * @param ctx The parse tree
+     */
+    public fun exitFunctionContext(ctx: KotlinParser.FunctionContextContext)
 
     /**
      * Enter a parse tree produced by [KotlinParser.functionType].

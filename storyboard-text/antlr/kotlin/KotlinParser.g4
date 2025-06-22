@@ -82,6 +82,10 @@ classParameter
     : modifiers? (VAL | VAR)? NL* simpleIdentifier COLON NL* type (NL* ASSIGNMENT NL* expression)?
     ;
 
+context
+    : CONTEXT NL* LPAREN NL* parameter (NL* COMMA NL* parameter)* (NL* COMMA)? NL* RPAREN
+    ;
+
 delegationSpecifiers
     : annotatedDelegationSpecifier (NL* COMMA NL* annotatedDelegationSpecifier)*
     ;
@@ -287,8 +291,12 @@ typeProjectionModifier
     | annotation
     ;
 
+functionContext
+    : CONTEXT LPAREN NL* receiverType (NL* COMMA NL* receiverType)* (NL* COMMA)? RPAREN
+    ;
+
 functionType
-    : (receiverType NL* DOT NL*)? functionTypeParameters NL* ARROW NL* type
+    : (functionContext)? (receiverType NL* DOT NL*)? functionTypeParameters NL* ARROW NL* type
     ;
 
 functionTypeParameters
@@ -829,10 +837,12 @@ functionModifier
     | INLINE
     | EXTERNAL
     | SUSPEND
+    | context
     ;
 
 propertyModifier
     : CONST
+    | context
     ;
 
 inheritanceModifier

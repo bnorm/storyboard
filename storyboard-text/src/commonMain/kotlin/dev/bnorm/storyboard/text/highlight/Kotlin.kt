@@ -63,7 +63,13 @@ internal fun highlightKotlin(
             }
 
             override fun enterModifier(ctx: KotlinParser.ModifierContext) {
-                addStyle(codeStyle.keyword, ctx)
+                val context = ctx.functionModifier()?.context()
+                if (context != null) {
+                    // Only the 'context' keyword is highlighted as a keyword.
+                    addStyle(codeStyle.keyword, context.CONTEXT().symbol)
+                } else {
+                    addStyle(codeStyle.keyword, ctx)
+                }
             }
 
             override fun enterPrimaryConstructor(ctx: KotlinParser.PrimaryConstructorContext) {
@@ -219,9 +225,11 @@ internal fun highlightKotlin(
                     Tokens.NOT_IS,
                     Tokens.NOT_IN,
                         -> addStyle(codeStyle.keyword, symbol)
+
                     Tokens.RETURN_AT,
                     Tokens.CONTINUE_AT,
-                    Tokens.BREAK_AT -> {
+                    Tokens.BREAK_AT,
+                        -> {
                         val indexOfAt = symbol.text!!.indexOf("@")
                         addStyle(codeStyle.keyword, symbol.startIndex, symbol.startIndex + indexOfAt)
                         addStyle(codeStyle.label, symbol.startIndex + indexOfAt, symbol.stopIndex + 1)
