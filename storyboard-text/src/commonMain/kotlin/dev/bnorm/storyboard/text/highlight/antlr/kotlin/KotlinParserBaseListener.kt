@@ -174,6 +174,16 @@ internal open class KotlinParserBaseListener : KotlinParserListener {
     /**
      * The default implementation does nothing.
      */
+    override fun enterContext(ctx: KotlinParser.ContextContext) {}
+
+    /**
+     * The default implementation does nothing.
+     */
+    override fun exitContext(ctx: KotlinParser.ContextContext) {}
+
+    /**
+     * The default implementation does nothing.
+     */
     override fun enterDelegationSpecifiers(ctx: KotlinParser.DelegationSpecifiersContext) {}
 
     /**
@@ -590,6 +600,16 @@ internal open class KotlinParserBaseListener : KotlinParserListener {
      * The default implementation does nothing.
      */
     override fun exitTypeProjectionModifier(ctx: KotlinParser.TypeProjectionModifierContext) {}
+
+    /**
+     * The default implementation does nothing.
+     */
+    override fun enterFunctionContext(ctx: KotlinParser.FunctionContextContext) {}
+
+    /**
+     * The default implementation does nothing.
+     */
+    override fun exitFunctionContext(ctx: KotlinParser.FunctionContextContext) {}
 
     /**
      * The default implementation does nothing.

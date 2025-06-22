@@ -177,6 +177,7 @@ CROSSINLINE: 'crossinline';
 REIFIED: 'reified';
 EXPECT: 'expect';
 ACTUAL: 'actual';
+CONTEXT: 'context';
 
 // SECTION: literals
 
