@@ -1,9 +1,11 @@
+import org.jetbrains.compose.reload.ComposeHotRun
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.kotlin.plugin.compose)
     alias(libs.plugins.compose)
+    alias(libs.plugins.compose.hot.reload)
 }
 
 group = "dev.bnorm.storyboard.example"
@@ -42,4 +44,8 @@ kotlin {
 compose {
     resources.publicResClass = true
     desktop.application.mainClass = "Main_desktopKt"
+}
+
+tasks.withType<ComposeHotRun>().configureEach {
+    mainClass.set("Main_desktopKt")
 }
