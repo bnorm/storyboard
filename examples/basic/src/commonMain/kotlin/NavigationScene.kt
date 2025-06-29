@@ -1,9 +1,9 @@
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.Divider
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -20,7 +20,7 @@ fun StoryboardBuilder.NavigationScene() = scene(
 
     Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
         Header { Text("Navigation") }
-        Divider(color = MaterialTheme.colors.primary)
+        HorizontalDivider(color = MaterialTheme.colorScheme.primary)
         Body {
             Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
                 Text("Advance scene with right and left arrow keys.")
@@ -30,7 +30,7 @@ fun StoryboardBuilder.NavigationScene() = scene(
             }
 
             if (currentState >= 2) {
-                Text("Down here!", style = MaterialTheme.typography.h6, modifier = Modifier.align(Alignment.BottomEnd))
+                Text("Down here!", style = MaterialTheme.typography.headlineSmall, modifier = Modifier.align(Alignment.BottomEnd))
             }
         }
     }

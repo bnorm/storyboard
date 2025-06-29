@@ -4,10 +4,10 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
-import androidx.compose.material.Divider
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
-import androidx.compose.material.darkColors
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -27,7 +27,7 @@ fun StoryboardBuilder.AppScene() {
     scene(stateCount = 4) {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
             Header { Text("Application") }
-            Divider(color = MaterialTheme.colors.primary, thickness = 4.dp)
+            HorizontalDivider(color = MaterialTheme.colorScheme.primary, thickness = 4.dp)
             Body {
                 Column(
                     Modifier.padding(vertical = 16.dp, horizontal = 16.dp),
@@ -40,7 +40,7 @@ fun StoryboardBuilder.AppScene() {
                         item { Text("• Anything achievable with Compose, is possible in Storyboard!") }
                         item { Text("• You could even embed a Storyboard, in a Storyboard!") }
                         item {
-                            MaterialTheme(colors = darkColors()) {
+                            MaterialTheme(colorScheme = darkColorScheme()) {
                                 StoryOverlay(
                                     overlay = { OverlayNavigation(state) },
                                     modifier = Modifier.requiredSize(state.storyboard.format.toDpSize() / 3)
