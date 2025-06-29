@@ -4,12 +4,20 @@ Live versions of the example storyboards are available via GitHub Pages.
 To see how publishing is achieved, see the [`pages.yml` workflow](../.github/workflows/pages.yml).
 
 * [Basic](https://bnorm.github.io/storyboard/examples/basic)
+* [Diagram](https://bnorm.github.io/storyboard/examples/diagram)
 * [Interactive](https://bnorm.github.io/storyboard/examples/interactive)
 
 ## [Basic](basic)
 
 Shows the basics of constructing a storyboard.
 The storyboard attempts to be self-describing, including how navigation and state within a Storyboard work.
+
+## [Diagram](diagram)
+
+Storyboards have different creative requirements than regular UIs.
+Diagrams are a big part of that.
+Building a responsive diagram in Compose is challenging, so there are a few utilities available to help.
+This storyboard demonstrates the use of some of these utilities and how they can be combined.
 
 ## [Interactive](interactive)
 
