@@ -3,11 +3,11 @@ import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
-    kotlin("multiplatform")
-    kotlin("plugin.compose")
-    id("org.jetbrains.compose")
-    id("org.jetbrains.kotlinx.binary-compatibility-validator")
-    id("com.vanniktech.maven.publish")
+    alias(libs.plugins.kotlin.multiplatform)
+    alias(libs.plugins.kotlin.plugin.compose)
+    alias(libs.plugins.compose)
+    alias(libs.plugins.binaryCompatibilityValidator)
+    alias(libs.plugins.maven.publish)
 }
 
 group = "dev.bnorm.storyboard"
@@ -33,7 +33,7 @@ kotlin {
                 api(compose.runtime)
                 api(compose.animation)
 
-                api("org.jetbrains.kotlinx:kotlinx-collections-immutable:0.3.7")
+                api(libs.kotlinx.collections.immutable)
             }
         }
     }

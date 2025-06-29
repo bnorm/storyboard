@@ -1,11 +1,11 @@
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 
 plugins {
-    kotlin("multiplatform")
-    kotlin("plugin.serialization")
-    kotlin("plugin.compose")
-    id("org.jetbrains.compose")
-    id("com.vanniktech.maven.publish")
+    alias(libs.plugins.kotlin.multiplatform)
+    alias(libs.plugins.kotlin.plugin.serialization)
+    alias(libs.plugins.kotlin.plugin.compose)
+    alias(libs.plugins.compose)
+    alias(libs.plugins.maven.publish)
 }
 
 group = "dev.bnorm.storyboard"
@@ -24,16 +24,16 @@ kotlin {
                 api(project(":storyboard"))
                 implementation(compose.material)
 
-                implementation("org.jetbrains.compose.material:material-icons-core:1.7.3")
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.1")
+                implementation(libs.compose.materialIcons)
+                implementation(libs.kotlinx.serialization.json)
             }
         }
 
         jvmMain {
             dependencies {
                 implementation(compose.desktop.currentOs)
-                implementation("io.github.vinceglb:filekit-compose:0.8.8")
-                implementation("org.apache.pdfbox:pdfbox:3.0.1")
+                implementation(libs.filekit.compose)
+                implementation(libs.pdfbox)
             }
         }
     }
