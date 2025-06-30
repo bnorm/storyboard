@@ -4,10 +4,11 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.input.rememberTextFieldState
-import androidx.compose.material.Divider
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
-import androidx.compose.material.TextField
+import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import dev.bnorm.storyboard.StoryboardBuilder
@@ -21,7 +22,7 @@ fun StoryboardBuilder.TextFieldScene() {
     scene(stateCount = 3) {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
             Header { Text("Text Fields") }
-            Divider(color = MaterialTheme.colors.primary, thickness = 4.dp)
+            HorizontalDivider(color = MaterialTheme.colorScheme.primary, thickness = 4.dp)
             Body {
                 Column(
                     Modifier.padding(vertical = 16.dp, horizontal = 16.dp),
@@ -31,7 +32,12 @@ fun StoryboardBuilder.TextFieldScene() {
 
                     RevealEach(transition.createChildTransition { it.toState() }) {
                         item { Text("• Text fields can also be used directly in scenes.") }
-                        item { TextField(text, label = { Text("Name") }) }
+                        item {
+                            TextField(
+                                value = text.text.toString(),
+                                onValueChange = { text.setTextAndPlaceCursorAtEnd(it) },
+                                label = { Text("Name") })
+                        }
                         item { Text("• Hello, ${text.text}!") }
                     }
                 }

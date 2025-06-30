@@ -2,7 +2,7 @@ package dev.bnorm.storyboard.easel
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material.MaterialTheme
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.window.*
@@ -36,7 +36,7 @@ fun StoryEaselWindow(
                 }
             },
             modifier = modifier.fillMaxSize()
-                .background(MaterialTheme.colors.background),
+                .background(MaterialTheme.colorScheme.background),
         )
 
         exporter.status?.let { ExportProgressPopup(it) }

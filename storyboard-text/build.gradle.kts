@@ -22,7 +22,7 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
-                implementation(compose.material)
+                implementation(compose.material3)
                 implementation(libs.antlr.kotlin.runtime)
             }
         }

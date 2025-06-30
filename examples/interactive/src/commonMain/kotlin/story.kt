@@ -1,4 +1,4 @@
-import androidx.compose.material.Surface
+import androidx.compose.material3.Surface
 import dev.bnorm.storyboard.SceneDecorator
 import dev.bnorm.storyboard.Storyboard
 

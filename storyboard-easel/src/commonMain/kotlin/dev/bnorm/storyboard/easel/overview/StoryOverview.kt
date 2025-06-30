@@ -10,9 +10,9 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.*
 import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -91,12 +91,12 @@ fun StoryOverview(
         val currentIndex = storyOverviewState.currentItem.index
         Surface(
             modifier = Modifier.align(Alignment.BottomStart).alpha(0.75f).padding(32.dp),
-            elevation = 4.dp,
+            shadowElevation = 4.dp,
             shape = RoundedCornerShape(8.dp),
         ) {
             Text(
                 text = currentIndex.toString(),
-                style = MaterialTheme.typography.h6,
+                style = MaterialTheme.typography.headlineSmall,
                 modifier = Modifier.padding(8.dp),
             )
         }
@@ -186,7 +186,7 @@ private fun OverviewLazyColumn(
             val isCurrentIndex = isCurrentColumn && column.currentItemIndex == itemIndex
             val currentColor by animateColorAsState(
                 when {
-                    isCurrentIndex -> MaterialTheme.colors.secondary
+                    isCurrentIndex -> MaterialTheme.colorScheme.secondary
                     else -> Color.Transparent
                 }
             )
