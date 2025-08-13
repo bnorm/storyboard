@@ -153,7 +153,7 @@ Want to see Storyboard in action?
 * **(Re)creating Magic(Move) with Compose** _(droidcon NYC 2025)_ -
   [Storyboard](https://deck.bnorm.dev/dcnyc25),
   [Code](https://github.com/bnorm/deck.bnorm.dev/tree/dcnyc25/dcnyc25/story),
-  Recording coming soon!
+  [Recording](https://www.youtube.com/watch?v=PgzBWebeJsk)
 
 [//]: # (Storyboard Links)
 
