@@ -29,13 +29,13 @@ kotlin {
 
                 implementation(project(":examples:shared"))
 
-                implementation(compose.material)
+                implementation(compose.material3)
                 implementation(compose.components.resources)
             }
         }
         jvmMain {
             dependencies {
-                implementation(compose.desktop.currentOs)
+                runtimeOnly(compose.desktop.currentOs)
             }
         }
     }

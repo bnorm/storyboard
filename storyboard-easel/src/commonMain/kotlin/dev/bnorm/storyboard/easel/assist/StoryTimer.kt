@@ -9,12 +9,12 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -174,11 +174,11 @@ private fun PlayPause(
         onClick = onClick,
         modifier = modifier
             .pointerHoverIcon(PointerIcon.Hand)
-            .background(MaterialTheme.colors.primary, shape = CircleShape)
+            .background(MaterialTheme.colorScheme.primary, shape = CircleShape)
     ) {
         Icon(
             PlayPauseIcon(pause),
-            tint = MaterialTheme.colors.onPrimary,
+            tint = MaterialTheme.colorScheme.onPrimary,
             contentDescription = "",
             modifier = Modifier.size(32.dp)
         )
@@ -194,11 +194,11 @@ private fun Reset(
         onClick = onClick,
         modifier = modifier
             .pointerHoverIcon(PointerIcon.Hand)
-            .background(MaterialTheme.colors.primary, shape = CircleShape)
+            .background(MaterialTheme.colorScheme.primary, shape = CircleShape)
     ) {
         Icon(
             Icons.Filled.Refresh,
-            tint = MaterialTheme.colors.onPrimary,
+            tint = MaterialTheme.colorScheme.onPrimary,
             contentDescription = "",
             modifier = Modifier.size(32.dp).scale(scaleX = -1f, scaleY = 1f)
         )

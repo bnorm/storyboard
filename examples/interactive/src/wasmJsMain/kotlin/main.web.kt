@@ -1,5 +1,5 @@
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.lightColors
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.window.CanvasBasedWindow
@@ -13,7 +13,7 @@ fun main() {
     val element = document.getElementById("ComposeTarget") as HTMLCanvasElement
     element.focus() // Focus is required for keyboard navigation.
     CanvasBasedWindow(canvasElementId = element.id, title = storyboard.title) {
-        MaterialTheme(colors = lightColors(background = Color.Gray)) {
+        MaterialTheme(colorScheme = lightColorScheme(background = Color.Gray)) {
             WebStoryEasel(storyboard)
         }
     }

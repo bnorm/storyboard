@@ -4,10 +4,11 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.input.TextFieldState
-import androidx.compose.material.Divider
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
-import androidx.compose.material.TextField
+import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -86,7 +87,10 @@ fun StoryboardBuilder.HttpClientScene() {
         // !!!
         SceneCaption {
             Column {
-                TextField(repository, label = { Text("GitHub Repository") })
+                TextField(
+                    value = repository.text.toString(),
+                    onValueChange = { repository.setTextAndPlaceCursorAtEnd(it) },
+                    label = { Text("GitHub Repository") })
                 if (error != null) {
                     Text(error.toString(), fontFamily = JetBrainsMono)
                 }
@@ -95,7 +99,7 @@ fun StoryboardBuilder.HttpClientScene() {
 
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
             Header { Text("HTTP Clients") }
-            Divider(color = MaterialTheme.colors.primary, thickness = 4.dp)
+            HorizontalDivider(color = MaterialTheme.colorScheme.primary, thickness = 4.dp)
             Body {
                 Column(
                     Modifier.padding(vertical = 16.dp, horizontal = 16.dp),
