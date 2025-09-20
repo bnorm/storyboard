@@ -82,15 +82,15 @@ class StoryState @ExperimentalStoryStateApi constructor(
     val advancementDistance: Float
         get() {
             if (currentIndex == targetIndex) return 1f
-            val start = byIndex.getValue(currentIndex).storyIndex
-            val target = byIndex.getValue(targetIndex).storyIndex
+            val start = byIndex.getValue(currentIndex).frameIndex
+            val target = byIndex.getValue(targetIndex).frameIndex
             return abs(target - start).toFloat()
         }
 
     val advancementProgress: Float
         get() {
             if (currentIndex == targetIndex) return 1f
-            val start = byIndex.getValue(currentIndex).storyIndex
+            val start = byIndex.getValue(currentIndex).frameIndex
             val current = transition.currentState
             val fraction = if (current == transition.targetState) 0f else transition.fraction
             return abs(current - start) + fraction
@@ -110,7 +110,7 @@ class StoryState @ExperimentalStoryStateApi constructor(
             if (currentDirection == direction) {
                 // Snap to the target and continue.
                 val target = byIndex.getValue(targetIndex)
-                snapTo(target.storyIndex)
+                snapTo(target.frameIndex)
                 currentIndex = target.storyboardIndex
                 // Fall-through and continue with the next advancement.
             }
@@ -161,7 +161,7 @@ class StoryState @ExperimentalStoryStateApi constructor(
         if (frame == null) return false
 
         targetIndex = frame.storyboardIndex
-        snapTo(frame.storyIndex)
+        snapTo(frame.frameIndex)
 
         currentIndex = targetIndex
         return true
@@ -241,6 +241,11 @@ class StoryState @ExperimentalStoryStateApi constructor(
             this.currentIndex = storyboardIndex
             this.targetIndex = storyboardIndex
             this.transition = SeekableTransitionState(initialFrameIndex)
+        } else if (transition.currentState != frame.frameIndex) {
+            // If the new frame index doesn't match the current state, reset the transition to match.
+            // This will always occur during the first update if a custom initial index was provided.
+            // This will also occur when states are added to scenes before the current index.
+            this.transition = SeekableTransitionState(frame.frameIndex)
         }
     }
 
@@ -251,11 +256,11 @@ class StoryState @ExperimentalStoryStateApi constructor(
         val last = scenes.last()
         require(first.states.isNotEmpty() && last.states.isNotEmpty()) { "first and last scene must have states" }
 
-        var storyIndex = 0
+        var frameIndex = 0
         fun <T> MutableList<StoryFrame<*>>.addStates(scene: Scene<T>) {
             for ((stateIndex, state) in scene.states.withIndex()) {
                 val index = StoryFrame(
-                    storyIndex = storyIndex++,
+                    frameIndex = frameIndex++,
                     scene = scene,
                     frame = Frame.State(state),
                     storyboardIndex = Storyboard.Index(scene.index, stateIndex),
@@ -269,7 +274,7 @@ class StoryState @ExperimentalStoryStateApi constructor(
                 // TODO don't create an invalid Storyboard.Index
                 add(
                     StoryFrame(
-                        storyIndex = storyIndex++,
+                        frameIndex = frameIndex++,
                         scene = scene,
                         frame = Frame.Start,
                         storyboardIndex = Storyboard.Index(scene.index, -1)
@@ -281,7 +286,7 @@ class StoryState @ExperimentalStoryStateApi constructor(
                 // TODO don't create an invalid Storyboard.Index
                 add(
                     StoryFrame(
-                        storyIndex = storyIndex++,
+                        frameIndex = frameIndex++,
                         scene = scene,
                         frame = Frame.End,
                         storyboardIndex = Storyboard.Index(scene.index, scene.states.size)
@@ -292,7 +297,7 @@ class StoryState @ExperimentalStoryStateApi constructor(
     }
 
     internal class StoryFrame<T>(
-        val storyIndex: Int,
+        val frameIndex: Int,
         val scene: Scene<T>,
         val frame: Frame<T>,
         val storyboardIndex: Storyboard.Index,
