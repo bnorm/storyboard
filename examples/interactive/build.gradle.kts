@@ -31,7 +31,7 @@ kotlin {
 
                 implementation(project(":examples:shared"))
 
-                implementation(compose.material)
+                implementation(compose.material3)
                 implementation(compose.components.resources)
 
                 implementation(libs.ktor.client)
@@ -41,7 +41,7 @@ kotlin {
         }
         jvmMain {
             dependencies {
-                implementation(compose.desktop.currentOs)
+                runtimeOnly(compose.desktop.currentOs)
                 implementation(libs.ktor.client.engine.okhttp)
             }
         }
