@@ -2,8 +2,8 @@ package dev.bnorm.storyboard.easel
 
 import androidx.compose.animation.*
 import androidx.compose.animation.SharedTransitionScope.*
-import androidx.compose.animation.SharedTransitionScope.PlaceHolderSize.Companion.contentSize
-import androidx.compose.animation.SharedTransitionScope.ResizeMode.Companion.ScaleToBounds
+import androidx.compose.animation.SharedTransitionScope.PlaceholderSize.Companion.ContentSize
+import androidx.compose.animation.SharedTransitionScope.ResizeMode.Companion.scaleToBounds
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Modifier
@@ -46,7 +46,7 @@ context(sharedTransitionScope: SharedTransitionScope)
 fun Modifier.sharedElement(
     sharedContentState: SharedContentState,
     animatedVisibilityScope: AnimatedVisibilityScope,
-    placeHolderSize: PlaceHolderSize = contentSize,
+    placeholderSize: PlaceholderSize = ContentSize,
     renderInOverlayDuringTransition: Boolean = true,
     zIndexInOverlay: Float = 0f,
 ): Modifier {
@@ -54,7 +54,7 @@ fun Modifier.sharedElement(
         return sharedElement(
             sharedContentState = sharedContentState,
             animatedVisibilityScope = animatedVisibilityScope,
-            placeHolderSize = placeHolderSize,
+            placeholderSize = placeholderSize,
             renderInOverlayDuringTransition = renderInOverlayDuringTransition,
             zIndexInOverlay = zIndexInOverlay,
         )
@@ -66,7 +66,7 @@ fun Modifier.sharedElement(
     sharedContentState: SharedContentState,
     animatedVisibilityScope: AnimatedVisibilityScope,
     boundsTransform: BoundsTransform,
-    placeHolderSize: PlaceHolderSize = contentSize,
+    placeholderSize: PlaceholderSize = ContentSize,
     renderInOverlayDuringTransition: Boolean = true,
     zIndexInOverlay: Float = 0f,
 ): Modifier {
@@ -75,7 +75,7 @@ fun Modifier.sharedElement(
             sharedContentState = sharedContentState,
             animatedVisibilityScope = animatedVisibilityScope,
             boundsTransform = boundsTransform,
-            placeHolderSize = placeHolderSize,
+            placeholderSize = placeholderSize,
             renderInOverlayDuringTransition = renderInOverlayDuringTransition,
             zIndexInOverlay = zIndexInOverlay,
         )
@@ -86,7 +86,7 @@ context(sharedTransitionScope: SharedTransitionScope)
 fun Modifier.sharedElement(
     sharedContentState: SharedContentState,
     animatedVisibilityScope: AnimatedVisibilityScope,
-    placeHolderSize: PlaceHolderSize = contentSize,
+    placeholderSize: PlaceholderSize = ContentSize,
     renderInOverlayDuringTransition: Boolean = true,
     zIndexInOverlay: Float = 0f,
     clipInOverlayDuringTransition: OverlayClip,
@@ -95,7 +95,7 @@ fun Modifier.sharedElement(
         return sharedElement(
             sharedContentState = sharedContentState,
             animatedVisibilityScope = animatedVisibilityScope,
-            placeHolderSize = placeHolderSize,
+            placeholderSize = placeholderSize,
             renderInOverlayDuringTransition = renderInOverlayDuringTransition,
             zIndexInOverlay = zIndexInOverlay,
             clipInOverlayDuringTransition = clipInOverlayDuringTransition
@@ -108,7 +108,7 @@ fun Modifier.sharedElement(
     sharedContentState: SharedContentState,
     animatedVisibilityScope: AnimatedVisibilityScope,
     boundsTransform: BoundsTransform,
-    placeHolderSize: PlaceHolderSize = contentSize,
+    placeholderSize: PlaceholderSize = ContentSize,
     renderInOverlayDuringTransition: Boolean = true,
     zIndexInOverlay: Float = 0f,
     clipInOverlayDuringTransition: OverlayClip,
@@ -118,7 +118,7 @@ fun Modifier.sharedElement(
             sharedContentState,
             animatedVisibilityScope,
             boundsTransform,
-            placeHolderSize,
+            placeholderSize,
             renderInOverlayDuringTransition,
             zIndexInOverlay,
             clipInOverlayDuringTransition
@@ -129,7 +129,7 @@ fun Modifier.sharedElement(
 context(animatedVisibilityScope: AnimatedVisibilityScope, sharedTransitionScope: SharedTransitionScope)
 fun Modifier.sharedElement(
     sharedContentState: SharedContentState,
-    placeHolderSize: PlaceHolderSize = contentSize,
+    placeholderSize: PlaceholderSize = ContentSize,
     renderInOverlayDuringTransition: Boolean = true,
     zIndexInOverlay: Float = 0f,
 ): Modifier {
@@ -137,7 +137,7 @@ fun Modifier.sharedElement(
         return sharedElement(
             sharedContentState = sharedContentState,
             animatedVisibilityScope = animatedVisibilityScope,
-            placeHolderSize = placeHolderSize,
+            placeholderSize = placeholderSize,
             renderInOverlayDuringTransition = renderInOverlayDuringTransition,
             zIndexInOverlay = zIndexInOverlay,
         )
@@ -148,7 +148,7 @@ context(animatedVisibilityScope: AnimatedVisibilityScope, sharedTransitionScope:
 fun Modifier.sharedElement(
     sharedContentState: SharedContentState,
     boundsTransform: BoundsTransform,
-    placeHolderSize: PlaceHolderSize = contentSize,
+    placeholderSize: PlaceholderSize = ContentSize,
     renderInOverlayDuringTransition: Boolean = true,
     zIndexInOverlay: Float = 0f,
 ): Modifier {
@@ -157,7 +157,7 @@ fun Modifier.sharedElement(
             sharedContentState = sharedContentState,
             animatedVisibilityScope = animatedVisibilityScope,
             boundsTransform = boundsTransform,
-            placeHolderSize = placeHolderSize,
+            placeholderSize = placeholderSize,
             renderInOverlayDuringTransition = renderInOverlayDuringTransition,
             zIndexInOverlay = zIndexInOverlay,
         )
@@ -167,7 +167,7 @@ fun Modifier.sharedElement(
 context(animatedVisibilityScope: AnimatedVisibilityScope, sharedTransitionScope: SharedTransitionScope)
 fun Modifier.sharedElement(
     sharedContentState: SharedContentState,
-    placeHolderSize: PlaceHolderSize = contentSize,
+    placeholderSize: PlaceholderSize = ContentSize,
     renderInOverlayDuringTransition: Boolean = true,
     zIndexInOverlay: Float = 0f,
     clipInOverlayDuringTransition: OverlayClip,
@@ -176,7 +176,7 @@ fun Modifier.sharedElement(
         return sharedElement(
             sharedContentState = sharedContentState,
             animatedVisibilityScope = animatedVisibilityScope,
-            placeHolderSize = placeHolderSize,
+            placeholderSize = placeholderSize,
             renderInOverlayDuringTransition = renderInOverlayDuringTransition,
             zIndexInOverlay = zIndexInOverlay,
             clipInOverlayDuringTransition = clipInOverlayDuringTransition
@@ -188,7 +188,7 @@ context(animatedVisibilityScope: AnimatedVisibilityScope, sharedTransitionScope:
 fun Modifier.sharedElement(
     sharedContentState: SharedContentState,
     boundsTransform: BoundsTransform,
-    placeHolderSize: PlaceHolderSize = contentSize,
+    placeholderSize: PlaceholderSize = ContentSize,
     renderInOverlayDuringTransition: Boolean = true,
     zIndexInOverlay: Float = 0f,
     clipInOverlayDuringTransition: OverlayClip,
@@ -198,7 +198,7 @@ fun Modifier.sharedElement(
             sharedContentState,
             animatedVisibilityScope,
             boundsTransform,
-            placeHolderSize,
+            placeholderSize,
             renderInOverlayDuringTransition,
             zIndexInOverlay,
             clipInOverlayDuringTransition
@@ -216,8 +216,8 @@ fun Modifier.sharedBounds(
     animatedVisibilityScope: AnimatedVisibilityScope,
     enter: EnterTransition = fadeIn(),
     exit: ExitTransition = fadeOut(),
-    resizeMode: ResizeMode = ScaleToBounds(ContentScale.FillWidth, Center),
-    placeHolderSize: PlaceHolderSize = contentSize,
+    resizeMode: ResizeMode = scaleToBounds(ContentScale.FillWidth, Center),
+    placeholderSize: PlaceholderSize = ContentSize,
     renderInOverlayDuringTransition: Boolean = true,
     zIndexInOverlay: Float = 0f,
 ): Modifier {
@@ -228,7 +228,7 @@ fun Modifier.sharedBounds(
             enter = enter,
             exit = exit,
             resizeMode = resizeMode,
-            placeHolderSize = placeHolderSize,
+            placeholderSize = placeholderSize,
             renderInOverlayDuringTransition = renderInOverlayDuringTransition,
             zIndexInOverlay = zIndexInOverlay,
         )
@@ -242,8 +242,8 @@ fun Modifier.sharedBounds(
     enter: EnterTransition = fadeIn(),
     exit: ExitTransition = fadeOut(),
     boundsTransform: BoundsTransform,
-    resizeMode: ResizeMode = ScaleToBounds(ContentScale.FillWidth, Center),
-    placeHolderSize: PlaceHolderSize = contentSize,
+    resizeMode: ResizeMode = scaleToBounds(ContentScale.FillWidth, Center),
+    placeholderSize: PlaceholderSize = ContentSize,
     renderInOverlayDuringTransition: Boolean = true,
     zIndexInOverlay: Float = 0f,
 ): Modifier {
@@ -255,7 +255,7 @@ fun Modifier.sharedBounds(
             exit = exit,
             boundsTransform = boundsTransform,
             resizeMode = resizeMode,
-            placeHolderSize = placeHolderSize,
+            placeholderSize = placeholderSize,
             renderInOverlayDuringTransition = renderInOverlayDuringTransition,
             zIndexInOverlay = zIndexInOverlay,
         )
@@ -268,8 +268,8 @@ fun Modifier.sharedBounds(
     animatedVisibilityScope: AnimatedVisibilityScope,
     enter: EnterTransition = fadeIn(),
     exit: ExitTransition = fadeOut(),
-    resizeMode: ResizeMode = ScaleToBounds(ContentScale.FillWidth, Center),
-    placeHolderSize: PlaceHolderSize = contentSize,
+    resizeMode: ResizeMode = scaleToBounds(ContentScale.FillWidth, Center),
+    placeholderSize: PlaceholderSize = ContentSize,
     renderInOverlayDuringTransition: Boolean = true,
     zIndexInOverlay: Float = 0f,
     clipInOverlayDuringTransition: OverlayClip,
@@ -281,7 +281,7 @@ fun Modifier.sharedBounds(
             enter = enter,
             exit = exit,
             resizeMode = resizeMode,
-            placeHolderSize = placeHolderSize,
+            placeholderSize = placeholderSize,
             renderInOverlayDuringTransition = renderInOverlayDuringTransition,
             zIndexInOverlay = zIndexInOverlay,
             clipInOverlayDuringTransition = clipInOverlayDuringTransition,
@@ -296,8 +296,8 @@ fun Modifier.sharedBounds(
     enter: EnterTransition = fadeIn(),
     exit: ExitTransition = fadeOut(),
     boundsTransform: BoundsTransform,
-    resizeMode: ResizeMode = ScaleToBounds(ContentScale.FillWidth, Center),
-    placeHolderSize: PlaceHolderSize = contentSize,
+    resizeMode: ResizeMode = scaleToBounds(ContentScale.FillWidth, Center),
+    placeholderSize: PlaceholderSize = ContentSize,
     renderInOverlayDuringTransition: Boolean = true,
     zIndexInOverlay: Float = 0f,
     clipInOverlayDuringTransition: OverlayClip,
@@ -310,7 +310,7 @@ fun Modifier.sharedBounds(
             exit = exit,
             boundsTransform = boundsTransform,
             resizeMode = resizeMode,
-            placeHolderSize = placeHolderSize,
+            placeholderSize = placeholderSize,
             renderInOverlayDuringTransition = renderInOverlayDuringTransition,
             zIndexInOverlay = zIndexInOverlay,
             clipInOverlayDuringTransition = clipInOverlayDuringTransition,
@@ -323,8 +323,8 @@ fun Modifier.sharedBounds(
     sharedContentState: SharedContentState,
     enter: EnterTransition = fadeIn(),
     exit: ExitTransition = fadeOut(),
-    resizeMode: ResizeMode = ScaleToBounds(ContentScale.FillWidth, Center),
-    placeHolderSize: PlaceHolderSize = contentSize,
+    resizeMode: ResizeMode = scaleToBounds(ContentScale.FillWidth, Center),
+    placeholderSize: PlaceholderSize = ContentSize,
     renderInOverlayDuringTransition: Boolean = true,
     zIndexInOverlay: Float = 0f,
 ): Modifier {
@@ -335,7 +335,7 @@ fun Modifier.sharedBounds(
             enter = enter,
             exit = exit,
             resizeMode = resizeMode,
-            placeHolderSize = placeHolderSize,
+            placeholderSize = placeholderSize,
             renderInOverlayDuringTransition = renderInOverlayDuringTransition,
             zIndexInOverlay = zIndexInOverlay,
         )
@@ -348,8 +348,8 @@ fun Modifier.sharedBounds(
     enter: EnterTransition = fadeIn(),
     exit: ExitTransition = fadeOut(),
     boundsTransform: BoundsTransform,
-    resizeMode: ResizeMode = ScaleToBounds(ContentScale.FillWidth, Center),
-    placeHolderSize: PlaceHolderSize = contentSize,
+    resizeMode: ResizeMode = scaleToBounds(ContentScale.FillWidth, Center),
+    placeholderSize: PlaceholderSize = ContentSize,
     renderInOverlayDuringTransition: Boolean = true,
     zIndexInOverlay: Float = 0f,
 ): Modifier {
@@ -361,7 +361,7 @@ fun Modifier.sharedBounds(
             exit = exit,
             boundsTransform = boundsTransform,
             resizeMode = resizeMode,
-            placeHolderSize = placeHolderSize,
+            placeholderSize = placeholderSize,
             renderInOverlayDuringTransition = renderInOverlayDuringTransition,
             zIndexInOverlay = zIndexInOverlay,
         )
@@ -373,8 +373,8 @@ fun Modifier.sharedBounds(
     sharedContentState: SharedContentState,
     enter: EnterTransition = fadeIn(),
     exit: ExitTransition = fadeOut(),
-    resizeMode: ResizeMode = ScaleToBounds(ContentScale.FillWidth, Center),
-    placeHolderSize: PlaceHolderSize = contentSize,
+    resizeMode: ResizeMode = scaleToBounds(ContentScale.FillWidth, Center),
+    placeholderSize: PlaceholderSize = ContentSize,
     renderInOverlayDuringTransition: Boolean = true,
     zIndexInOverlay: Float = 0f,
     clipInOverlayDuringTransition: OverlayClip,
@@ -386,7 +386,7 @@ fun Modifier.sharedBounds(
             enter = enter,
             exit = exit,
             resizeMode = resizeMode,
-            placeHolderSize = placeHolderSize,
+            placeholderSize = placeholderSize,
             renderInOverlayDuringTransition = renderInOverlayDuringTransition,
             zIndexInOverlay = zIndexInOverlay,
             clipInOverlayDuringTransition = clipInOverlayDuringTransition,
@@ -400,8 +400,8 @@ fun Modifier.sharedBounds(
     enter: EnterTransition = fadeIn(),
     exit: ExitTransition = fadeOut(),
     boundsTransform: BoundsTransform,
-    resizeMode: ResizeMode = ScaleToBounds(ContentScale.FillWidth, Center),
-    placeHolderSize: PlaceHolderSize = contentSize,
+    resizeMode: ResizeMode = scaleToBounds(ContentScale.FillWidth, Center),
+    placeholderSize: PlaceholderSize = ContentSize,
     renderInOverlayDuringTransition: Boolean = true,
     zIndexInOverlay: Float = 0f,
     clipInOverlayDuringTransition: OverlayClip,
@@ -414,7 +414,7 @@ fun Modifier.sharedBounds(
             exit = exit,
             boundsTransform = boundsTransform,
             resizeMode = resizeMode,
-            placeHolderSize = placeHolderSize,
+            placeholderSize = placeholderSize,
             renderInOverlayDuringTransition = renderInOverlayDuringTransition,
             zIndexInOverlay = zIndexInOverlay,
             clipInOverlayDuringTransition = clipInOverlayDuringTransition,
