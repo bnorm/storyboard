@@ -1,5 +1,4 @@
 import com.vanniktech.maven.publish.MavenPublishBaseExtension
-import com.vanniktech.maven.publish.SonatypeHost
 import org.jetbrains.dokka.gradle.DokkaExtension
 import org.jetbrains.dokka.gradle.engine.parameters.VisibilityModifier
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
@@ -66,7 +65,6 @@ allprojects {
     plugins.withId("com.vanniktech.maven.publish") {
         apply(plugin = "org.jetbrains.dokka")
         configure<MavenPublishBaseExtension> {
-            publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL, automaticRelease = true)
             signAllPublications()
             pom {
                 description = "Compose Multiplatform library for building presentations."
