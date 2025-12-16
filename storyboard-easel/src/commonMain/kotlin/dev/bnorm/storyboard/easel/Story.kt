@@ -15,13 +15,28 @@ import dev.bnorm.storyboard.*
 import dev.bnorm.storyboard.easel.internal.FixedSize
 import kotlinx.collections.immutable.ImmutableList
 
+@OptIn(ExperimentalStoryStateApi::class)
 @Composable
-fun Story(storyState: StoryState, modifier: Modifier = Modifier) {
+fun Story(
+    state: StoryState,
+    mode: SceneMode = SceneMode.Story,
+    modifier: Modifier = Modifier
+) {
+    Story(state.storyboard, state.rememberTransition(), mode, modifier)
+}
+
+@Composable
+fun Story(
+    storyboard: Storyboard,
+    transition: Transition<SceneFrame<*>>,
+    mode: SceneMode = SceneMode.Story,
+    modifier: Modifier = Modifier,
+) {
     val holder = rememberSaveableStateHolder()
-    CompositionLocalProvider(LocalStoryboard provides storyState.storyboard) {
-        SceneWrapper(storyState.storyboard.format, storyState.storyboard.decorator, SceneMode.Story, modifier) {
-            val stateFrame = storyState.rememberTransition()
-            stateFrame.createChildTransition { it.scene }.AnimatedContent(
+    SceneWrapper(storyboard, mode, modifier) {
+        SharedTransitionLayout {
+            val sceneTransition = transition.createChildTransition { it.scene }
+            sceneTransition.AnimatedContent(
                 transitionSpec = {
                     val direction = when {
                         targetState > initialState -> AdvanceDirection.Forward
@@ -33,7 +48,7 @@ fun Story(storyState: StoryState, modifier: Modifier = Modifier) {
             ) { scene ->
                 holder.SaveableStateProvider(scene) {
                     Box(Modifier.fillMaxSize()) {
-                        SceneContent(scene, stateFrame)
+                        SceneContent(scene, transition)
                     }
                 }
             }
@@ -48,11 +63,11 @@ private class StorySceneScope<T>(
 
 @Composable
 context(_: AnimatedVisibilityScope, _: SharedTransitionScope)
-private fun <T> SceneContent(
+fun <T> SceneContent(
     scene: Scene<T>,
-    storyFrame: Transition<StoryState.StoryFrame<*>>,
+    sceneFrame: Transition<SceneFrame<*>>,
 ) {
-    val frame = storyFrame.createChildTransition {
+    val frame = sceneFrame.createChildTransition {
         @Suppress("UNCHECKED_CAST")
         when {
             scene > it.scene -> Frame.Start
@@ -77,17 +92,35 @@ internal fun SceneWrapper(
     decorator: SceneDecorator,
     sceneMode: SceneMode,
     modifier: Modifier = Modifier,
-    content: @Composable context(SharedTransitionScope) () -> Unit,
+    content: @Composable () -> Unit,
 ) {
-    FixedSize(size = format.size, modifier = modifier) {
-        CompositionLocalProvider(
-            LocalSceneMode provides sceneMode,
-            LocalDensity provides format.density
-        ) {
+    CompositionLocalProvider(
+        LocalSceneMode provides sceneMode,
+        LocalDensity provides format.density,
+    ) {
+        FixedSize(size = format.size, modifier = modifier) {
             decorator.decorate {
-                SharedTransitionLayout {
-                    content()
-                }
+                content()
+            }
+        }
+    }
+}
+
+@Composable
+internal fun SceneWrapper(
+    storyboard: Storyboard,
+    sceneMode: SceneMode,
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit,
+) {
+    CompositionLocalProvider(
+        LocalStoryboard provides storyboard,
+        LocalSceneMode provides sceneMode,
+        LocalDensity provides storyboard.format.density
+    ) {
+        FixedSize(size = storyboard.format.size, modifier = modifier) {
+            storyboard.decorator.decorate {
+                content()
             }
         }
     }

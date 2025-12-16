@@ -33,7 +33,7 @@ fun StoryboardBuilder.AppScene() {
                     Modifier.padding(vertical = 16.dp, horizontal = 16.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp),
                 ) {
-                    val state = rememberStoryState(remember { createStoryboard() })
+                    val state = rememberStoryState { createStoryboard() }
 
                     RevealEach(transition.createChildTransition { it.toState() }) {
                         item { Text("• Storyboard is ultimately just a Compose application.") }

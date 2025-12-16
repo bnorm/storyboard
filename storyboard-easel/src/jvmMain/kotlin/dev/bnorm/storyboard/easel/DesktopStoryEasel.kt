@@ -1,15 +1,18 @@
 package dev.bnorm.storyboard.easel
 
+import androidx.compose.animation.core.Transition
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.movableContentWithReceiverOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.window.ApplicationScope
-import androidx.compose.ui.window.MenuBarScope
-import androidx.compose.ui.window.Window
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.window.*
 import dev.bnorm.storyboard.Storyboard
 import dev.bnorm.storyboard.easel.assist.*
 import dev.bnorm.storyboard.easel.export.ExportMenu
+import dev.bnorm.storyboard.easel.export.ExportProgressPopup
 import dev.bnorm.storyboard.easel.export.StoryboardPdfExporter
 import dev.bnorm.storyboard.easel.overlay.OverlayNavigation
 import dev.bnorm.storyboard.easel.overlay.StoryOverlayScope
@@ -19,8 +22,7 @@ import kotlinx.collections.immutable.persistentListOf
 @OptIn(ExperimentalStoryStateApi::class)
 @Composable
 fun ApplicationScope.DesktopStoryEasel(storyboard: Storyboard) {
-    val storyState = rememberStoryState()
-    storyState.updateStoryboard(storyboard)
+    val storyState = rememberStoryState { storyboard }
     DesktopStoryEasel(storyState)
 }
 
@@ -38,6 +40,25 @@ fun ApplicationScope.DesktopStoryEasel(
     },
     captions: ImmutableList<Caption> = persistentListOf(),
 ) {
+    DesktopStoryEasel(storyState, storyState.rememberTransition(), overlay, captions)
+}
+
+/**
+ * This function is designed to be used in combination with Compose Hot-Reload.
+ * Make sure a [Storyboard] is already attached to the [StoryState] with [StoryState.updateStoryboard].
+ * Each time the storyboard is changed, it can be updated on the state to not revert the story to the first index.
+ */
+@Composable
+@ExperimentalStoryStateApi
+fun ApplicationScope.DesktopStoryEasel(
+    storyState: StoryState,
+    transition: Transition<SceneFrame<*>>,
+    overlay: @Composable StoryOverlayScope.() -> Unit = {
+        OverlayNavigation(storyState)
+    },
+    captions: ImmutableList<Caption> = persistentListOf(),
+    menuBar: @Composable MenuBarScope.() -> Unit = {},
+) {
     val desktopState = rememberDesktopState(storyState.storyboard)
     val assistantState = remember(storyState, captions) { StoryAssistantState(storyState, captions) }
     val exporter = remember(storyState.storyboard) { StoryboardPdfExporter() }
@@ -49,28 +70,47 @@ fun ApplicationScope.DesktopStoryEasel(
         return
     }
 
-    val menuBar = movableContentWithReceiverOf<MenuBarScope> {
-        DesktopMenu(storyState.storyboard, desktopState.story) {
-            StoryAssistantMenu(assistantState)
-            ExportMenu(exporter, storyState)
-        }
-    }
-
     CompositionLocalProvider(LocalCaptions provides assistantState.captions) {
-        StoryEaselWindow(
-            storyState = storyState,
-            onCloseRequest = ::exitApplication,
-            windowState = desktopState.story,
-            menuBar = menuBar,
-            overlay = overlay,
-            exporter = exporter,
-        )
+        Window(
+            onCloseRequest = { exitApplication() },
+            state = desktopState.story,
+            title = storyState.storyboard.title,
+        ) {
+            MenuBar {
+                DesktopMenu(storyState.storyboard, desktopState.story, window) {
+                    StoryAssistantMenu(assistantState)
+                    ExportMenu(exporter, storyState.storyboard)
+                    menuBar()
+                }
+            }
+
+            StoryEasel(
+                storyController = storyState,
+                transition = transition,
+                overlay = {
+                    // Only display overlay navigation when *not* fullscreen.
+                    if (desktopState.story.placement != WindowPlacement.Fullscreen) {
+                        overlay()
+                    }
+                },
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colors.background),
+            )
+
+            exporter.status?.let { ExportProgressPopup(it) }
+        }
     }
 
     StoryAssistantWindow(
         assistantState = assistantState,
-        menuBar = menuBar,
+        menuBar = {
+            DesktopMenu(storyState.storyboard, desktopState.story, window = null) {
+                StoryAssistantMenu(assistantState)
+                ExportMenu(exporter, storyState.storyboard)
+                menuBar()
+            }
+        },
         windowState = desktopState.assistant,
     )
 }
-

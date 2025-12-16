@@ -16,6 +16,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -28,7 +29,7 @@ import androidx.compose.ui.unit.*
 import dev.bnorm.storyboard.Frame
 import dev.bnorm.storyboard.Storyboard
 import dev.bnorm.storyboard.easel.ScenePreview
-import dev.bnorm.storyboard.easel.StoryState
+import dev.bnorm.storyboard.easel.StoryController
 import dev.bnorm.storyboard.easel.internal.requestFocus
 import dev.bnorm.storyboard.easel.rememberSharedContentState
 import dev.bnorm.storyboard.easel.sharedElement
@@ -38,7 +39,7 @@ import dev.bnorm.storyboard.easel.sharedElement
 @Composable
 context(_: AnimatedVisibilityScope, _: SharedTransitionScope)
 fun StoryOverview(
-    storyState: StoryState,
+    storyController: StoryController,
     storyOverviewState: StoryOverviewState,
     onExitOverview: (Storyboard.Index) -> Unit = {},
     modifier: Modifier = Modifier,
@@ -54,7 +55,7 @@ fun StoryOverview(
         val viewSize = DpSize(maxWidth, maxHeight)
         val itemSize = calculateItemSize(
             viewSize = viewSize,
-            itemSize = storyState.storyboard.format.size
+            itemSize = storyController.storyboard.format.size
         )
 
         val hState = rememberOverviewSceneScroll(viewSize, itemSize, storyOverviewState)
@@ -72,7 +73,7 @@ fun StoryOverview(
                 //  - invisible padding item with different content padding?
                 OverviewLazyColumn(
                     state = vState,
-                    storyboard = storyState.storyboard,
+                    storyboard = storyController.storyboard,
                     column = column,
                     verticalPaddingDp = verticalPaddingDp,
                     itemSize = itemSize,
@@ -102,7 +103,7 @@ fun StoryOverview(
         }
 
         LaunchedEffect(currentIndex) {
-            storyState.jumpTo(currentIndex)
+            storyController.jumpTo(currentIndex)
         }
 
         HorizontalScrollbar(

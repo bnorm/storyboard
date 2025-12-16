@@ -1,6 +1,7 @@
 package dev.bnorm.storyboard.easel
 
 import androidx.compose.animation.*
+import androidx.compose.animation.core.Transition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -19,9 +20,20 @@ import dev.bnorm.storyboard.easel.overview.StoryOverviewState
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalStoryStateApi::class)
 @Composable
 fun StoryEasel(
     storyState: StoryState,
+    overlay: @Composable StoryOverlayScope.() -> Unit = {},
+    modifier: Modifier = Modifier,
+) {
+    StoryEasel(storyState, storyState.rememberTransition(), overlay, modifier)
+}
+
+@Composable
+fun StoryEasel(
+    storyController: StoryController,
+    transition: Transition<SceneFrame<*>>,
     overlay: @Composable StoryOverlayScope.() -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
@@ -30,13 +42,13 @@ fun StoryEasel(
 
     val holder = rememberSaveableStateHolder()
 
-    val storyboard = storyState.storyboard
+    val storyboard = storyController.storyboard
     val storyOverviewState = remember(storyboard) { StoryOverviewState.of(storyboard) }
     var overviewVisible by remember { mutableStateOf(false) } // TODO support initial visibility?
 
     fun handleKeyEvent(event: KeyEvent): Boolean {
         if (event.type == KeyEventType.KeyUp && event.key == Key.Escape) {
-            storyOverviewState.jumpToIndex(storyState.currentIndex)
+            storyOverviewState.jumpToIndex(storyController.currentIndex)
             overviewVisible = true
             return true
         }
@@ -51,12 +63,12 @@ fun StoryEasel(
             ) { isOverview ->
                 if (isOverview) {
                     StoryOverview(
-                        storyState = storyState,
+                        storyController = storyController,
                         storyOverviewState = storyOverviewState,
                         onExitOverview = {
                             job?.cancel()
                             job = coroutineScope.launch {
-                                storyState.jumpTo(it)
+                                storyController.jumpTo(it)
                                 job = null
                                 overviewVisible = false
                             }
@@ -68,14 +80,15 @@ fun StoryEasel(
                         Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
                             StoryOverlay(overlay = overlay) {
                                 Story(
-                                    storyState = storyState,
+                                    storyboard = storyController.storyboard,
+                                    transition = transition,
                                     modifier = Modifier
                                         .sharedElement(
                                             rememberSharedContentState(OverviewCurrentItemKey),
                                             animatedVisibilityScope = this@AnimatedContent
                                         )
                                         .requestFocus()
-                                        .onStoryNavigation(storyState = storyState)
+                                        .onStoryNavigation(storyController = storyController)
                                         .onKeyEvent { handleKeyEvent(it) }
                                 )
                             }
@@ -85,47 +98,4 @@ fun StoryEasel(
             }
         }
     }
-}
-
-@Composable
-internal fun Modifier.onStoryNavigation(storyState: StoryState): Modifier {
-    val coroutineScope = rememberCoroutineScope()
-    var job by remember { mutableStateOf<Job?>(null) }
-
-    fun handle(event: KeyEvent): Boolean {
-        when (event.type) {
-            KeyEventType.KeyDown -> {
-                when (event.key) {
-                    Key.DirectionRight,
-//                    Key.DirectionDown,
-//                    Key.Enter,
-//                    Key.Spacebar,
-                        -> {
-                        job?.cancel()
-                        job = coroutineScope.launch {
-                            storyState.advance(AdvanceDirection.Forward)
-                            job = null
-                        }
-                        return true
-                    }
-
-                    Key.DirectionLeft,
-//                    Key.DirectionUp,
-//                    Key.Backspace,
-                        -> {
-                        job?.cancel()
-                        job = coroutineScope.launch {
-                            storyState.advance(AdvanceDirection.Backward)
-                            job = null
-                        }
-                        return true
-                    }
-                }
-            }
-        }
-
-        return false
-    }
-
-    return onKeyEvent { handle(it) }
 }

@@ -1,17 +1,21 @@
 package dev.bnorm.storyboard.easel
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.awt.ComposeWindow
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyShortcut
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.*
+import androidx.compose.ui.window.MenuBarScope
+import androidx.compose.ui.window.WindowPlacement
+import androidx.compose.ui.window.WindowState
 import dev.bnorm.storyboard.Storyboard
 
 @Composable
 fun MenuBarScope.DesktopMenu(
     storyboard: Storyboard,
     windowState: WindowState,
+    window: ComposeWindow? = null,
     content: @Composable MenuBarScope.() -> Unit,
 ) {
     Menu("Easel") {
@@ -25,40 +29,39 @@ fun MenuBarScope.DesktopMenu(
                 WindowPlacement.Fullscreen -> WindowPlacement.Floating // TODO go back to float or max?
             }
         }
-        Menu("Scale") {
-            // This seems like the best way to get the title bar size,
-            // which is needed to correctly set the size of the window.
-            @Suppress("INVISIBLE_REFERENCE")
-            val insets = LocalWindow.current
-                ?.insets
-                ?.let { DpSize((it.left + it.right).dp, (it.top + it.bottom).dp) }
-                ?: DpSize.Zero
+        if (window != null) {
+            Menu("Scale") {
+                val insets = window
+                    .insets
+                    ?.let { DpSize((it.left + it.right).dp, (it.top + it.bottom).dp) }
+                    ?: DpSize.Zero
 
-            val size = DpSize(storyboard.format.size.width.dp, storyboard.format.size.height.dp)
+                val size = DpSize(storyboard.format.size.width.dp, storyboard.format.size.height.dp)
 
-            Item(text = "200%") {
-                windowState.placement = WindowPlacement.Floating
-                windowState.size = size * 2f + insets
-            }
-            Item(text = "150%") {
-                windowState.placement = WindowPlacement.Floating
-                windowState.size = size * 1.5f + insets
-            }
-            Item(text = "100%") {
-                windowState.placement = WindowPlacement.Floating
-                windowState.size = size + insets
-            }
-            Item(text = "75%") {
-                windowState.placement = WindowPlacement.Floating
-                windowState.size = size * .75f + insets
-            }
-            Item(text = "50%") {
-                windowState.placement = WindowPlacement.Floating
-                windowState.size = size * .5f + insets
-            }
-            Item(text = "25%") {
-                windowState.placement = WindowPlacement.Floating
-                windowState.size = size * .25f + insets
+                Item(text = "200%") {
+                    windowState.placement = WindowPlacement.Floating
+                    windowState.size = size * 2f + insets
+                }
+                Item(text = "150%") {
+                    windowState.placement = WindowPlacement.Floating
+                    windowState.size = size * 1.5f + insets
+                }
+                Item(text = "100%") {
+                    windowState.placement = WindowPlacement.Floating
+                    windowState.size = size + insets
+                }
+                Item(text = "75%") {
+                    windowState.placement = WindowPlacement.Floating
+                    windowState.size = size * .75f + insets
+                }
+                Item(text = "50%") {
+                    windowState.placement = WindowPlacement.Floating
+                    windowState.size = size * .5f + insets
+                }
+                Item(text = "25%") {
+                    windowState.placement = WindowPlacement.Floating
+                    windowState.size = size * .25f + insets
+                }
             }
         }
     }

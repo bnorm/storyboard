@@ -1,6 +1,7 @@
 package dev.bnorm.storyboard.easel
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.core.Transition
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.background
@@ -35,13 +36,15 @@ internal fun <T> ScenePreview(
     sceneMode: SceneMode = SceneMode.Preview,
 ) {
     SceneWrapper(format, decorator, sceneMode, modifier) {
-        AnimatedVisibility(true) {
-            key(scene, stateIndex) {
-                val scope = PreviewSceneScope(
-                    states = scene.states,
-                    transition = updateTransition(Frame.State(scene.states[stateIndex])),
-                )
-                scope.Render(scene.content)
+        SharedTransitionLayout {
+            AnimatedVisibility(true) {
+                key(scene, stateIndex) {
+                    val scope = PreviewSceneScope(
+                        states = scene.states,
+                        transition = updateTransition(Frame.State(scene.states[stateIndex])),
+                    )
+                    scope.Render(scene.content)
+                }
             }
         }
     }
@@ -57,13 +60,15 @@ fun <T> ScenePreview(
     sceneMode: SceneMode = SceneMode.Preview,
 ) {
     SceneWrapper(format, decorator, sceneMode, modifier) {
-        AnimatedVisibility(true) {
-            key(scene, frame) {
-                val scope = PreviewSceneScope(
-                    states = scene.states,
-                    transition = updateTransition(frame),
-                )
-                scope.Render(scene.content)
+        SharedTransitionLayout {
+            AnimatedVisibility(true) {
+                key(scene, frame) {
+                    val scope = PreviewSceneScope(
+                        states = scene.states,
+                        transition = updateTransition(frame),
+                    )
+                    scope.Render(scene.content)
+                }
             }
         }
     }
@@ -79,13 +84,15 @@ fun <T> ScenePreview(
 ) {
     CompositionLocalProvider(LocalStoryboard provides storyboard) {
         SceneWrapper(storyboard.format, storyboard.decorator, sceneMode, modifier) {
-            AnimatedVisibility(true) {
-                key(scene, frame) {
-                    val scope = PreviewSceneScope(
-                        states = scene.states,
-                        transition = updateTransition(frame),
-                    )
-                    scope.Render(scene.content)
+            SharedTransitionLayout {
+                AnimatedVisibility(true) {
+                    key(scene, frame) {
+                        val scope = PreviewSceneScope(
+                            states = scene.states,
+                            transition = updateTransition(frame),
+                        )
+                        scope.Render(scene.content)
+                    }
                 }
             }
         }
