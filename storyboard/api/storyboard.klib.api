@@ -46,7 +46,7 @@ abstract fun interface dev.bnorm.storyboard/SceneExitTransition : kotlin/Functio
     }
 }
 
-abstract interface <#A: kotlin/Any?> dev.bnorm.storyboard/SceneScope { // dev.bnorm.storyboard/SceneScope|null[0]
+abstract interface <#A: out kotlin/Any?> dev.bnorm.storyboard/SceneScope { // dev.bnorm.storyboard/SceneScope|null[0]
     abstract val states // dev.bnorm.storyboard/SceneScope.states|{}states[0]
         abstract fun <get-states>(): kotlinx.collections.immutable/ImmutableList<#A> // dev.bnorm.storyboard/SceneScope.states.<get-states>|<get-states>(){}[0]
     abstract val transition // dev.bnorm.storyboard/SceneScope.transition|{}transition[0]
