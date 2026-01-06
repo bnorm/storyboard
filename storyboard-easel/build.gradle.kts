@@ -22,7 +22,7 @@ kotlin {
         commonMain {
             dependencies {
                 api(project(":storyboard"))
-                implementation(compose.material)
+                implementation(compose.material3)
 
                 implementation(libs.compose.materialIcons)
                 implementation(libs.kotlinx.serialization.json)
@@ -31,7 +31,7 @@ kotlin {
 
         jvmMain {
             dependencies {
-                implementation(compose.desktop.currentOs)
+                runtimeOnly(compose.desktop.currentOs)
                 implementation(libs.filekit.compose)
                 implementation(libs.pdfbox)
             }

@@ -4,10 +4,10 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -20,7 +20,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
-@OptIn(ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun StorySlider(storyState: StoryState, modifier: Modifier = Modifier) {
     val coroutineScope = rememberCoroutineScope()
@@ -42,12 +42,12 @@ internal fun StorySlider(storyState: StoryState, modifier: Modifier = Modifier) 
             modifier = Modifier
                 .padding(end = 16.dp)
                 .pointerHoverIcon(PointerIcon.Hand)
-                .background(MaterialTheme.colors.primary, shape = CircleShape)
+                .background(MaterialTheme.colorScheme.primary, shape = CircleShape)
         ) {
             Icon(
                 // TODO could be cool to make this an animated vector
                 if (sceneSlider) Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown,
-                tint = MaterialTheme.colors.onPrimary,
+                tint = MaterialTheme.colorScheme.onPrimary,
                 contentDescription = "",
                 modifier = Modifier.size(32.dp)
             )

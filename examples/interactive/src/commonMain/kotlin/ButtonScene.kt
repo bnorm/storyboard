@@ -1,10 +1,10 @@
 import androidx.compose.animation.core.ExperimentalTransitionApi
 import androidx.compose.animation.core.createChildTransition
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.Button
-import androidx.compose.material.Divider
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.material3.Button
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -26,7 +26,7 @@ fun StoryboardBuilder.ButtonScene() {
     scene(stateCount = 6) {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
             Header { Text("Buttons") }
-            Divider(color = MaterialTheme.colors.primary, thickness = 4.dp)
+            HorizontalDivider(color = MaterialTheme.colorScheme.primary, thickness = 4.dp)
             Body {
                 Column(
                     Modifier.padding(vertical = 16.dp, horizontal = 16.dp),
@@ -57,7 +57,7 @@ private fun IncreaseDecreaseCounter() {
         Box(modifier = Modifier.widthIn(min = 100.dp), contentAlignment = Alignment.Center) {
             Text(
                 "$count",
-                fontSize = MaterialTheme.typography.h3.fontSize,
+                fontSize = MaterialTheme.typography.headlineSmall.fontSize,
             )
         }
         Spacer(Modifier.size(16.dp))

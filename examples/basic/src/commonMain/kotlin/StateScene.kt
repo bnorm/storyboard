@@ -5,9 +5,9 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.Divider
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import dev.bnorm.storyboard.Frame
@@ -58,7 +58,7 @@ fun StoryboardBuilder.StateScene() = scene(
     val index = currentState.index
     Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
         Header { Text(currentState.title) }
-        Divider(color = MaterialTheme.colors.primary)
+        HorizontalDivider(color = MaterialTheme.colorScheme.primary)
         Body {
             transition.AnimatedVisibility(
                 visible = { it != Frame.End },

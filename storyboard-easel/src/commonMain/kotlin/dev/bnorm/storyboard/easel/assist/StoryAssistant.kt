@@ -6,10 +6,10 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Card
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
+import androidx.compose.material3.Card
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
@@ -105,7 +105,7 @@ fun StoryAssistant(
 private fun CurrentFramePreview(storyState: StoryState, modifier: Modifier = Modifier) {
     Column(modifier = modifier, horizontalAlignment = Alignment.CenterHorizontally) {
         // TODO should "current" actually be target index?
-        Text("Current Frame", style = MaterialTheme.typography.h4)
+        Text("Current Frame", style = MaterialTheme.typography.headlineLarge)
         Spacer(Modifier.size(8.dp))
         Box {
             ClickableScenePreview(
@@ -127,7 +127,7 @@ private fun NextFramePreview(storyState: StoryState, modifier: Modifier = Modifi
     var job by remember { mutableStateOf<Job?>(null) }
 
     Column(modifier = modifier, horizontalAlignment = Alignment.CenterHorizontally) {
-        Text("Next Frame", style = MaterialTheme.typography.h4)
+        Text("Next Frame", style = MaterialTheme.typography.headlineLarge)
         Spacer(Modifier.size(8.dp))
         val nextIndex by derivedStateOf {
             val i = storyState.storyboard.indices.binarySearch(storyState.currentIndex)
@@ -153,7 +153,7 @@ private fun NextFramePreview(storyState: StoryState, modifier: Modifier = Modifi
 @Composable
 private fun Captions(captions: SnapshotStateList<Caption>, modifier: Modifier = Modifier) {
     Column(modifier = modifier, horizontalAlignment = Alignment.CenterHorizontally) {
-        Text("Captions", style = MaterialTheme.typography.h4)
+        Text("Captions", style = MaterialTheme.typography.headlineLarge)
         Spacer(Modifier.size(8.dp))
         LazyColumn {
             items(captions) { caption ->
