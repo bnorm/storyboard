@@ -1,5 +1,3 @@
-import org.gradle.kotlin.dsl.withType
-import org.jetbrains.compose.reload.ComposeHotRun
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 
 plugins {
@@ -56,8 +54,4 @@ kotlin {
 compose {
     resources.publicResClass = true
     desktop.application.mainClass = "Main_desktopKt"
-}
-
-tasks.withType<ComposeHotRun>().configureEach {
-    mainClass.set("Main_desktopKt")
 }

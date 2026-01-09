@@ -8,7 +8,7 @@ ktor = "3.3.3"
 antlr-kotlin = { id = "com.strumenta.antlr-kotlin", version.ref = "antlr-kotlin" }
 binaryCompatibilityValidator = { id = "org.jetbrains.kotlinx.binary-compatibility-validator", version = "0.18.1" }
 compose = { id = "org.jetbrains.compose", version.ref = "compose-jb" }
-compose-hot-reload = { id = "org.jetbrains.compose.hot-reload", version = "1.0.0-alpha11" }
+compose-hot-reload = { id = "org.jetbrains.compose.hot-reload", version = "1.0.0" }
 dokka = { id = "org.jetbrains.dokka", version = "2.1.0" }
 kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 kotlin-plugin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
