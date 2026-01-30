@@ -33,27 +33,28 @@ fun StoryAssistant(
     assistantState: StoryAssistantState,
     modifier: Modifier = Modifier,
 ) {
+    val easel = assistantState.easel
+    val captions = assistantState.captions
+
     // Box with constraints?
     Surface(
         modifier = modifier
             .fillMaxSize()
-            .requestFocus()
-            .onStoryNavigation(storyController = assistantState.storyState)
+            .onStoryNavigation(easel)
     ) {
         Column(Modifier.padding(16.dp)) {
             Row(horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth()) {
                 StoryTimer()
             }
-            val storyState = assistantState.storyState
-            StorySlider(storyState)
+            StorySlider(easel)
 
             Layout(
                 content = {
-                    CurrentFramePreview(storyState)
-                    NextFramePreview(storyState)
+                    CurrentFramePreview(easel)
+                    NextFramePreview(easel)
                     // TODO previous frame?
                     // TODO highlight frame which is being advanced to?
-                    Captions(assistantState.captions)
+                    Captions(captions)
                 }
             ) { measurables, constraints ->
                 val currentMeasurable = measurables[0]

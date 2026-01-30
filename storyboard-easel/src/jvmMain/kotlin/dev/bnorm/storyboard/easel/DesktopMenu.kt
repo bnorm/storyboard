@@ -12,58 +12,56 @@ import androidx.compose.ui.window.WindowState
 import dev.bnorm.storyboard.Storyboard
 
 @Composable
-fun MenuBarScope.DesktopMenu(
+internal fun MenuBarScope.DesktopMenu(
     storyboard: Storyboard,
-    windowState: WindowState,
-    window: ComposeWindow? = null,
-    content: @Composable MenuBarScope.() -> Unit,
+    windowState: WindowState?,
+    window: ComposeWindow?,
 ) {
     Menu("Easel") {
-        Item(text = "Fullscreen", shortcut = KeyShortcut(Key.P, alt = true, meta = true)) {
-            // TODO keynote seems to create a new window which fades in over the entire screen
-            //  - is this a better experience then converting the window to full screen?
-            //  - would *just* the overview be shown when not in full screen?
-            windowState.placement = when (windowState.placement) {
-                WindowPlacement.Floating -> WindowPlacement.Fullscreen
-                WindowPlacement.Maximized -> WindowPlacement.Fullscreen
-                WindowPlacement.Fullscreen -> WindowPlacement.Floating // TODO go back to float or max?
+        if (windowState != null && window != null) {
+            Item("Fullscreen", shortcut = KeyShortcut(Key.P, alt = true, meta = true)) {
+                // TODO keynote seems to create a new window which fades in over the entire screen
+                //  - is this a better experience then converting the window to full screen?
+                //  - would *just* the overview be shown when not in full screen?
+                windowState.placement = when (windowState.placement) {
+                    WindowPlacement.Floating -> WindowPlacement.Fullscreen
+                    WindowPlacement.Maximized -> WindowPlacement.Fullscreen
+                    WindowPlacement.Fullscreen -> WindowPlacement.Floating // TODO go back to float or max?
+                }
             }
-        }
-        if (window != null) {
+
             Menu("Scale") {
-                val insets = window
-                    .insets
+                val insets = window.insets
                     ?.let { DpSize((it.left + it.right).dp, (it.top + it.bottom).dp) }
                     ?: DpSize.Zero
 
                 val size = DpSize(storyboard.format.size.width.dp, storyboard.format.size.height.dp)
 
-                Item(text = "200%") {
+                Item("200%") {
                     windowState.placement = WindowPlacement.Floating
-                    windowState.size = size * 2f + insets
+                    windowState.size = size * 2.0f + insets
                 }
-                Item(text = "150%") {
+                Item("150%") {
                     windowState.placement = WindowPlacement.Floating
                     windowState.size = size * 1.5f + insets
                 }
-                Item(text = "100%") {
+                Item("100%") {
                     windowState.placement = WindowPlacement.Floating
-                    windowState.size = size + insets
+                    windowState.size = size * 1.0f + insets
                 }
-                Item(text = "75%") {
+                Item("75%") {
                     windowState.placement = WindowPlacement.Floating
-                    windowState.size = size * .75f + insets
+                    windowState.size = size * 0.75f + insets
                 }
-                Item(text = "50%") {
+                Item("50%") {
                     windowState.placement = WindowPlacement.Floating
-                    windowState.size = size * .5f + insets
+                    windowState.size = size * 0.5f + insets
                 }
-                Item(text = "25%") {
+                Item("25%") {
                     windowState.placement = WindowPlacement.Floating
-                    windowState.size = size * .25f + insets
+                    windowState.size = size * 0.25f + insets
                 }
             }
         }
     }
-    content()
 }

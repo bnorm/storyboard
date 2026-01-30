@@ -5,6 +5,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.*
 import dev.bnorm.storyboard.AdvanceDirection
 import dev.bnorm.storyboard.Storyboard
+import dev.bnorm.storyboard.easel.internal.requestFocus
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
@@ -23,12 +24,6 @@ interface StoryController {
 
 @Composable
 fun Modifier.onStoryNavigation(storyController: StoryController): Modifier {
-    val handle = rememberKeyHandler(storyController)
-    return onKeyEvent { handle(it) }
-}
-
-@Composable
-fun rememberKeyHandler(storyController: StoryController): (KeyEvent) -> Boolean {
     val coroutineScope = rememberCoroutineScope()
     var job by remember { mutableStateOf<Job?>(null) }
 
@@ -67,5 +62,5 @@ fun rememberKeyHandler(storyController: StoryController): (KeyEvent) -> Boolean 
         return false
     }
 
-    return ::handle
+    return requestFocus().onKeyEvent { handle(it) }
 }

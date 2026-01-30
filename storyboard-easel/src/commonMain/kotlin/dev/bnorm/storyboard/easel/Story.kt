@@ -15,14 +15,20 @@ import dev.bnorm.storyboard.*
 import dev.bnorm.storyboard.easel.internal.FixedSize
 import kotlinx.collections.immutable.ImmutableList
 
-@OptIn(ExperimentalStoryStateApi::class)
 @Composable
 fun Story(
-    state: StoryState,
+    easel: Easel,
     mode: SceneMode = SceneMode.Story,
-    modifier: Modifier = Modifier
+    decorator: SceneDecorator = SceneDecorator.None,
+    modifier: Modifier = Modifier,
 ) {
-    Story(state.storyboard, state.rememberTransition(), mode, modifier)
+    Story(
+        storyboard = easel.storyboard,
+        transition = easel.transition,
+        mode = mode,
+        decorator = decorator,
+        modifier = modifier
+    )
 }
 
 @Composable
@@ -30,25 +36,30 @@ fun Story(
     storyboard: Storyboard,
     transition: Transition<SceneFrame<*>>,
     mode: SceneMode = SceneMode.Story,
+    decorator: SceneDecorator = SceneDecorator.None,
     modifier: Modifier = Modifier,
 ) {
     val holder = rememberSaveableStateHolder()
-    SceneWrapper(storyboard, mode, modifier) {
-        SharedTransitionLayout {
-            val sceneTransition = transition.createChildTransition { it.scene }
-            sceneTransition.AnimatedContent(
-                transitionSpec = {
-                    val direction = when {
-                        targetState > initialState -> AdvanceDirection.Forward
-                        else -> AdvanceDirection.Backward
-                    }
-                    targetState.enterTransition(direction) togetherWith
-                            initialState.exitTransition(direction)
-                }
-            ) { scene ->
-                holder.SaveableStateProvider(scene) {
-                    Box(Modifier.fillMaxSize()) {
-                        SceneContent(scene, transition)
+    Box(modifier) {
+        decorator.decorate {
+            SceneWrapper(storyboard, mode) {
+                SharedTransitionLayout {
+                    val sceneTransition = transition.createChildTransition { it.scene }
+                    sceneTransition.AnimatedContent(
+                        transitionSpec = {
+                            val direction = when {
+                                targetState > initialState -> AdvanceDirection.Forward
+                                else -> AdvanceDirection.Backward
+                            }
+                            targetState.enterTransition(direction) togetherWith
+                                    initialState.exitTransition(direction)
+                        }
+                    ) { scene ->
+                        holder.SaveableStateProvider(scene) {
+                            Box(Modifier.fillMaxSize()) {
+                                SceneContent(scene, transition)
+                            }
+                        }
                     }
                 }
             }

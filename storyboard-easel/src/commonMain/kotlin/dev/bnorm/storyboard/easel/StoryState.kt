@@ -14,23 +14,8 @@ import dev.bnorm.storyboard.Storyboard
 import kotlin.math.abs
 import kotlin.properties.Delegates
 
-@RequiresOptIn
-annotation class ExperimentalStoryStateApi
-
-@OptIn(ExperimentalStoryStateApi::class)
-@Composable
-fun rememberStoryState(
-    initialIndex: Storyboard.Index = Storyboard.Index(0, 0),
-    storyboard: @DisallowComposableCalls () -> Storyboard,
-): StoryState {
-    val state = rememberSaveable { StoryState(initialIndex) }
-    // TODO this seems ugly...
-    remember(storyboard) { storyboard().also { state.updateStoryboard(it) } }
-    return state
-}
-
 @Stable
-class StoryState @ExperimentalStoryStateApi constructor(
+internal class StoryState(
     initialIndex: Storyboard.Index = Storyboard.Index(0, 0),
 ) : StoryController {
     private var _storyboard: Storyboard? by mutableStateOf(null)
@@ -207,9 +192,8 @@ class StoryState @ExperimentalStoryStateApi constructor(
         transition.seekTo(fraction, index + 1)
     }
 
-    @ExperimentalStoryStateApi
     // Perform without read observation, so reads do not cause a state reset.
-    fun updateStoryboard(storyboard: Storyboard): Unit = Snapshot.withoutReadObservation {
+    internal fun updateStoryboard(storyboard: Storyboard): Unit = Snapshot.withoutReadObservation {
         if (this._storyboard == storyboard) return
 
         this._storyboard = storyboard
@@ -296,7 +280,6 @@ class StoryState @ExperimentalStoryStateApi constructor(
         internal val storyboardIndex: Storyboard.Index,
     ) : SceneFrame<T>
 
-    @ExperimentalStoryStateApi
     @Composable
     fun rememberTransition(): Transition<SceneFrame<*>> {
         return rememberTransition(transition)

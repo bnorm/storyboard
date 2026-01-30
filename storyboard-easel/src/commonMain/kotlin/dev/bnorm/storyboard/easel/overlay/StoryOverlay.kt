@@ -13,6 +13,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.pointerInput
+import dev.bnorm.storyboard.SceneDecorator
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
@@ -20,8 +21,17 @@ import kotlinx.coroutines.launch
 import kotlin.time.TimeMark
 import kotlin.time.TimeSource
 
+fun StoryOverlayDecorator(
+    overlay: @Composable StoryOverlayScope.() -> Unit,
+): SceneDecorator = SceneDecorator { content ->
+    StoryOverlay(
+        overlay = overlay,
+        content = content,
+    )
+}
+
 @Composable
-fun StoryOverlay(
+private fun StoryOverlay(
     overlay: @Composable StoryOverlayScope.() -> Unit,
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit,

@@ -8,14 +8,13 @@ import androidx.compose.material.Divider
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.darkColors
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import dev.bnorm.storyboard.StoryboardBuilder
 import dev.bnorm.storyboard.easel.Story
 import dev.bnorm.storyboard.easel.overlay.OverlayNavigation
-import dev.bnorm.storyboard.easel.overlay.StoryOverlay
-import dev.bnorm.storyboard.easel.rememberStoryState
+import dev.bnorm.storyboard.easel.overlay.StoryOverlayDecorator
+import dev.bnorm.storyboard.easel.rememberEasel
 import dev.bnorm.storyboard.easel.template.Body
 import dev.bnorm.storyboard.easel.template.Header
 import dev.bnorm.storyboard.easel.template.RevealEach
@@ -33,7 +32,7 @@ fun StoryboardBuilder.AppScene() {
                     Modifier.padding(vertical = 16.dp, horizontal = 16.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp),
                 ) {
-                    val state = rememberStoryState { createStoryboard() }
+                    val easel = rememberEasel { createStoryboard() }
 
                     RevealEach(transition.createChildTransition { it.toState() }) {
                         item { Text("• Storyboard is ultimately just a Compose application.") }
@@ -41,12 +40,11 @@ fun StoryboardBuilder.AppScene() {
                         item { Text("• You could even embed a Storyboard, in a Storyboard!") }
                         item {
                             MaterialTheme(colors = darkColors()) {
-                                StoryOverlay(
-                                    overlay = { OverlayNavigation(state) },
-                                    modifier = Modifier.requiredSize(state.storyboard.format.toDpSize() / 3)
-                                ) {
-                                    Story(state)
-                                }
+                                Story(
+                                    easel,
+                                    decorator = StoryOverlayDecorator(overlay = { OverlayNavigation(easel) }),
+                                    modifier = Modifier.requiredSize(easel.storyboard.format.toDpSize() / 3)
+                                )
                             }
                         }
                     }
