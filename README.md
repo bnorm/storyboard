@@ -50,14 +50,6 @@ Snapshot documentation is available at [bnorm.github.io/storyboard/docs/api/late
 [Various examples](examples) are available to demonstrate how to build Storyboards of
 varying levels of complexity and functionality.
 
-### GitHub Pages
-
-Live versions of the example storyboards are available via GitHub Pages.
-To see how publishing is achieved, see the [`pages.yml` workflow](.github/workflows/pages.yml).
-
-* [Basic](https://bnorm.github.io/storyboard/examples/basic)
-* [Interactive](https://bnorm.github.io/storyboard/examples/interactive)
-
 ## Getting Started
 
 Looking for help? Join the discussion in the [KotlinLang Slack](https://kotlinlang.slack.com/archives/C08R5V4EHDH)!

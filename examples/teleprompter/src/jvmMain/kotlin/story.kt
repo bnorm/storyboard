@@ -11,7 +11,9 @@ fun createStoryboard(): Storyboard {
         title = "Example Storyboard",
         decorator = theme,
     ) {
+        IntroScene()
         AnnotationScene()
+        InteractiveScene()
     }
 }
 
