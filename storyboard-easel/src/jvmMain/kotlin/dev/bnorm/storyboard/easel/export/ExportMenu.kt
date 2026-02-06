@@ -3,11 +3,11 @@ package dev.bnorm.storyboard.easel.export
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.window.MenuBarScope
-import dev.bnorm.storyboard.easel.StoryState
+import dev.bnorm.storyboard.Storyboard
 import kotlinx.coroutines.launch
 
 @Composable
-internal fun MenuBarScope.ExportMenu(exporter: StoryboardPdfExporter, storyState: StoryState) {
+internal fun MenuBarScope.ExportMenu(exporter: StoryboardPdfExporter, storyboard: Storyboard) {
     val coroutineScope = rememberCoroutineScope()
 
     Menu("Export") {
@@ -16,7 +16,7 @@ internal fun MenuBarScope.ExportMenu(exporter: StoryboardPdfExporter, storyState
             enabled = exporter.status == null,
             onClick = {
                 coroutineScope.launch {
-                    exporter.export(storyState.storyboard)
+                    exporter.export(storyboard)
                 }
             },
         )

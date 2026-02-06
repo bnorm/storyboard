@@ -22,7 +22,7 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
 import dev.bnorm.storyboard.Storyboard
 import dev.bnorm.storyboard.easel.ScenePreview
-import dev.bnorm.storyboard.easel.StoryState
+import dev.bnorm.storyboard.easel.StoryController
 import dev.bnorm.storyboard.easel.internal.requestFocus
 import dev.bnorm.storyboard.easel.onStoryNavigation
 import kotlinx.coroutines.Job
@@ -33,27 +33,28 @@ fun StoryAssistant(
     assistantState: StoryAssistantState,
     modifier: Modifier = Modifier,
 ) {
+    val easel = assistantState.easel
+    val captions = assistantState.captions
+
     // Box with constraints?
     Surface(
         modifier = modifier
             .fillMaxSize()
-            .requestFocus()
-            .onStoryNavigation(storyState = assistantState.storyState)
+            .onStoryNavigation(easel)
     ) {
         Column(Modifier.padding(16.dp)) {
             Row(horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth()) {
                 StoryTimer()
             }
-            val storyState = assistantState.storyState
-            StorySlider(storyState)
+            StorySlider(easel)
 
             Layout(
                 content = {
-                    CurrentFramePreview(storyState)
-                    NextFramePreview(storyState)
+                    CurrentFramePreview(easel)
+                    NextFramePreview(easel)
                     // TODO previous frame?
                     // TODO highlight frame which is being advanced to?
-                    Captions(assistantState.captions)
+                    Captions(captions)
                 }
             ) { measurables, constraints ->
                 val currentMeasurable = measurables[0]
@@ -102,27 +103,27 @@ fun StoryAssistant(
 }
 
 @Composable
-private fun CurrentFramePreview(storyState: StoryState, modifier: Modifier = Modifier) {
+private fun CurrentFramePreview(storyController: StoryController, modifier: Modifier = Modifier) {
     Column(modifier = modifier, horizontalAlignment = Alignment.CenterHorizontally) {
         // TODO should "current" actually be target index?
         Text("Current Frame", style = MaterialTheme.typography.h4)
         Spacer(Modifier.size(8.dp))
         Box {
             ClickableScenePreview(
-                storyState.storyboard,
-                storyState.currentIndex,
+                storyController.storyboard,
+                storyController.currentIndex,
                 // Add padding for the progress indicator.
                 modifier = Modifier.padding(bottom = 2.dp),
             )
             Box(Modifier.matchParentSize(), contentAlignment = Alignment.BottomCenter) {
-                SceneAnimationProgressIndicator(storyState, modifier = Modifier.height(2.dp))
+                SceneAnimationProgressIndicator(storyController, modifier = Modifier.height(2.dp))
             }
         }
     }
 }
 
 @Composable
-private fun NextFramePreview(storyState: StoryState, modifier: Modifier = Modifier) {
+private fun NextFramePreview(storyController: StoryController, modifier: Modifier = Modifier) {
     val coroutineScope = rememberCoroutineScope()
     var job by remember { mutableStateOf<Job?>(null) }
 
@@ -130,18 +131,18 @@ private fun NextFramePreview(storyState: StoryState, modifier: Modifier = Modifi
         Text("Next Frame", style = MaterialTheme.typography.h4)
         Spacer(Modifier.size(8.dp))
         val nextIndex by derivedStateOf {
-            val i = storyState.storyboard.indices.binarySearch(storyState.currentIndex)
+            val i = storyController.storyboard.indices.binarySearch(storyController.currentIndex)
             require(i >= 0) { "targetIndex not found in storyboard" }
-            storyState.storyboard.indices.getOrNull(i + 1)
+            storyController.storyboard.indices.getOrNull(i + 1)
         }
         nextIndex?.let {
             ClickableScenePreview(
-                storyboard = storyState.storyboard,
+                storyboard = storyController.storyboard,
                 index = it,
                 onClick = {
                     job?.cancel()
                     job = coroutineScope.launch {
-                        storyState.jumpTo(it)
+                        storyController.jumpTo(it)
                         job = null
                     }
                 },
@@ -200,10 +201,10 @@ private fun ClickableScenePreview(
 }
 
 @Composable
-private fun SceneAnimationProgressIndicator(storyboard: StoryState, modifier: Modifier = Modifier) {
+private fun SceneAnimationProgressIndicator(storyController: StoryController, modifier: Modifier = Modifier) {
     Row(modifier) {
-        val advancementDistance = storyboard.advancementDistance
-        val advancementProgress = storyboard.advancementProgress
+        val advancementDistance = storyController.advancementDistance
+        val advancementProgress = storyController.advancementProgress
         when {
             advancementProgress == advancementDistance -> {
                 Spacer(Modifier.fillMaxHeight().weight(1f).background(Color.Green))

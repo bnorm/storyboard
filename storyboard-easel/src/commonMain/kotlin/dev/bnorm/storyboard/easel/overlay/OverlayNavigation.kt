@@ -18,18 +18,18 @@ import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.unit.dp
 import dev.bnorm.storyboard.AdvanceDirection
-import dev.bnorm.storyboard.easel.StoryState
+import dev.bnorm.storyboard.easel.StoryController
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 @Composable
 fun StoryOverlayScope.OverlayNavigation(
-    storyState: StoryState,
+    storyController: StoryController,
     alignment: Alignment = Alignment.BottomEnd,
 ) {
     val coroutineScope = rememberCoroutineScope()
     var job by remember { mutableStateOf<Job?>(null) }
-    val indices = storyState.storyboard.indices
+    val indices = storyController.storyboard.indices
 
     Surface(
         modifier = Modifier
@@ -42,11 +42,11 @@ fun StoryOverlayScope.OverlayNavigation(
             IconButton(
                 text = "Previous",
                 icon = Icons.AutoMirrored.Rounded.ArrowBack,
-                enabled = storyState.targetIndex > indices.first(),
+                enabled = storyController.targetIndex > indices.first(),
                 onClick = {
                     job?.cancel()
                     job = coroutineScope.launch {
-                        storyState.advance(AdvanceDirection.Backward)
+                        storyController.advance(AdvanceDirection.Backward)
                         job = null
                     }
                 }
@@ -54,11 +54,11 @@ fun StoryOverlayScope.OverlayNavigation(
             IconButton(
                 text = "Next",
                 icon = Icons.AutoMirrored.Rounded.ArrowForward,
-                enabled = storyState.targetIndex < indices.last(),
+                enabled = storyController.targetIndex < indices.last(),
                 onClick = {
                     job?.cancel()
                     job = coroutineScope.launch {
-                        storyState.advance(AdvanceDirection.Forward)
+                        storyController.advance(AdvanceDirection.Forward)
                         job = null
                     }
                 }

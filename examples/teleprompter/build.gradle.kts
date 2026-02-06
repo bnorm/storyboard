@@ -1,5 +1,3 @@
-import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
-
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.kotlin.plugin.serialization)
@@ -14,12 +12,6 @@ version = "0.1-SNAPSHOT"
 kotlin {
     jvm()
 
-    @OptIn(ExperimentalWasmDsl::class)
-    wasmJs {
-        binaries.executable()
-        browser()
-    }
-
     sourceSets {
         commonMain {
             dependencies {
@@ -31,21 +23,11 @@ kotlin {
 
                 implementation(compose.material)
                 implementation(compose.components.resources)
-
-                implementation(libs.ktor.client)
-                implementation(libs.ktor.client.contentNegotiation)
-                implementation(libs.ktor.serialization.json)
             }
         }
         jvmMain {
             dependencies {
                 implementation(compose.desktop.currentOs)
-                implementation(libs.ktor.client.engine.okhttp)
-            }
-        }
-        wasmJsMain {
-            dependencies {
-                implementation(libs.ktor.client.engine.js)
             }
         }
     }

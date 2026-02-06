@@ -2,12 +2,10 @@ package dev.bnorm.storyboard.easel
 
 import androidx.compose.runtime.*
 import androidx.compose.ui.window.WindowState
-import dev.bnorm.storyboard.Storyboard
 import dev.bnorm.storyboard.easel.internal.WindowStateSerializer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runInterruptible
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.Serializable
 import kotlinx.serialization.StringFormat
 import kotlinx.serialization.json.Json
 import java.io.IOException
@@ -19,57 +17,44 @@ import kotlin.io.path.exists
 import kotlin.io.path.readText
 import kotlin.io.path.writeText
 
-@Stable
-@Serializable
-class DesktopState(
-    @Serializable(with = WindowStateSerializer::class)
-    val story: WindowState = WindowState(),
-    @Serializable(with = WindowStateSerializer::class)
-    val assistant: WindowState = WindowState(),
-)
-
 @Composable
-fun rememberDesktopState(storyboard: Storyboard, format: StringFormat = Json): DesktopState? {
-    return rememberDesktopState(Paths.get(".storyboard", "${storyboard.title}.json"), format)
+fun rememberWindowState(fileName: String, format: StringFormat = Json): WindowState? {
+    return rememberWindowState(Paths.get(".storyboard", "$fileName.json"), format)
 }
 
 @Composable
-fun rememberDesktopState(path: Path, format: StringFormat = Json): DesktopState? {
-    var state by remember { mutableStateOf<DesktopState?>(null) }
+fun rememberWindowState(path: Path, format: StringFormat = Json): WindowState? {
+    var state by remember { mutableStateOf<WindowState?>(null) }
 
     LaunchedEffect(Unit) {
         withContext(Dispatchers.IO) {
             runInterruptible {
                 if (path.exists()) {
                     val text = path.readText()
-                    state = runCatching { format.decodeFromString(DesktopState.serializer(), text) }
-                        .getOrElse { DesktopState() }
+                    state = runCatching { format.decodeFromString(WindowStateSerializer, text) }
+                        .getOrElse { WindowState() }
                 } else {
                     path.createParentDirectories()
-                    state = DesktopState()
+                    state = WindowState()
                 }
             }
         }
     }
 
-    // Launch writer in a separate composeable so *this* composable does not rerun each time.
+    // Launch writer in a separate composable so *this* composable does not rerun each time.
     LaunchedStateWriter(state, path, format)
 
     return state
 }
 
 @Composable
-private fun LaunchedStateWriter(state: DesktopState?, file: Path, format: StringFormat) {
+private fun LaunchedStateWriter(state: WindowState?, file: Path, format: StringFormat) {
     state ?: return
-
-    var hash = state.story.hash()
-    hash = 31 * hash + state.assistant.hash()
-
-    LaunchedEffect(hash, file) {
+    LaunchedEffect(state.hash(), file) {
         try {
             withContext(Dispatchers.IO) {
                 runInterruptible {
-                    val text = format.encodeToString(DesktopState.serializer(), state)
+                    val text = format.encodeToString(WindowStateSerializer, state)
                     file.writeText(text, options = arrayOf(WRITE, CREATE, TRUNCATE_EXISTING))
                 }
             }

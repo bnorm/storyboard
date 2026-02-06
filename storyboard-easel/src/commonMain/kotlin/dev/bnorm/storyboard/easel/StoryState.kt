@@ -14,38 +14,16 @@ import dev.bnorm.storyboard.Storyboard
 import kotlin.math.abs
 import kotlin.properties.Delegates
 
-@RequiresOptIn
-annotation class ExperimentalStoryStateApi
-
-@OptIn(ExperimentalStoryStateApi::class)
-@Composable
-fun rememberStoryState(
-    storyboard: Storyboard,
-    initialIndex: Storyboard.Index = Storyboard.Index(0, 0),
-): StoryState {
-    val state = rememberStoryState(initialIndex)
-    state.updateStoryboard(storyboard)
-    return state
-}
-
-@Composable
-@ExperimentalStoryStateApi
-fun rememberStoryState(
-    initialIndex: Storyboard.Index = Storyboard.Index(0, 0),
-): StoryState {
-    return rememberSaveable { StoryState(initialIndex) }
-}
-
 @Stable
-class StoryState @ExperimentalStoryStateApi constructor(
+internal class StoryState(
     initialIndex: Storyboard.Index = Storyboard.Index(0, 0),
-) {
+) : StoryController {
     private var _storyboard: Storyboard? by mutableStateOf(null)
-    val storyboard: Storyboard
+    override val storyboard: Storyboard
         get() = _storyboard ?: error("Storyboard uninitialized.")
 
-    private var frames: List<StoryFrame<*>> by Delegates.notNull()
-    private var byIndex: Map<Storyboard.Index, StoryFrame<*>> by Delegates.notNull()
+    private var frames: List<StoryStateFrame<*>> by Delegates.notNull()
+    private var byIndex: Map<Storyboard.Index, StoryStateFrame<*>> by Delegates.notNull()
 
     // TODO the mutable state is a workaround for SeekableTransitionState not
     //  supporting `snapTo` without a transition.
@@ -53,19 +31,19 @@ class StoryState @ExperimentalStoryStateApi constructor(
     // Defaults to 0, but will always be updated via updateStoryboard before first use.
     private var transition by mutableStateOf(SeekableTransitionState(0))
 
-    var currentIndex: Storyboard.Index by mutableStateOf(initialIndex)
+    override var currentIndex: Storyboard.Index by mutableStateOf(initialIndex)
         private set
 
-    var targetIndex: Storyboard.Index by mutableStateOf(initialIndex)
+    override var targetIndex: Storyboard.Index by mutableStateOf(initialIndex)
         private set
 
-    val storyDistance: Float
+    override val storyDistance: Float
         get() {
             if (_storyboard == null) return 0f
             return frames.lastIndex.toFloat()
         }
 
-    val storyProgress: Float
+    override val storyProgress: Float
         get() {
             if (_storyboard == null) return 0f
             val current = transition.currentState
@@ -79,7 +57,7 @@ class StoryState @ExperimentalStoryStateApi constructor(
             return current.toFloat() + fraction
         }
 
-    val advancementDistance: Float
+    override val advancementDistance: Float
         get() {
             if (currentIndex == targetIndex) return 1f
             val start = byIndex.getValue(currentIndex).frameIndex
@@ -87,7 +65,7 @@ class StoryState @ExperimentalStoryStateApi constructor(
             return abs(target - start).toFloat()
         }
 
-    val advancementProgress: Float
+    override val advancementProgress: Float
         get() {
             if (currentIndex == targetIndex) return 1f
             val start = byIndex.getValue(currentIndex).frameIndex
@@ -102,7 +80,7 @@ class StoryState @ExperimentalStoryStateApi constructor(
     //    without suspension. This would also allow for coordinated cancellation.
     //  - is that this class? is it some other utility?
     //  - do we need to be careful about which scope the advancement runs in?
-    suspend fun advance(direction: AdvanceDirection): Boolean {
+    override suspend fun advance(direction: AdvanceDirection): Boolean {
         if (_storyboard == null) return false // Cannot advance without Storyboard.
 
         val currentDirection = toDirection(transition.currentState, transition.targetState)
@@ -138,7 +116,7 @@ class StoryState @ExperimentalStoryStateApi constructor(
         return true
     }
 
-    private fun findTargetFrame(direction: AdvanceDirection): StoryFrame<*>? {
+    private fun findTargetFrame(direction: AdvanceDirection): StoryStateFrame<*>? {
         require(transition.currentState == transition.targetState) {
             "cannot find target state during transition: " +
                     "currentState=${transition.currentState} " +
@@ -154,7 +132,7 @@ class StoryState @ExperimentalStoryStateApi constructor(
         return frames[targetState]
     }
 
-    suspend fun jumpTo(index: Storyboard.Index): Boolean {
+    override suspend fun jumpTo(index: Storyboard.Index): Boolean {
         if (_storyboard == null) return false // Cannot jump without Storyboard.
 
         val frame = byIndex[index]
@@ -214,9 +192,8 @@ class StoryState @ExperimentalStoryStateApi constructor(
         transition.seekTo(fraction, index + 1)
     }
 
-    @ExperimentalStoryStateApi
     // Perform without read observation, so reads do not cause a state reset.
-    fun updateStoryboard(storyboard: Storyboard) = Snapshot.withoutReadObservation {
+    internal fun updateStoryboard(storyboard: Storyboard): Unit = Snapshot.withoutReadObservation {
         if (this._storyboard == storyboard) return
 
         this._storyboard = storyboard
@@ -249,7 +226,7 @@ class StoryState @ExperimentalStoryStateApi constructor(
         }
     }
 
-    private fun buildFrames(scenes: List<Scene<*>>): List<StoryFrame<*>> = buildList {
+    private fun buildFrames(scenes: List<Scene<*>>): List<StoryStateFrame<*>> = buildList {
         require(scenes.isNotEmpty()) { "cannot build frames for empty list of scenes" }
 
         val first = scenes.first()
@@ -257,12 +234,12 @@ class StoryState @ExperimentalStoryStateApi constructor(
         require(first.states.isNotEmpty() && last.states.isNotEmpty()) { "first and last scene must have states" }
 
         var frameIndex = 0
-        fun <T> MutableList<StoryFrame<*>>.addStates(scene: Scene<T>) {
+        fun <T> MutableList<StoryStateFrame<*>>.addStates(scene: Scene<T>) {
             for ((stateIndex, state) in scene.states.withIndex()) {
-                val index = StoryFrame(
-                    frameIndex = frameIndex++,
+                val index = StoryStateFrame(
                     scene = scene,
                     frame = Frame.State(state),
+                    frameIndex = frameIndex++,
                     storyboardIndex = Storyboard.Index(scene.index, stateIndex),
                 )
                 add(index)
@@ -273,10 +250,10 @@ class StoryState @ExperimentalStoryStateApi constructor(
             if (scene != first) {
                 // TODO don't create an invalid Storyboard.Index
                 add(
-                    StoryFrame(
-                        frameIndex = frameIndex++,
+                    StoryStateFrame(
                         scene = scene,
                         frame = Frame.Start,
+                        frameIndex = frameIndex++,
                         storyboardIndex = Storyboard.Index(scene.index, -1)
                     )
                 )
@@ -285,10 +262,10 @@ class StoryState @ExperimentalStoryStateApi constructor(
             if (scene != last) {
                 // TODO don't create an invalid Storyboard.Index
                 add(
-                    StoryFrame(
-                        frameIndex = frameIndex++,
+                    StoryStateFrame(
                         scene = scene,
                         frame = Frame.End,
+                        frameIndex = frameIndex++,
                         storyboardIndex = Storyboard.Index(scene.index, scene.states.size)
                     )
                 )
@@ -296,15 +273,15 @@ class StoryState @ExperimentalStoryStateApi constructor(
         }
     }
 
-    internal class StoryFrame<T>(
-        val frameIndex: Int,
-        val scene: Scene<T>,
-        val frame: Frame<T>,
-        val storyboardIndex: Storyboard.Index,
-    )
+    internal class StoryStateFrame<T>(
+        override val scene: Scene<T>,
+        override val frame: Frame<T>,
+        internal val frameIndex: Int,
+        internal val storyboardIndex: Storyboard.Index,
+    ) : SceneFrame<T>
 
     @Composable
-    internal fun rememberTransition(): Transition<StoryFrame<*>> {
+    fun rememberTransition(): Transition<SceneFrame<*>> {
         return rememberTransition(transition)
             .createChildTransition { frames[it] }
     }

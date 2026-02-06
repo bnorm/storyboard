@@ -16,24 +16,50 @@ import dev.bnorm.storyboard.easel.internal.FixedSize
 import kotlinx.collections.immutable.ImmutableList
 
 @Composable
-fun Story(storyState: StoryState, modifier: Modifier = Modifier) {
+fun Story(
+    easel: Easel,
+    mode: SceneMode = SceneMode.Story,
+    decorator: SceneDecorator = SceneDecorator.None,
+    modifier: Modifier = Modifier,
+) {
+    Story(
+        storyboard = easel.storyboard,
+        transition = easel.transition,
+        mode = mode,
+        decorator = decorator,
+        modifier = modifier
+    )
+}
+
+@Composable
+fun Story(
+    storyboard: Storyboard,
+    transition: Transition<SceneFrame<*>>,
+    mode: SceneMode = SceneMode.Story,
+    decorator: SceneDecorator = SceneDecorator.None,
+    modifier: Modifier = Modifier,
+) {
     val holder = rememberSaveableStateHolder()
-    CompositionLocalProvider(LocalStoryboard provides storyState.storyboard) {
-        SceneWrapper(storyState.storyboard.format, storyState.storyboard.decorator, SceneMode.Story, modifier) {
-            val stateFrame = storyState.rememberTransition()
-            stateFrame.createChildTransition { it.scene }.AnimatedContent(
-                transitionSpec = {
-                    val direction = when {
-                        targetState > initialState -> AdvanceDirection.Forward
-                        else -> AdvanceDirection.Backward
-                    }
-                    targetState.enterTransition(direction) togetherWith
-                            initialState.exitTransition(direction)
-                }
-            ) { scene ->
-                holder.SaveableStateProvider(scene) {
-                    Box(Modifier.fillMaxSize()) {
-                        SceneContent(scene, stateFrame)
+    Box(modifier) {
+        decorator.decorate {
+            SceneWrapper(storyboard, mode) {
+                SharedTransitionLayout {
+                    val sceneTransition = transition.createChildTransition { it.scene }
+                    sceneTransition.AnimatedContent(
+                        transitionSpec = {
+                            val direction = when {
+                                targetState > initialState -> AdvanceDirection.Forward
+                                else -> AdvanceDirection.Backward
+                            }
+                            targetState.enterTransition(direction) togetherWith
+                                    initialState.exitTransition(direction)
+                        }
+                    ) { scene ->
+                        holder.SaveableStateProvider(scene) {
+                            Box(Modifier.fillMaxSize()) {
+                                SceneContent(scene, transition)
+                            }
+                        }
                     }
                 }
             }
@@ -48,11 +74,11 @@ private class StorySceneScope<T>(
 
 @Composable
 context(_: AnimatedVisibilityScope, _: SharedTransitionScope)
-private fun <T> SceneContent(
+fun <T> SceneContent(
     scene: Scene<T>,
-    storyFrame: Transition<StoryState.StoryFrame<*>>,
+    sceneFrame: Transition<SceneFrame<*>>,
 ) {
-    val frame = storyFrame.createChildTransition {
+    val frame = sceneFrame.createChildTransition {
         @Suppress("UNCHECKED_CAST")
         when {
             scene > it.scene -> Frame.Start
@@ -77,17 +103,35 @@ internal fun SceneWrapper(
     decorator: SceneDecorator,
     sceneMode: SceneMode,
     modifier: Modifier = Modifier,
-    content: @Composable context(SharedTransitionScope) () -> Unit,
+    content: @Composable () -> Unit,
 ) {
-    FixedSize(size = format.size, modifier = modifier) {
-        CompositionLocalProvider(
-            LocalSceneMode provides sceneMode,
-            LocalDensity provides format.density
-        ) {
+    CompositionLocalProvider(
+        LocalSceneMode provides sceneMode,
+        LocalDensity provides format.density,
+    ) {
+        FixedSize(size = format.size, modifier = modifier) {
             decorator.decorate {
-                SharedTransitionLayout {
-                    content()
-                }
+                content()
+            }
+        }
+    }
+}
+
+@Composable
+internal fun SceneWrapper(
+    storyboard: Storyboard,
+    sceneMode: SceneMode,
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit,
+) {
+    CompositionLocalProvider(
+        LocalStoryboard provides storyboard,
+        LocalSceneMode provides sceneMode,
+        LocalDensity provides storyboard.format.density
+    ) {
+        FixedSize(size = storyboard.format.size, modifier = modifier) {
+            storyboard.decorator.decorate {
+                content()
             }
         }
     }
