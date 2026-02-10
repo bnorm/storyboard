@@ -5,7 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.compositionLocalOf
-import dev.bnorm.storyboard.SceneDecorator
+import dev.bnorm.storyboard.Decorator
 import dev.bnorm.storyboard.StoryboardBuilder
 import dev.bnorm.storyboard.decorated
 
@@ -45,7 +45,7 @@ fun StoryboardBuilder.section(
     block: StoryboardBuilder.() -> Unit,
 ) {
     val section = SceneSection(title)
-    val decorator = SceneDecorator { content ->
+    val decorator = Decorator { content ->
         CompositionLocalProvider(LocalSceneSection provides section) {
             content()
         }

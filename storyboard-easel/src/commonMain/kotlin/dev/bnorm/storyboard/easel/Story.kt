@@ -19,7 +19,7 @@ import kotlinx.collections.immutable.ImmutableList
 fun Story(
     easel: Easel,
     mode: SceneMode = SceneMode.Story,
-    decorator: SceneDecorator = SceneDecorator.None,
+    decorator: Decorator = Decorator.None,
     modifier: Modifier = Modifier,
 ) {
     Story(
@@ -36,29 +36,27 @@ fun Story(
     storyboard: Storyboard,
     transition: Transition<SceneFrame<*>>,
     mode: SceneMode = SceneMode.Story,
-    decorator: SceneDecorator = SceneDecorator.None,
+    decorator: Decorator = Decorator.None,
     modifier: Modifier = Modifier,
 ) {
     val holder = rememberSaveableStateHolder()
-    Box(modifier) {
-        decorator.decorate {
-            SceneWrapper(storyboard, mode) {
-                SharedTransitionLayout {
-                    val sceneTransition = transition.createChildTransition { it.scene }
-                    sceneTransition.AnimatedContent(
-                        transitionSpec = {
-                            val direction = when {
-                                targetState > initialState -> AdvanceDirection.Forward
-                                else -> AdvanceDirection.Backward
-                            }
-                            targetState.enterTransition(direction) togetherWith
-                                    initialState.exitTransition(direction)
+    decorator.decorate {
+        SceneWrapper(storyboard, mode, modifier) {
+            SharedTransitionLayout {
+                val sceneTransition = transition.createChildTransition { it.scene }
+                sceneTransition.AnimatedContent(
+                    transitionSpec = {
+                        val direction = when {
+                            targetState > initialState -> AdvanceDirection.Forward
+                            else -> AdvanceDirection.Backward
                         }
-                    ) { scene ->
-                        holder.SaveableStateProvider(scene) {
-                            Box(Modifier.fillMaxSize()) {
-                                SceneContent(scene, transition)
-                            }
+                        targetState.enterTransition(direction) togetherWith
+                                initialState.exitTransition(direction)
+                    }
+                ) { scene ->
+                    holder.SaveableStateProvider(scene) {
+                        Box(Modifier.fillMaxSize()) {
+                            SceneContent(scene, transition)
                         }
                     }
                 }
@@ -100,7 +98,7 @@ fun <T> SceneContent(
 @Composable
 internal fun SceneWrapper(
     format: SceneFormat,
-    decorator: SceneDecorator,
+    decorator: Decorator,
     sceneMode: SceneMode,
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit,

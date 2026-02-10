@@ -1,13 +1,9 @@
 package dev.bnorm.storyboard.easel
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.*
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.awt.ComposeWindow
 import androidx.compose.ui.window.*
-import dev.bnorm.storyboard.SceneDecorator
+import dev.bnorm.storyboard.Decorator
 import dev.bnorm.storyboard.Storyboard
 import dev.bnorm.storyboard.easel.assist.rememberAssistantWindow
 import dev.bnorm.storyboard.easel.export.ExportMenu
@@ -71,17 +67,17 @@ fun ApplicationScope.DesktopEasel(
         Toolbar()
 
         val decorator = remember(windows) {
-            windows.fold(SceneDecorator.None) { acc, sidecar -> acc + sidecar.decorator }
-        }
-
-        StoryEasel(
-            easel = easel,
-            decorator = decorator + StoryOverlayDecorator {
+            windows.fold(Decorator.None) { acc, sidecar -> acc + sidecar.decorator } + StoryOverlayDecorator {
                 // Only display overlay navigation when *not* fullscreen.
                 if (storyWindowState.placement != WindowPlacement.Fullscreen) {
                     overlay()
                 }
-            },
+            }
+        }
+
+        Story(
+            easel = easel,
+            decorator = OverviewDecorator(easel = easel) + decorator,
         )
 
         exporter.status?.let { ExportProgressPopup(it) }

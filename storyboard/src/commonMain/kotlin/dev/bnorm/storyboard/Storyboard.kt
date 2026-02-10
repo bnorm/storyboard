@@ -11,7 +11,7 @@ public class Storyboard private constructor(
     public val description: String?,
     public val scenes: ImmutableList<Scene<*>>,
     public val format: SceneFormat,
-    public val decorator: SceneDecorator,
+    public val decorator: Decorator,
 ) {
     @Immutable
     public class Index(
@@ -54,7 +54,7 @@ public class Storyboard private constructor(
             title: String,
             description: String? = null,
             format: SceneFormat = SceneFormat.Default,
-            decorator: SceneDecorator = SceneDecorator.None,
+            decorator: Decorator = Decorator.None,
             block: StoryboardBuilder.() -> Unit,
         ): Storyboard {
             // TODO it's possible for someone to use`Storyboard.build` during composition

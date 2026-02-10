@@ -13,7 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyShortcut
 import androidx.compose.ui.window.MenuScope
-import dev.bnorm.storyboard.SceneDecorator
+import dev.bnorm.storyboard.Decorator
 import dev.bnorm.storyboard.easel.Easel
 import dev.bnorm.storyboard.easel.EaselWindow
 import dev.bnorm.storyboard.easel.SceneMode
@@ -35,7 +35,7 @@ fun rememberTeleprompter(easel: Easel): TeleprompterWindow {
 class TeleprompterWindow(
     val easel: Easel,
     val mode: SceneMode = SceneMode.Preview,
-    override val decorator: SceneDecorator = SceneDecorator.None,
+    override val decorator: Decorator = Decorator.None,
 ) : EaselWindow {
     override val name: String get() = "Teleprompter"
     override var visible by mutableStateOf(false)

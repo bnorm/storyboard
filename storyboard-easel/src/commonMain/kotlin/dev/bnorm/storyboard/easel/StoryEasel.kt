@@ -11,19 +11,17 @@ import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.*
-import dev.bnorm.storyboard.SceneDecorator
+import dev.bnorm.storyboard.Decorator
 import dev.bnorm.storyboard.easel.overview.OverviewCurrentItemKey
 import dev.bnorm.storyboard.easel.overview.StoryOverview
 import dev.bnorm.storyboard.easel.overview.StoryOverviewState
+import dev.bnorm.storyboard.plus
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
-@Composable
-fun StoryEasel(
+fun OverviewDecorator(
     easel: Easel,
-    decorator: SceneDecorator = SceneDecorator.None,
-    modifier: Modifier = Modifier,
-) {
+): Decorator = Decorator { content ->
     val coroutineScope = rememberCoroutineScope()
     var job by remember { mutableStateOf<Job?>(null) }
 
@@ -44,7 +42,7 @@ fun StoryEasel(
 
     Box(
         contentAlignment = Alignment.Center,
-        modifier = modifier
+        modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colors.background)
     ) {
@@ -70,9 +68,7 @@ fun StoryEasel(
                 } else {
                     holder.SaveableStateProvider(storyboard) {
                         Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
-                            Story(
-                                easel = easel,
-                                decorator = decorator,
+                            Box(
                                 modifier = Modifier
                                     .sharedElement(
                                         rememberSharedContentState(OverviewCurrentItemKey),
@@ -80,7 +76,9 @@ fun StoryEasel(
                                     )
                                     .onStoryNavigation(easel)
                                     .onKeyEvent { handleKeyEvent(it) }
-                            )
+                            ) {
+                                content()
+                            }
                         }
                     }
                 }
