@@ -1,16 +1,16 @@
 import androidx.compose.ui.window.application
 import dev.bnorm.storyboard.easel.DesktopEasel
 import dev.bnorm.storyboard.easel.assist.rememberAssistantWindow
-import dev.bnorm.storyboard.easel.rememberEasel
+import dev.bnorm.storyboard.easel.rememberAnimatic
 
 fun main() {
     application {
-        val easel = rememberEasel { createStoryboard() }
+        val animatic = rememberAnimatic { createStoryboard() }
         DesktopEasel(
-            easel,
+            animatic,
             windows = listOf(
-                rememberAssistantWindow(easel),
-                rememberTeleprompter(easel),
+                rememberAssistantWindow(animatic),
+                rememberTeleprompter(animatic),
             )
         )
     }

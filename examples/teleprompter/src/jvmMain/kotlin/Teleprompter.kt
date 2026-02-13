@@ -13,11 +13,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyShortcut
 import androidx.compose.ui.window.MenuScope
-import dev.bnorm.storyboard.SceneDecorator
-import dev.bnorm.storyboard.easel.Easel
+import dev.bnorm.storyboard.Decorator
+import dev.bnorm.storyboard.easel.Animatic
 import dev.bnorm.storyboard.easel.EaselWindow
 import dev.bnorm.storyboard.easel.SceneMode
-import dev.bnorm.storyboard.easel.Story
+import dev.bnorm.storyboard.easel.Easel
 import dev.bnorm.storyboard.easel.onStoryNavigation
 
 val isTeleprompter: Boolean
@@ -28,14 +28,14 @@ val isTeleprompter: Boolean
 private val LocalTeleprompter = compositionLocalOf { false }
 
 @Composable
-fun rememberTeleprompter(easel: Easel): TeleprompterWindow {
-    return remember(easel) { TeleprompterWindow(easel) }
+fun rememberTeleprompter(animatic: Animatic): TeleprompterWindow {
+    return remember(animatic) { TeleprompterWindow(animatic) }
 }
 
 class TeleprompterWindow(
-    val easel: Easel,
+    val animatic: Animatic,
     val mode: SceneMode = SceneMode.Preview,
-    override val decorator: SceneDecorator = SceneDecorator.None,
+    override val decorator: Decorator = Decorator.None,
 ) : EaselWindow {
     override val name: String get() = "Teleprompter"
     override var visible by mutableStateOf(false)
@@ -58,9 +58,9 @@ class TeleprompterWindow(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier
                     .fillMaxSize()
-                    .onStoryNavigation(easel)
+                    .onStoryNavigation(animatic)
             ) {
-                Story(easel, mode, decorator)
+                Easel(animatic, mode, decorator)
             }
         }
     }

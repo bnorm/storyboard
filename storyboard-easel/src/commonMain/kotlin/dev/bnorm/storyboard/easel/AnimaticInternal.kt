@@ -5,7 +5,6 @@ import androidx.compose.animation.core.Transition
 import androidx.compose.animation.core.createChildTransition
 import androidx.compose.animation.core.rememberTransition
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.snapshots.Snapshot
 import dev.bnorm.storyboard.AdvanceDirection
 import dev.bnorm.storyboard.Frame
@@ -15,7 +14,7 @@ import kotlin.math.abs
 import kotlin.properties.Delegates
 
 @Stable
-internal class StoryState(
+internal class AnimaticInternal(
     initialIndex: Storyboard.Index = Storyboard.Index(0, 0),
 ) : StoryController {
     private var _storyboard: Storyboard? by mutableStateOf(null)

@@ -15,19 +15,19 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.unit.dp
-import dev.bnorm.storyboard.easel.Easel
+import dev.bnorm.storyboard.easel.Animatic
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-internal fun StorySlider(easel: Easel, modifier: Modifier = Modifier) {
+internal fun StorySlider(animatic: Animatic, modifier: Modifier = Modifier) {
     val coroutineScope = rememberCoroutineScope()
     var job by remember { mutableStateOf<Job?>(null) }
 
-    val storyDistance = easel.storyDistance
-    val storyProgress = easel.storyProgress
+    val storyDistance = animatic.storyDistance
+    val storyProgress = animatic.storyProgress
     var sceneSlider by remember { mutableStateOf(false) }
     var range by remember { mutableStateOf(0f..1f) }
 
@@ -77,7 +77,7 @@ internal fun StorySlider(easel: Easel, modifier: Modifier = Modifier) {
                     onValueChange = {
                         job?.cancel()
                         job = coroutineScope.launch {
-                            easel.state.seek(it / storyDistance)
+                            animatic.state.seek(it / storyDistance)
                             job = null
                         }
                     },

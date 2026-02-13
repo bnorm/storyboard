@@ -1,10 +1,12 @@
 package dev.bnorm.storyboard.easel
 
 import androidx.compose.runtime.Composable
-import dev.bnorm.storyboard.SceneDecorator
+import dev.bnorm.storyboard.Decorator
 import dev.bnorm.storyboard.Storyboard
 import dev.bnorm.storyboard.easel.overlay.OverlayNavigation
 import dev.bnorm.storyboard.easel.overlay.StoryOverlayDecorator
+import dev.bnorm.storyboard.easel.overview.StoryOverviewDecorator
+import dev.bnorm.storyboard.plus
 import kotlinx.browser.window
 
 @Composable
@@ -15,11 +17,11 @@ fun WebEasel(storyboard: () -> Storyboard) {
 
 @Composable
 fun WebEasel(
-    easel: Easel,
-    decorator: SceneDecorator = StoryOverlayDecorator { OverlayNavigation(easel) },
+    animatic: Animatic,
+    decorator: Decorator = StoryOverviewDecorator(animatic) + StoryOverlayDecorator { OverlayNavigation(animatic) },
 ) {
-    StoryEasel(
-        easel = easel,
+    Easel(
+        animatic = animatic,
         decorator = decorator,
     )
 }

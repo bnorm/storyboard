@@ -13,7 +13,7 @@ import org.w3c.dom.url.URLSearchParams
 fun rememberEasel(
     window: Window,
     storyboard: () -> Storyboard,
-): Easel {
+): Animatic {
     val storyboard = remember(storyboard) { storyboard() }
     val state = remember(window) {
         val params = URLSearchParams(window.location.search.toJsString())
@@ -28,26 +28,26 @@ fun rememberEasel(
             Storyboard.Index(0, 0)
         }
 
-        StoryState(initialIndex)
+        AnimaticInternal(initialIndex)
     }
     remember(storyboard) { storyboard().also { state.updateStoryboard(it) } }
     val transition = state.rememberTransition()
-    val easel = remember(state, transition) { Easel(state, transition) }
+    val animatic = remember(state, transition) { Animatic(state, transition) }
 
-    LaunchedWindowHistoryUpdate(easel, window)
-    return easel
+    LaunchedWindowHistoryUpdate(animatic, window)
+    return animatic
 }
 
 @OptIn(ExperimentalWasmJsInterop::class)
 @Composable
-private fun LaunchedWindowHistoryUpdate(easel: Easel, window: Window) {
-    val index = easel.currentIndex
+private fun LaunchedWindowHistoryUpdate(animatic: Animatic, window: Window) {
+    val index = animatic.currentIndex
     // TODO LaunchedEffect?
     //  - maybe remember/SideEffect would be better since this more of a side effect?
     LaunchedEffect(window, index) {
         val url = URL(window.location.toString())
 
-        val index = easel.storyboard.indices.binarySearch(index)
+        val index = animatic.storyboard.indices.binarySearch(index)
         if (index >= 0) {
             url.searchParams.set("frame", index.toString())
         }

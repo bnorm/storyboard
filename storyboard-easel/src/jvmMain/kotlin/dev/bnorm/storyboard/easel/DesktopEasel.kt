@@ -1,13 +1,9 @@
 package dev.bnorm.storyboard.easel
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.*
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.awt.ComposeWindow
 import androidx.compose.ui.window.*
-import dev.bnorm.storyboard.SceneDecorator
+import dev.bnorm.storyboard.Decorator
 import dev.bnorm.storyboard.Storyboard
 import dev.bnorm.storyboard.easel.assist.rememberAssistantWindow
 import dev.bnorm.storyboard.easel.export.ExportMenu
@@ -16,25 +12,25 @@ import dev.bnorm.storyboard.easel.export.StoryboardPdfExporter
 import dev.bnorm.storyboard.easel.overlay.OverlayNavigation
 import dev.bnorm.storyboard.easel.overlay.StoryOverlayDecorator
 import dev.bnorm.storyboard.easel.overlay.StoryOverlayScope
+import dev.bnorm.storyboard.easel.overview.StoryOverviewDecorator
 import dev.bnorm.storyboard.plus
 
 @Composable
 fun ApplicationScope.DesktopEasel(
     storyboard: () -> Storyboard
 ) {
-    val easel = rememberEasel(storyboard)
-    DesktopEasel(easel)
+    DesktopEasel(rememberAnimatic(storyboard))
 }
 
 @Composable
 fun ApplicationScope.DesktopEasel(
-    easel: Easel,
+    animatic: Animatic,
     overlay: @Composable StoryOverlayScope.() -> Unit = {
-        OverlayNavigation(easel)
+        OverlayNavigation(animatic)
     },
-    windows: List<EaselWindow> = listOf(rememberAssistantWindow(easel)),
+    windows: List<EaselWindow> = listOf(rememberAssistantWindow(animatic)),
 ) {
-    val exporter = remember(easel.storyboard) { StoryboardPdfExporter() }
+    val exporter = remember(animatic.storyboard) { StoryboardPdfExporter() }
 
     val storyWindowState = rememberWindowState(fileName = "Story")
     var storyWindow by remember { mutableStateOf<ComposeWindow?>(null) }
@@ -42,8 +38,8 @@ fun ApplicationScope.DesktopEasel(
     @Composable
     fun FrameWindowScope.Toolbar() {
         MenuBar {
-            DesktopMenu(easel.storyboard, storyWindowState, storyWindow)
-            ExportMenu(exporter, easel.storyboard)
+            DesktopMenu(animatic.storyboard, storyWindowState, storyWindow)
+            ExportMenu(exporter, animatic.storyboard)
             for (sidecar in windows) {
                 key(sidecar.name) {
                     Menu(sidecar.name) {
@@ -64,24 +60,24 @@ fun ApplicationScope.DesktopEasel(
     Window(
         onCloseRequest = ::exitApplication,
         state = storyWindowState,
-        title = "${easel.storyboard.title} - Story",
+        title = "${animatic.storyboard.title} - Story",
     ) {
         storyWindow = window
 
         Toolbar()
 
         val decorator = remember(windows) {
-            windows.fold(SceneDecorator.None) { acc, sidecar -> acc + sidecar.decorator }
-        }
-
-        StoryEasel(
-            easel = easel,
-            decorator = decorator + StoryOverlayDecorator {
+            windows.fold(Decorator.None) { acc, sidecar -> acc + sidecar.decorator } + StoryOverlayDecorator {
                 // Only display overlay navigation when *not* fullscreen.
                 if (storyWindowState.placement != WindowPlacement.Fullscreen) {
                     overlay()
                 }
-            },
+            }
+        }
+
+        Easel(
+            animatic = animatic,
+            decorator = StoryOverviewDecorator(animatic = animatic) + decorator,
         )
 
         exporter.status?.let { ExportProgressPopup(it) }
@@ -92,7 +88,7 @@ fun ApplicationScope.DesktopEasel(
             val state = rememberWindowState(fileName = sidecar.name)
             if (state != null && sidecar.visible) {
                 Window(
-                    title = "${easel.storyboard.title} - ${sidecar.name}",
+                    title = "${animatic.storyboard.title} - ${sidecar.name}",
                     state = state,
                     onCloseRequest = { sidecar.visible = false },
                 ) {

@@ -6,20 +6,20 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyShortcut
 import androidx.compose.ui.window.MenuScope
-import dev.bnorm.storyboard.SceneDecorator
-import dev.bnorm.storyboard.easel.Easel
+import dev.bnorm.storyboard.Decorator
+import dev.bnorm.storyboard.easel.Animatic
 import dev.bnorm.storyboard.easel.EaselWindow
 
 @Composable
-fun rememberAssistantWindow(easel: Easel, captions: List<Caption> = emptyList()): AssistantWindow {
-    return remember(easel, captions) { AssistantWindow(easel, captions) }
+fun rememberAssistantWindow(animatic: Animatic, captions: List<Caption> = emptyList()): AssistantWindow {
+    return remember(animatic, captions) { AssistantWindow(animatic, captions) }
 }
 
 class AssistantWindow(
-    val easel: Easel,
+    val animatic: Animatic,
     captions: List<Caption> = emptyList(),
 ) : EaselWindow {
-    private val assistantState = StoryAssistantState(easel, captions)
+    private val assistantState = StoryAssistantState(animatic, captions)
 
     override val name: String
         get() = "Assistant"
@@ -30,7 +30,7 @@ class AssistantWindow(
             assistantState.visible = value
         }
 
-    override val decorator = SceneDecorator { content ->
+    override val decorator = Decorator { content ->
         CompositionLocalProvider(
             value = LocalCaptions provides assistantState.captions,
             content = content

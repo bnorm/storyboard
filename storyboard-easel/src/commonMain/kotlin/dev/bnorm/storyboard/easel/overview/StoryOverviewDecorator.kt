@@ -1,4 +1,4 @@
-package dev.bnorm.storyboard.easel
+package dev.bnorm.storyboard.easel.overview
 
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
@@ -11,31 +11,27 @@ import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.*
-import dev.bnorm.storyboard.SceneDecorator
-import dev.bnorm.storyboard.easel.overview.OverviewCurrentItemKey
-import dev.bnorm.storyboard.easel.overview.StoryOverview
-import dev.bnorm.storyboard.easel.overview.StoryOverviewState
+import dev.bnorm.storyboard.Decorator
+import dev.bnorm.storyboard.easel.Animatic
+import dev.bnorm.storyboard.easel.onStoryNavigation
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
-@Composable
-fun StoryEasel(
-    easel: Easel,
-    decorator: SceneDecorator = SceneDecorator.None,
-    modifier: Modifier = Modifier,
-) {
+fun StoryOverviewDecorator(
+    animatic: Animatic,
+): Decorator = Decorator { content ->
     val coroutineScope = rememberCoroutineScope()
     var job by remember { mutableStateOf<Job?>(null) }
 
     val holder = rememberSaveableStateHolder()
 
-    val storyboard = easel.storyboard
+    val storyboard = animatic.storyboard
     val storyOverviewState = remember(storyboard) { StoryOverviewState.of(storyboard) }
     var overviewVisible by remember { mutableStateOf(false) } // TODO support initial visibility?
 
     fun handleKeyEvent(event: KeyEvent): Boolean {
         if (event.type == KeyEventType.KeyUp && event.key == Key.Escape) {
-            storyOverviewState.jumpToIndex(easel.currentIndex)
+            storyOverviewState.jumpToIndex(animatic.currentIndex)
             overviewVisible = true
             return true
         }
@@ -44,7 +40,7 @@ fun StoryEasel(
 
     Box(
         contentAlignment = Alignment.Center,
-        modifier = modifier
+        modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colors.background)
     ) {
@@ -55,12 +51,12 @@ fun StoryEasel(
             ) { isOverview ->
                 if (isOverview) {
                     StoryOverview(
-                        storyController = easel,
+                        storyController = animatic,
                         storyOverviewState = storyOverviewState,
                         onExitOverview = {
                             job?.cancel()
                             job = coroutineScope.launch {
-                                easel.jumpTo(it)
+                                animatic.jumpTo(it)
                                 job = null
                                 overviewVisible = false
                             }
@@ -70,17 +66,17 @@ fun StoryEasel(
                 } else {
                     holder.SaveableStateProvider(storyboard) {
                         Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
-                            Story(
-                                easel = easel,
-                                decorator = decorator,
+                            Box(
                                 modifier = Modifier
                                     .sharedElement(
                                         rememberSharedContentState(OverviewCurrentItemKey),
                                         animatedVisibilityScope = this@AnimatedContent
                                     )
-                                    .onStoryNavigation(easel)
+                                    .onStoryNavigation(animatic)
                                     .onKeyEvent { handleKeyEvent(it) }
-                            )
+                            ) {
+                                content()
+                            }
                         }
                     }
                 }
