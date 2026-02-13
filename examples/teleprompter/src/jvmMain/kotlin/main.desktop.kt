@@ -5,12 +5,12 @@ import dev.bnorm.storyboard.easel.rememberAnimatic
 
 fun main() {
     application {
-        val easel = rememberAnimatic { createStoryboard() }
+        val animatic = rememberAnimatic { createStoryboard() }
         DesktopEasel(
-            easel,
+            animatic,
             windows = listOf(
-                rememberAssistantWindow(easel),
-                rememberTeleprompter(easel),
+                rememberAssistantWindow(animatic),
+                rememberTeleprompter(animatic),
             )
         )
     }

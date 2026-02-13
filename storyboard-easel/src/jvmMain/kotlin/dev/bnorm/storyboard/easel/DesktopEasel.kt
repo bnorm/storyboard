@@ -12,14 +12,14 @@ import dev.bnorm.storyboard.easel.export.StoryboardPdfExporter
 import dev.bnorm.storyboard.easel.overlay.OverlayNavigation
 import dev.bnorm.storyboard.easel.overlay.StoryOverlayDecorator
 import dev.bnorm.storyboard.easel.overlay.StoryOverlayScope
+import dev.bnorm.storyboard.easel.overview.StoryOverviewDecorator
 import dev.bnorm.storyboard.plus
 
 @Composable
 fun ApplicationScope.DesktopEasel(
     storyboard: () -> Storyboard
 ) {
-    val easel = rememberAnimatic(storyboard)
-    DesktopEasel(easel)
+    DesktopEasel(rememberAnimatic(storyboard))
 }
 
 @Composable
@@ -75,9 +75,9 @@ fun ApplicationScope.DesktopEasel(
             }
         }
 
-        Story(
+        Easel(
             animatic = animatic,
-            decorator = OverviewDecorator(animatic = animatic) + decorator,
+            decorator = StoryOverviewDecorator(animatic = animatic) + decorator,
         )
 
         exporter.status?.let { ExportProgressPopup(it) }

@@ -1,4 +1,4 @@
-package dev.bnorm.storyboard.easel
+package dev.bnorm.storyboard.easel.overview
 
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
@@ -12,13 +12,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.*
 import dev.bnorm.storyboard.Decorator
-import dev.bnorm.storyboard.easel.overview.OverviewCurrentItemKey
-import dev.bnorm.storyboard.easel.overview.StoryOverview
-import dev.bnorm.storyboard.easel.overview.StoryOverviewState
+import dev.bnorm.storyboard.easel.Animatic
+import dev.bnorm.storyboard.easel.onStoryNavigation
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
-fun OverviewDecorator(
+fun StoryOverviewDecorator(
     animatic: Animatic,
 ): Decorator = Decorator { content ->
     val coroutineScope = rememberCoroutineScope()

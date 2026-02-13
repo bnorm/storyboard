@@ -16,13 +16,13 @@ import dev.bnorm.storyboard.easel.internal.FixedSize
 import kotlinx.collections.immutable.ImmutableList
 
 @Composable
-fun Story(
+fun Easel(
     animatic: Animatic,
     mode: SceneMode = SceneMode.Story,
     decorator: Decorator = Decorator.None,
     modifier: Modifier = Modifier,
 ) {
-    Story(
+    Easel(
         storyboard = animatic.storyboard,
         transition = animatic.transition,
         mode = mode,
@@ -32,15 +32,15 @@ fun Story(
 }
 
 @Composable
-fun Story(
+fun Easel(
     storyboard: Storyboard,
     transition: Transition<SceneFrame<*>>,
     mode: SceneMode = SceneMode.Story,
     decorator: Decorator = Decorator.None,
     modifier: Modifier = Modifier,
 ) {
-    val holder = rememberSaveableStateHolder()
     decorator.decorate {
+        val holder = rememberSaveableStateHolder()
         SceneWrapper(storyboard, mode, modifier) {
             SharedTransitionLayout {
                 val sceneTransition = transition.createChildTransition { it.scene }

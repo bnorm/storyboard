@@ -11,7 +11,7 @@ import androidx.compose.material.darkColors
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import dev.bnorm.storyboard.StoryboardBuilder
-import dev.bnorm.storyboard.easel.Story
+import dev.bnorm.storyboard.easel.Easel
 import dev.bnorm.storyboard.easel.overlay.OverlayNavigation
 import dev.bnorm.storyboard.easel.overlay.StoryOverlayDecorator
 import dev.bnorm.storyboard.easel.rememberAnimatic
@@ -32,7 +32,7 @@ fun StoryboardBuilder.AppScene() {
                     Modifier.padding(vertical = 16.dp, horizontal = 16.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp),
                 ) {
-                    val easel = rememberAnimatic { createStoryboard() }
+                    val animatic = rememberAnimatic { createStoryboard() }
 
                     RevealEach(transition.createChildTransition { it.toState() }) {
                         item { Text("• Storyboard is ultimately just a Compose application.") }
@@ -40,10 +40,10 @@ fun StoryboardBuilder.AppScene() {
                         item { Text("• You could even embed a Storyboard, in a Storyboard!") }
                         item {
                             MaterialTheme(colors = darkColors()) {
-                                Story(
-                                    easel,
-                                    decorator = StoryOverlayDecorator(overlay = { OverlayNavigation(easel) }),
-                                    modifier = Modifier.requiredSize(easel.storyboard.format.toDpSize() / 3)
+                                Easel(
+                                    animatic,
+                                    decorator = StoryOverlayDecorator(overlay = { OverlayNavigation(animatic) }),
+                                    modifier = Modifier.requiredSize(animatic.storyboard.format.toDpSize() / 3)
                                 )
                             }
                         }

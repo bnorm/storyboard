@@ -5,6 +5,7 @@ import dev.bnorm.storyboard.Decorator
 import dev.bnorm.storyboard.Storyboard
 import dev.bnorm.storyboard.easel.overlay.OverlayNavigation
 import dev.bnorm.storyboard.easel.overlay.StoryOverlayDecorator
+import dev.bnorm.storyboard.easel.overview.StoryOverviewDecorator
 import dev.bnorm.storyboard.plus
 import kotlinx.browser.window
 
@@ -17,9 +18,9 @@ fun WebEasel(storyboard: () -> Storyboard) {
 @Composable
 fun WebEasel(
     animatic: Animatic,
-    decorator: Decorator = OverviewDecorator(animatic) + StoryOverlayDecorator { OverlayNavigation(animatic) },
+    decorator: Decorator = StoryOverviewDecorator(animatic) + StoryOverlayDecorator { OverlayNavigation(animatic) },
 ) {
-    Story(
+    Easel(
         animatic = animatic,
         decorator = decorator,
     )

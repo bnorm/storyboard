@@ -17,7 +17,7 @@ import dev.bnorm.storyboard.Decorator
 import dev.bnorm.storyboard.easel.Animatic
 import dev.bnorm.storyboard.easel.EaselWindow
 import dev.bnorm.storyboard.easel.SceneMode
-import dev.bnorm.storyboard.easel.Story
+import dev.bnorm.storyboard.easel.Easel
 import dev.bnorm.storyboard.easel.onStoryNavigation
 
 val isTeleprompter: Boolean
@@ -60,7 +60,7 @@ class TeleprompterWindow(
                     .fillMaxSize()
                     .onStoryNavigation(animatic)
             ) {
-                Story(animatic, mode, decorator)
+                Easel(animatic, mode, decorator)
             }
         }
     }
