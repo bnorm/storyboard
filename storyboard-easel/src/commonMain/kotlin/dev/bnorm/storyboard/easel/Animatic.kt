@@ -6,17 +6,18 @@ import androidx.compose.runtime.remember
 import dev.bnorm.storyboard.Storyboard
 
 @Composable
-fun rememberEasel(
+fun rememberAnimatic(
     storyboard: () -> Storyboard,
-): Easel {
-    val state = remember { StoryState() }
+): Animatic {
+    val state = remember { AnimaticInternal() }
     // TODO this all seems ugly...
     remember(storyboard) { storyboard().also { state.updateStoryboard(it) } }
     val transition = state.rememberTransition()
-    return remember(state, transition) { Easel(state, transition) }
+    return remember(state, transition) { Animatic(state, transition) }
 }
 
-class Easel internal constructor(
-    internal val state: StoryState,
+// TODO redo architecture of Animatic, AnimaticInternal, and StoryController
+class Animatic internal constructor(
+    internal val state: AnimaticInternal,
     val transition: Transition<SceneFrame<*>>,
 ) : StoryController by state

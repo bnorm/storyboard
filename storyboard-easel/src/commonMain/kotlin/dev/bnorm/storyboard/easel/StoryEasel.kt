@@ -15,25 +15,24 @@ import dev.bnorm.storyboard.Decorator
 import dev.bnorm.storyboard.easel.overview.OverviewCurrentItemKey
 import dev.bnorm.storyboard.easel.overview.StoryOverview
 import dev.bnorm.storyboard.easel.overview.StoryOverviewState
-import dev.bnorm.storyboard.plus
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 fun OverviewDecorator(
-    easel: Easel,
+    animatic: Animatic,
 ): Decorator = Decorator { content ->
     val coroutineScope = rememberCoroutineScope()
     var job by remember { mutableStateOf<Job?>(null) }
 
     val holder = rememberSaveableStateHolder()
 
-    val storyboard = easel.storyboard
+    val storyboard = animatic.storyboard
     val storyOverviewState = remember(storyboard) { StoryOverviewState.of(storyboard) }
     var overviewVisible by remember { mutableStateOf(false) } // TODO support initial visibility?
 
     fun handleKeyEvent(event: KeyEvent): Boolean {
         if (event.type == KeyEventType.KeyUp && event.key == Key.Escape) {
-            storyOverviewState.jumpToIndex(easel.currentIndex)
+            storyOverviewState.jumpToIndex(animatic.currentIndex)
             overviewVisible = true
             return true
         }
@@ -53,12 +52,12 @@ fun OverviewDecorator(
             ) { isOverview ->
                 if (isOverview) {
                     StoryOverview(
-                        storyController = easel,
+                        storyController = animatic,
                         storyOverviewState = storyOverviewState,
                         onExitOverview = {
                             job?.cancel()
                             job = coroutineScope.launch {
-                                easel.jumpTo(it)
+                                animatic.jumpTo(it)
                                 job = null
                                 overviewVisible = false
                             }
@@ -74,7 +73,7 @@ fun OverviewDecorator(
                                         rememberSharedContentState(OverviewCurrentItemKey),
                                         animatedVisibilityScope = this@AnimatedContent
                                     )
-                                    .onStoryNavigation(easel)
+                                    .onStoryNavigation(animatic)
                                     .onKeyEvent { handleKeyEvent(it) }
                             ) {
                                 content()

@@ -16,11 +16,11 @@ fun WebEasel(storyboard: () -> Storyboard) {
 
 @Composable
 fun WebEasel(
-    easel: Easel,
-    decorator: Decorator = OverviewDecorator(easel) + StoryOverlayDecorator { OverlayNavigation(easel) },
+    animatic: Animatic,
+    decorator: Decorator = OverviewDecorator(animatic) + StoryOverlayDecorator { OverlayNavigation(animatic) },
 ) {
     Story(
-        easel = easel,
+        animatic = animatic,
         decorator = decorator,
     )
 }

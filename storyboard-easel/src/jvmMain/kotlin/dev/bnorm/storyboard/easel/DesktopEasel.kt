@@ -18,19 +18,19 @@ import dev.bnorm.storyboard.plus
 fun ApplicationScope.DesktopEasel(
     storyboard: () -> Storyboard
 ) {
-    val easel = rememberEasel(storyboard)
+    val easel = rememberAnimatic(storyboard)
     DesktopEasel(easel)
 }
 
 @Composable
 fun ApplicationScope.DesktopEasel(
-    easel: Easel,
+    animatic: Animatic,
     overlay: @Composable StoryOverlayScope.() -> Unit = {
-        OverlayNavigation(easel)
+        OverlayNavigation(animatic)
     },
-    windows: List<EaselWindow> = listOf(rememberAssistantWindow(easel)),
+    windows: List<EaselWindow> = listOf(rememberAssistantWindow(animatic)),
 ) {
-    val exporter = remember(easel.storyboard) { StoryboardPdfExporter() }
+    val exporter = remember(animatic.storyboard) { StoryboardPdfExporter() }
 
     val storyWindowState = rememberWindowState(fileName = "Story")
     var storyWindow by remember { mutableStateOf<ComposeWindow?>(null) }
@@ -38,8 +38,8 @@ fun ApplicationScope.DesktopEasel(
     @Composable
     fun FrameWindowScope.Toolbar() {
         MenuBar {
-            DesktopMenu(easel.storyboard, storyWindowState, storyWindow)
-            ExportMenu(exporter, easel.storyboard)
+            DesktopMenu(animatic.storyboard, storyWindowState, storyWindow)
+            ExportMenu(exporter, animatic.storyboard)
             for (sidecar in windows) {
                 key(sidecar.name) {
                     Menu(sidecar.name) {
@@ -60,7 +60,7 @@ fun ApplicationScope.DesktopEasel(
     Window(
         onCloseRequest = ::exitApplication,
         state = storyWindowState,
-        title = "${easel.storyboard.title} - Story",
+        title = "${animatic.storyboard.title} - Story",
     ) {
         storyWindow = window
 
@@ -76,8 +76,8 @@ fun ApplicationScope.DesktopEasel(
         }
 
         Story(
-            easel = easel,
-            decorator = OverviewDecorator(easel = easel) + decorator,
+            animatic = animatic,
+            decorator = OverviewDecorator(animatic = animatic) + decorator,
         )
 
         exporter.status?.let { ExportProgressPopup(it) }
@@ -88,7 +88,7 @@ fun ApplicationScope.DesktopEasel(
             val state = rememberWindowState(fileName = sidecar.name)
             if (state != null && sidecar.visible) {
                 Window(
-                    title = "${easel.storyboard.title} - ${sidecar.name}",
+                    title = "${animatic.storyboard.title} - ${sidecar.name}",
                     state = state,
                     onCloseRequest = { sidecar.visible = false },
                 ) {

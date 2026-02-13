@@ -23,7 +23,6 @@ import androidx.compose.ui.unit.dp
 import dev.bnorm.storyboard.Storyboard
 import dev.bnorm.storyboard.easel.ScenePreview
 import dev.bnorm.storyboard.easel.StoryController
-import dev.bnorm.storyboard.easel.internal.requestFocus
 import dev.bnorm.storyboard.easel.onStoryNavigation
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -33,7 +32,7 @@ fun StoryAssistant(
     assistantState: StoryAssistantState,
     modifier: Modifier = Modifier,
 ) {
-    val easel = assistantState.easel
+    val easel = assistantState.animatic
     val captions = assistantState.captions
 
     // Box with constraints?

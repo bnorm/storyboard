@@ -13,20 +13,20 @@ import androidx.compose.ui.text.TextStyle
 import dev.bnorm.storyboard.easel.LocalSceneMode
 import dev.bnorm.storyboard.Decorator
 import dev.bnorm.storyboard.easel.SceneMode
-import dev.bnorm.storyboard.easel.Easel
+import dev.bnorm.storyboard.easel.Animatic
 
-fun SceneIndexDecorator(easel: Easel): Decorator = Decorator { content ->
+fun SceneIndexDecorator(animatic: Animatic): Decorator = Decorator { content ->
     content()
 
     Box(contentAlignment = Alignment.BottomStart, modifier = Modifier.fillMaxSize()) {
         Surface(modifier = Modifier.alpha(0.5f)) {
-            SceneIndex(easel, MaterialTheme.typography.caption)
+            SceneIndex(animatic, MaterialTheme.typography.caption)
         }
     }
 }
 
 @Composable
-private fun SceneIndex(easel: Easel, style: TextStyle) {
+private fun SceneIndex(animatic: Animatic, style: TextStyle) {
     if (LocalSceneMode.current == SceneMode.Preview) return
-    Text(text = easel.currentIndex.toString(), style = style)
+    Text(text = animatic.currentIndex.toString(), style = style)
 }

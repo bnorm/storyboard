@@ -14,7 +14,7 @@ import kotlin.math.abs
 import kotlin.properties.Delegates
 
 @Stable
-internal class StoryState(
+internal class AnimaticInternal(
     initialIndex: Storyboard.Index = Storyboard.Index(0, 0),
 ) : StoryController {
     private var _storyboard: Storyboard? by mutableStateOf(null)

@@ -5,11 +5,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
-import dev.bnorm.storyboard.easel.Easel
+import dev.bnorm.storyboard.easel.Animatic
 
 @Stable
 class StoryAssistantState(
-    internal val easel: Easel,
+    internal val animatic: Animatic,
     captions: List<Caption> = emptyList(),
 ) {
     internal var visible by mutableStateOf(false)

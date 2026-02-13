@@ -14,7 +14,7 @@ import dev.bnorm.storyboard.StoryboardBuilder
 import dev.bnorm.storyboard.easel.Story
 import dev.bnorm.storyboard.easel.overlay.OverlayNavigation
 import dev.bnorm.storyboard.easel.overlay.StoryOverlayDecorator
-import dev.bnorm.storyboard.easel.rememberEasel
+import dev.bnorm.storyboard.easel.rememberAnimatic
 import dev.bnorm.storyboard.easel.template.Body
 import dev.bnorm.storyboard.easel.template.Header
 import dev.bnorm.storyboard.easel.template.RevealEach
@@ -32,7 +32,7 @@ fun StoryboardBuilder.AppScene() {
                     Modifier.padding(vertical = 16.dp, horizontal = 16.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp),
                 ) {
-                    val easel = rememberEasel { createStoryboard() }
+                    val easel = rememberAnimatic { createStoryboard() }
 
                     RevealEach(transition.createChildTransition { it.toState() }) {
                         item { Text("• Storyboard is ultimately just a Compose application.") }

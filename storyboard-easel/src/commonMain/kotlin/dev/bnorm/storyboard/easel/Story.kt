@@ -17,14 +17,14 @@ import kotlinx.collections.immutable.ImmutableList
 
 @Composable
 fun Story(
-    easel: Easel,
+    animatic: Animatic,
     mode: SceneMode = SceneMode.Story,
     decorator: Decorator = Decorator.None,
     modifier: Modifier = Modifier,
 ) {
     Story(
-        storyboard = easel.storyboard,
-        transition = easel.transition,
+        storyboard = animatic.storyboard,
+        transition = animatic.transition,
         mode = mode,
         decorator = decorator,
         modifier = modifier
