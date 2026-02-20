@@ -21,18 +21,9 @@ import kotlinx.coroutines.launch
 import kotlin.time.TimeMark
 import kotlin.time.TimeSource
 
-fun StoryOverlayDecorator(
-    overlay: @Composable StoryOverlayScope.() -> Unit,
-): Decorator = Decorator { content ->
-    StoryOverlay(
-        overlay = overlay,
-        content = content,
-    )
-}
-
 @Composable
-private fun StoryOverlay(
-    overlay: @Composable StoryOverlayScope.() -> Unit,
+fun EaselOverlay(
+    overlay: @Composable EaselOverlayScope.() -> Unit,
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit,
 ) {
@@ -48,8 +39,8 @@ private fun StoryOverlay(
             ) {
                 val alpha by animateFloatAsState(if (state.inside) 0.75f else 0.25f)
                 Box(Modifier.fillMaxSize().alpha(alpha)) {
-                    val scope = remember(key1 = state, key2 = this) {
-                        BoxStoryOverlayScope(
+                    val scope = remember(state, this) {
+                        BoxEaselOverlayScope(
                             state = state,
                             boxScope = this
                         )
@@ -98,10 +89,10 @@ private class OverlayState(scope: CoroutineScope) {
     }
 }
 
-private class BoxStoryOverlayScope(
+private class BoxEaselOverlayScope(
     private val state: OverlayState,
     private val boxScope: BoxScope,
-) : StoryOverlayScope, BoxScope by boxScope {
+) : EaselOverlayScope, BoxScope by boxScope {
     override fun Modifier.overlayElement(): Modifier {
         return onPointerEnterExit(state)
     }

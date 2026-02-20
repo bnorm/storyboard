@@ -12,8 +12,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import dev.bnorm.storyboard.StoryboardBuilder
 import dev.bnorm.storyboard.easel.Easel
+import dev.bnorm.storyboard.easel.overlay.EaselOverlay
 import dev.bnorm.storyboard.easel.overlay.OverlayNavigation
-import dev.bnorm.storyboard.easel.overlay.StoryOverlayDecorator
 import dev.bnorm.storyboard.easel.rememberAnimatic
 import dev.bnorm.storyboard.easel.template.Body
 import dev.bnorm.storyboard.easel.template.Header
@@ -40,11 +40,12 @@ fun StoryboardBuilder.AppScene() {
                         item { Text("• You could even embed a Storyboard, in a Storyboard!") }
                         item {
                             MaterialTheme(colors = darkColors()) {
-                                Easel(
-                                    animatic,
-                                    decorator = StoryOverlayDecorator(overlay = { OverlayNavigation(animatic) }),
-                                    modifier = Modifier.requiredSize(animatic.storyboard.format.toDpSize() / 3)
-                                )
+                                EaselOverlay(overlay = { OverlayNavigation(animatic) }) {
+                                    Easel(
+                                        animatic,
+                                        modifier = Modifier.requiredSize(animatic.storyboard.format.toDpSize() / 3)
+                                    )
+                                }
                             }
                         }
                     }

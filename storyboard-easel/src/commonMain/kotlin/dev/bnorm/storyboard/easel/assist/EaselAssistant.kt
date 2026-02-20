@@ -17,86 +17,41 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
-import androidx.compose.ui.layout.Layout
-import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
 import dev.bnorm.storyboard.Storyboard
 import dev.bnorm.storyboard.easel.ScenePreview
 import dev.bnorm.storyboard.easel.StoryController
+import dev.bnorm.storyboard.easel.internal.QuarteredBox
 import dev.bnorm.storyboard.easel.onStoryNavigation
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 @Composable
-fun StoryAssistant(
-    assistantState: StoryAssistantState,
+fun EaselAssistant(
+    assistantState: EaselAssistantState,
     modifier: Modifier = Modifier,
 ) {
-    val easel = assistantState.animatic
+    val animatic = assistantState.animatic
     val captions = assistantState.captions
 
-    // Box with constraints?
     Surface(
         modifier = modifier
             .fillMaxSize()
-            .onStoryNavigation(easel)
+            .onStoryNavigation(animatic)
     ) {
         Column(Modifier.padding(16.dp)) {
             Row(horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth()) {
-                StoryTimer()
+                EaselTimer()
             }
-            StorySlider(easel)
+            EaselSlider(animatic)
 
-            Layout(
-                content = {
-                    CurrentFramePreview(easel)
-                    NextFramePreview(easel)
-                    // TODO previous frame?
-                    // TODO highlight frame which is being advanced to?
-                    Captions(captions)
-                }
-            ) { measurables, constraints ->
-                val currentMeasurable = measurables[0]
-                val nextMeasurable = measurables[1]
-
-                val spacing = 16.dp.roundToPx()
-                val quarterBoxHeight = constraints.maxHeight / 2 - spacing
-                val quarterBoxWidth = constraints.maxWidth / 2 - spacing
-                val quarterBoxConstraints = Constraints(
-                    minWidth = 0, maxWidth = quarterBoxWidth,
-                    minHeight = 0, maxHeight = quarterBoxHeight,
-                )
-
-                val currentPlaceable = currentMeasurable.measure(quarterBoxConstraints)
-                val nextPlaceable = nextMeasurable.measure(quarterBoxConstraints)
-
-                val vertical = currentPlaceable.height < quarterBoxConstraints.maxHeight
-                val captionsConstraints = when {
-                    vertical -> Constraints.fixed(
-                        width = constraints.maxWidth,
-                        height = constraints.maxHeight - spacing - currentPlaceable.height,
-                    )
-
-                    else -> Constraints.fixed(
-                        width = constraints.maxWidth - spacing - currentPlaceable.width,
-                        height = constraints.maxHeight,
-                    )
-                }
-
-                val captionsMeasurable = measurables[2]
-                val captionsPlaceable = captionsMeasurable.measure(captionsConstraints)
-
-                layout(constraints.maxWidth, constraints.maxHeight) {
-                    currentPlaceable.placeRelative(0, 0)
-                    if (vertical) {
-                        nextPlaceable.placeRelative(currentPlaceable.width + spacing, 0)
-                        captionsPlaceable.placeRelative(0, currentPlaceable.height + spacing)
-                    } else {
-                        nextPlaceable.placeRelative(0, currentPlaceable.height + spacing)
-                        captionsPlaceable.placeRelative(currentPlaceable.width + spacing, 0)
-                    }
-                }
-            }
+            QuarteredBox(
+                // TODO highlight frame which is being advanced to?
+                quarter1 = { CurrentFramePreview(animatic, modifier = Modifier.padding(8.dp)) },
+                quarter2 = { NextFramePreview(animatic, modifier = Modifier.padding(8.dp)) },
+                remaining = { Captions(captions, modifier = Modifier.padding(8.dp)) },
+                modifier = modifier,
+            )
         }
     }
 }
@@ -105,7 +60,7 @@ fun StoryAssistant(
 private fun CurrentFramePreview(storyController: StoryController, modifier: Modifier = Modifier) {
     Column(modifier = modifier, horizontalAlignment = Alignment.CenterHorizontally) {
         // TODO should "current" actually be target index?
-        Text("Current Frame", style = MaterialTheme.typography.h4)
+        Text("Current Frame", style = MaterialTheme.typography.h5)
         Spacer(Modifier.size(8.dp))
         Box {
             ClickableScenePreview(
@@ -127,7 +82,7 @@ private fun NextFramePreview(storyController: StoryController, modifier: Modifie
     var job by remember { mutableStateOf<Job?>(null) }
 
     Column(modifier = modifier, horizontalAlignment = Alignment.CenterHorizontally) {
-        Text("Next Frame", style = MaterialTheme.typography.h4)
+        Text("Next Frame", style = MaterialTheme.typography.h5)
         Spacer(Modifier.size(8.dp))
         val nextIndex by derivedStateOf {
             val i = storyController.storyboard.indices.binarySearch(storyController.currentIndex)
@@ -152,8 +107,8 @@ private fun NextFramePreview(storyController: StoryController, modifier: Modifie
 
 @Composable
 private fun Captions(captions: SnapshotStateList<Caption>, modifier: Modifier = Modifier) {
-    Column(modifier = modifier, horizontalAlignment = Alignment.CenterHorizontally) {
-        Text("Captions", style = MaterialTheme.typography.h4)
+    Column(modifier = modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+        Text("Captions", style = MaterialTheme.typography.h5)
         Spacer(Modifier.size(8.dp))
         LazyColumn {
             items(captions) { caption ->

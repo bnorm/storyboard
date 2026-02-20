@@ -8,7 +8,7 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import dev.bnorm.storyboard.easel.Animatic
 
 @Stable
-class StoryAssistantState(
+class EaselAssistantState(
     internal val animatic: Animatic,
     captions: List<Caption> = emptyList(),
 ) {

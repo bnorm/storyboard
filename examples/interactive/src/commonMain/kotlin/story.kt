@@ -4,7 +4,7 @@ import dev.bnorm.storyboard.Storyboard
 
 fun createStoryboard(): Storyboard {
     return Storyboard.build(
-        title = "Notes Storyboard",
+        title = "Interactive Storyboard",
         decorator = theme,
     ) {
         ButtonScene()

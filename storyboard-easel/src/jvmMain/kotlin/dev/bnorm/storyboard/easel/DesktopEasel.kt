@@ -9,10 +9,10 @@ import dev.bnorm.storyboard.easel.assist.rememberAssistantWindow
 import dev.bnorm.storyboard.easel.export.ExportMenu
 import dev.bnorm.storyboard.easel.export.ExportProgressPopup
 import dev.bnorm.storyboard.easel.export.StoryboardPdfExporter
+import dev.bnorm.storyboard.easel.overlay.EaselOverlay
+import dev.bnorm.storyboard.easel.overlay.EaselOverlayScope
 import dev.bnorm.storyboard.easel.overlay.OverlayNavigation
-import dev.bnorm.storyboard.easel.overlay.StoryOverlayDecorator
-import dev.bnorm.storyboard.easel.overlay.StoryOverlayScope
-import dev.bnorm.storyboard.easel.overview.StoryOverviewDecorator
+import dev.bnorm.storyboard.easel.overview.EaselOverview
 import dev.bnorm.storyboard.plus
 
 @Composable
@@ -25,10 +25,12 @@ fun ApplicationScope.DesktopEasel(
 @Composable
 fun ApplicationScope.DesktopEasel(
     animatic: Animatic,
-    overlay: @Composable StoryOverlayScope.() -> Unit = {
+    overlay: @Composable EaselOverlayScope.() -> Unit = {
         OverlayNavigation(animatic)
     },
-    windows: List<EaselWindow> = listOf(rememberAssistantWindow(animatic)),
+    windows: List<EaselWindow> = listOf(
+        rememberAssistantWindow(animatic)
+    ),
 ) {
     val exporter = remember(animatic.storyboard) { StoryboardPdfExporter() }
 
@@ -40,10 +42,10 @@ fun ApplicationScope.DesktopEasel(
         MenuBar {
             DesktopMenu(animatic.storyboard, storyWindowState, storyWindow)
             ExportMenu(exporter, animatic.storyboard)
-            for (sidecar in windows) {
-                key(sidecar.name) {
-                    Menu(sidecar.name) {
-                        with(sidecar) { Menu() }
+            for (window in windows) {
+                key(window.name) {
+                    Menu(window.name) {
+                        with(window) { Menu() }
                     }
                 }
             }
@@ -67,33 +69,38 @@ fun ApplicationScope.DesktopEasel(
         Toolbar()
 
         val decorator = remember(windows) {
-            windows.fold(Decorator.None) { acc, sidecar -> acc + sidecar.decorator } + StoryOverlayDecorator {
-                // Only display overlay navigation when *not* fullscreen.
-                if (storyWindowState.placement != WindowPlacement.Fullscreen) {
-                    overlay()
+            windows.fold(Decorator.None) { acc, sidecar -> acc + sidecar.decorator }
+        }
+
+        decorator.decorate {
+            EaselOverview(animatic) {
+                EaselOverlay(
+                    overlay = {
+                        // Only display overlay navigation when *not* fullscreen.
+                        if (storyWindowState.placement != WindowPlacement.Fullscreen) {
+                            overlay()
+                        }
+                    }
+                ) {
+                    Easel(animatic)
                 }
             }
         }
 
-        Easel(
-            animatic = animatic,
-            decorator = StoryOverviewDecorator(animatic = animatic) + decorator,
-        )
-
         exporter.status?.let { ExportProgressPopup(it) }
     }
 
-    for (sidecar in windows) {
-        key(sidecar.name) {
-            val state = rememberWindowState(fileName = sidecar.name)
-            if (state != null && sidecar.visible) {
+    for (window in windows) {
+        key(window.name) {
+            val state = rememberWindowState(fileName = window.name)
+            if (state != null && window.visible) {
                 Window(
-                    title = "${animatic.storyboard.title} - ${sidecar.name}",
+                    title = "${animatic.storyboard.title} - ${window.name}",
                     state = state,
-                    onCloseRequest = { sidecar.visible = false },
+                    onCloseRequest = { window.visible = false },
                 ) {
                     Toolbar()
-                    sidecar.Content()
+                    window.Content()
                 }
             }
         }

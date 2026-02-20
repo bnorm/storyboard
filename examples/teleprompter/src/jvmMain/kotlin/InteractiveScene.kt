@@ -26,8 +26,13 @@ fun StoryboardBuilder.InteractiveScene() {
     val textFieldState = TextFieldState(initialText)
 
     scene(stateCount = 4) {
-        Box(Modifier.fillMaxSize()) {
-            val state = transition.createChildTransition { it.toState() }
+        val state = transition.createChildTransition { it.toState() }
+        TeleprompterOverlay(
+            overlay = {
+                Input(textFieldState, Modifier.align(Alignment.BottomEnd).padding(32.dp))
+            },
+            modifier = Modifier.fillMaxSize(),
+        ) {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
                 Header { Text("Interactivity") }
                 Divider(color = MaterialTheme.colors.primary, thickness = 4.dp)
@@ -51,27 +56,21 @@ fun StoryboardBuilder.InteractiveScene() {
                     }
                 }
             }
-
-            if (isTeleprompter) {
-                Input(textFieldState, Modifier.align(Alignment.BottomEnd).padding(32.dp))
-            }
         }
     }
 }
 
 @Composable
 private fun Input(state: TextFieldState, modifier: Modifier) {
-    MaterialTheme(colors = lightColors()) {
-        Surface(
-            shape = RoundedCornerShape(8.dp),
-            elevation = 8.dp,
-            color = MaterialTheme.colors.surface,
-            border = BorderStroke(2.dp, MaterialTheme.colors.primaryVariant),
-            modifier = modifier.width(256.dp),
-        ) {
-            Box(Modifier.padding(16.dp)) {
-                TextField(state)
-            }
+    Surface(
+        shape = RoundedCornerShape(8.dp),
+        elevation = 8.dp,
+        color = MaterialTheme.colors.surface,
+        border = BorderStroke(2.dp, MaterialTheme.colors.primaryVariant),
+        modifier = modifier.width(256.dp),
+    ) {
+        Box(Modifier.padding(16.dp)) {
+            TextField(state)
         }
     }
 }

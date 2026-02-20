@@ -23,7 +23,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 @Composable
-fun StoryOverlayScope.OverlayNavigation(
+fun EaselOverlayScope.OverlayNavigation(
     storyController: StoryController,
     alignment: Alignment = Alignment.BottomEnd,
 ) {

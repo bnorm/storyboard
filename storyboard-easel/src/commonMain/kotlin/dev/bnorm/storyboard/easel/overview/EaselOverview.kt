@@ -11,27 +11,29 @@ import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.*
-import dev.bnorm.storyboard.Decorator
 import dev.bnorm.storyboard.easel.Animatic
 import dev.bnorm.storyboard.easel.onStoryNavigation
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
-fun StoryOverviewDecorator(
+@Composable
+fun EaselOverview(
     animatic: Animatic,
-): Decorator = Decorator { content ->
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit,
+) {
     val coroutineScope = rememberCoroutineScope()
     var job by remember { mutableStateOf<Job?>(null) }
 
     val holder = rememberSaveableStateHolder()
 
     val storyboard = animatic.storyboard
-    val storyOverviewState = remember(storyboard) { StoryOverviewState.of(storyboard) }
+    val overviewState = remember(storyboard) { OverviewState.of(storyboard) }
     var overviewVisible by remember { mutableStateOf(false) } // TODO support initial visibility?
 
     fun handleKeyEvent(event: KeyEvent): Boolean {
         if (event.type == KeyEventType.KeyUp && event.key == Key.Escape) {
-            storyOverviewState.jumpToIndex(animatic.currentIndex)
+            overviewState.jumpToIndex(animatic.currentIndex)
             overviewVisible = true
             return true
         }
@@ -40,7 +42,7 @@ fun StoryOverviewDecorator(
 
     Box(
         contentAlignment = Alignment.Center,
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .background(MaterialTheme.colors.background)
     ) {
@@ -50,9 +52,12 @@ fun StoryOverviewDecorator(
                 transitionSpec = { fadeIn(tween(300)) togetherWith fadeOut(tween(300)) }
             ) { isOverview ->
                 if (isOverview) {
-                    StoryOverview(
+                    val isVisible = transition.currentState == EnterExitState.Visible &&
+                            transition.currentState == transition.targetState
+                    EaselOverviewInternal(
                         storyController = animatic,
-                        storyOverviewState = storyOverviewState,
+                        overviewState = overviewState,
+                        isVisible = isVisible,
                         onExitOverview = {
                             job?.cancel()
                             job = coroutineScope.launch {

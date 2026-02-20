@@ -19,7 +19,7 @@ class AssistantWindow(
     val animatic: Animatic,
     captions: List<Caption> = emptyList(),
 ) : EaselWindow {
-    private val assistantState = StoryAssistantState(animatic, captions)
+    private val assistantState = EaselAssistantState(animatic, captions)
 
     override val name: String
         get() = "Assistant"
@@ -50,6 +50,6 @@ class AssistantWindow(
 
     @Composable
     override fun Content() {
-        StoryAssistant(assistantState)
+        EaselAssistant(assistantState)
     }
 }

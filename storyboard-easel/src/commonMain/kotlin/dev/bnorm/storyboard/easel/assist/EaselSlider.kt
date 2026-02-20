@@ -22,7 +22,7 @@ import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-internal fun StorySlider(animatic: Animatic, modifier: Modifier = Modifier) {
+internal fun EaselSlider(animatic: Animatic, modifier: Modifier = Modifier) {
     val coroutineScope = rememberCoroutineScope()
     var job by remember { mutableStateOf<Job?>(null) }
 

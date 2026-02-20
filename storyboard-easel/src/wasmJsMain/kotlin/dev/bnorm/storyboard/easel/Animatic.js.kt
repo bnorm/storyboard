@@ -10,7 +10,7 @@ import org.w3c.dom.url.URLSearchParams
 
 @Composable
 @OptIn(ExperimentalWasmJsInterop::class)
-fun rememberEasel(
+fun rememberAnimatic(
     window: Window,
     storyboard: () -> Storyboard,
 ): Animatic {
