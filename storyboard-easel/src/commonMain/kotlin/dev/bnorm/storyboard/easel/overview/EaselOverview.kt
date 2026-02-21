@@ -55,7 +55,7 @@ fun EaselOverview(
                     val isVisible = transition.currentState == EnterExitState.Visible &&
                             transition.currentState == transition.targetState
                     EaselOverviewInternal(
-                        storyController = animatic,
+                        animatic = animatic,
                         overviewState = overviewState,
                         isVisible = isVisible,
                         onExitOverview = {

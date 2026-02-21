@@ -18,18 +18,18 @@ import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.unit.dp
 import dev.bnorm.storyboard.AdvanceDirection
-import dev.bnorm.storyboard.easel.StoryController
+import dev.bnorm.storyboard.easel.Animatic
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 @Composable
 fun EaselOverlayScope.OverlayNavigation(
-    storyController: StoryController,
+    animatic: Animatic,
     alignment: Alignment = Alignment.BottomEnd,
 ) {
     val coroutineScope = rememberCoroutineScope()
     var job by remember { mutableStateOf<Job?>(null) }
-    val indices = storyController.storyboard.indices
+    val indices = animatic.storyboard.indices
 
     Surface(
         modifier = Modifier
@@ -42,11 +42,11 @@ fun EaselOverlayScope.OverlayNavigation(
             IconButton(
                 text = "Previous",
                 icon = Icons.AutoMirrored.Rounded.ArrowBack,
-                enabled = storyController.targetIndex > indices.first(),
+                enabled = animatic.targetIndex > indices.first(),
                 onClick = {
                     job?.cancel()
                     job = coroutineScope.launch {
-                        storyController.advance(AdvanceDirection.Backward)
+                        animatic.advance(AdvanceDirection.Backward)
                         job = null
                     }
                 }
@@ -54,11 +54,11 @@ fun EaselOverlayScope.OverlayNavigation(
             IconButton(
                 text = "Next",
                 icon = Icons.AutoMirrored.Rounded.ArrowForward,
-                enabled = storyController.targetIndex < indices.last(),
+                enabled = animatic.targetIndex < indices.last(),
                 onClick = {
                     job?.cancel()
                     job = coroutineScope.launch {
-                        storyController.advance(AdvanceDirection.Forward)
+                        animatic.advance(AdvanceDirection.Forward)
                         job = null
                     }
                 }

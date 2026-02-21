@@ -77,7 +77,7 @@ internal fun EaselSlider(animatic: Animatic, modifier: Modifier = Modifier) {
                     onValueChange = {
                         job?.cancel()
                         job = coroutineScope.launch {
-                            animatic.state.seek(it / storyDistance)
+                            animatic.seek(it / storyDistance)
                             job = null
                         }
                     },

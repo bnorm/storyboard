@@ -27,9 +27,9 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.*
 import dev.bnorm.storyboard.Frame
 import dev.bnorm.storyboard.Storyboard
+import dev.bnorm.storyboard.easel.Animatic
 import dev.bnorm.storyboard.easel.SceneMode
 import dev.bnorm.storyboard.easel.ScenePreview
-import dev.bnorm.storyboard.easel.StoryController
 import dev.bnorm.storyboard.easel.internal.requestFocus
 import dev.bnorm.storyboard.easel.rememberSharedContentState
 import dev.bnorm.storyboard.easel.sharedElement
@@ -39,7 +39,7 @@ import dev.bnorm.storyboard.easel.sharedElement
 @Composable
 context(_: AnimatedVisibilityScope, _: SharedTransitionScope)
 internal fun EaselOverviewInternal(
-    storyController: StoryController,
+    animatic: Animatic,
     overviewState: OverviewState,
     isVisible: Boolean,
     onExitOverview: (Storyboard.Index) -> Unit,
@@ -56,7 +56,7 @@ internal fun EaselOverviewInternal(
         val viewSize = DpSize(maxWidth, maxHeight)
         val itemSize = calculateItemSize(
             viewSize = viewSize,
-            itemSize = storyController.storyboard.format.size
+            itemSize = animatic.storyboard.format.size
         )
 
         val hState = rememberOverviewSceneScroll(viewSize, itemSize, overviewState)
@@ -74,7 +74,7 @@ internal fun EaselOverviewInternal(
                 //  - invisible padding item with different content padding?
                 OverviewLazyColumn(
                     state = vState,
-                    storyboard = storyController.storyboard,
+                    storyboard = animatic.storyboard,
                     column = column,
                     isVisible = isVisible,
                     verticalPaddingDp = verticalPaddingDp,
@@ -105,7 +105,7 @@ internal fun EaselOverviewInternal(
         }
 
         LaunchedEffect(currentIndex) {
-            storyController.jumpTo(currentIndex)
+            animatic.jumpTo(currentIndex)
         }
 
         HorizontalScrollbar(

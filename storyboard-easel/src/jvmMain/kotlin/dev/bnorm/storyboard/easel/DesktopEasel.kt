@@ -1,6 +1,7 @@
 package dev.bnorm.storyboard.easel
 
 import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.awt.ComposeWindow
 import androidx.compose.ui.window.*
 import dev.bnorm.storyboard.Decorator

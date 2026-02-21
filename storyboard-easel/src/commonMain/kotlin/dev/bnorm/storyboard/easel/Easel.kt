@@ -32,7 +32,7 @@ fun Easel(
 @Composable
 fun Easel(
     storyboard: Storyboard,
-    transition: Transition<SceneFrame<*>>,
+    transition: Transition<out Animatic.State<*>>,
     mode: SceneMode = SceneMode.Story,
     modifier: Modifier = Modifier,
 ) {
@@ -69,7 +69,7 @@ private class StorySceneScope<T>(
 context(_: AnimatedVisibilityScope, _: SharedTransitionScope)
 fun <T> SceneContent(
     scene: Scene<T>,
-    sceneFrame: Transition<SceneFrame<*>>,
+    sceneFrame: Transition<out Animatic.State<*>>,
 ) {
     val frame = sceneFrame.createChildTransition {
         @Suppress("UNCHECKED_CAST")
