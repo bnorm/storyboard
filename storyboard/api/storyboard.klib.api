@@ -104,10 +104,10 @@ final class dev.bnorm.storyboard/Storyboard { // dev.bnorm.storyboard/Storyboard
     final class Index : kotlin/Comparable<dev.bnorm.storyboard/Storyboard.Index> { // dev.bnorm.storyboard/Storyboard.Index|null[0]
         constructor <init>(kotlin/Int, kotlin/Int) // dev.bnorm.storyboard/Storyboard.Index.<init>|<init>(kotlin.Int;kotlin.Int){}[0]
 
+        final val frameIndex // dev.bnorm.storyboard/Storyboard.Index.frameIndex|{}frameIndex[0]
+            final fun <get-frameIndex>(): kotlin/Int // dev.bnorm.storyboard/Storyboard.Index.frameIndex.<get-frameIndex>|<get-frameIndex>(){}[0]
         final val sceneIndex // dev.bnorm.storyboard/Storyboard.Index.sceneIndex|{}sceneIndex[0]
             final fun <get-sceneIndex>(): kotlin/Int // dev.bnorm.storyboard/Storyboard.Index.sceneIndex.<get-sceneIndex>|<get-sceneIndex>(){}[0]
-        final val stateIndex // dev.bnorm.storyboard/Storyboard.Index.stateIndex|{}stateIndex[0]
-            final fun <get-stateIndex>(): kotlin/Int // dev.bnorm.storyboard/Storyboard.Index.stateIndex.<get-stateIndex>|<get-stateIndex>(){}[0]
 
         final fun compareTo(dev.bnorm.storyboard/Storyboard.Index): kotlin/Int // dev.bnorm.storyboard/Storyboard.Index.compareTo|compareTo(dev.bnorm.storyboard.Storyboard.Index){}[0]
         final fun equals(kotlin/Any?): kotlin/Boolean // dev.bnorm.storyboard/Storyboard.Index.equals|equals(kotlin.Any?){}[0]

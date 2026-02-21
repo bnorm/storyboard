@@ -136,8 +136,8 @@ public final class dev/bnorm/storyboard/Storyboard$Index : java/lang/Comparable 
 	public fun compareTo (Ldev/bnorm/storyboard/Storyboard$Index;)I
 	public synthetic fun compareTo (Ljava/lang/Object;)I
 	public fun equals (Ljava/lang/Object;)Z
+	public final fun getFrameIndex ()I
 	public final fun getSceneIndex ()I
-	public final fun getStateIndex ()I
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
 }

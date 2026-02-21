@@ -22,7 +22,7 @@ internal class OverviewState internal constructor(
 
         val column = columns[currentColumnIndex]
         column.currentItemIndex =
-            column.items.binarySearch { compareValues(it.index.stateIndex, index.stateIndex) }
+            column.items.binarySearch { compareValues(it.index.frameIndex, index.frameIndex) }
                 .coerceAtLeast(0)
     }
 

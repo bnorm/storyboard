@@ -29,7 +29,7 @@ private class PreviewSceneScope<T>(
 @Composable
 internal fun <T> ScenePreview(
     scene: Scene<T>,
-    stateIndex: Int,
+    frameIndex: Int,
     modifier: Modifier = Modifier,
     format: SceneFormat = SceneFormat.Default,
     decorator: Decorator = Decorator.None,
@@ -38,10 +38,10 @@ internal fun <T> ScenePreview(
     SceneWrapper(format, decorator, sceneMode, modifier) {
         SharedTransitionLayout {
             AnimatedVisibility(true) {
-                key(scene, stateIndex) {
+                key(scene, frameIndex) {
                     val scope = PreviewSceneScope(
                         states = scene.states,
-                        transition = updateTransition(Frame.State(scene.states[stateIndex])),
+                        transition = updateTransition(Frame.State(scene.states[frameIndex])),
                     )
                     scope.Render(scene.content)
                 }
@@ -109,7 +109,7 @@ fun ScenePreview(
     CompositionLocalProvider(LocalStoryboard provides storyboard) {
         ScenePreview(
             scene = storyboard.scenes[index.sceneIndex],
-            stateIndex = index.stateIndex,
+            frameIndex = index.frameIndex,
             modifier = modifier,
             sceneMode = sceneMode,
             format = storyboard.format,
@@ -132,10 +132,10 @@ fun <T> SceneGallery(
         modifier, format, decorator, sceneMode
     )
 
-    for (stateIndex in scene.states.indices) {
-        Text("Frame: $stateIndex")
+    for (frameIndex in scene.states.indices) {
+        Text("Frame: $frameIndex")
         ScenePreview(
-            scene, Frame.State(scene.states[stateIndex]),
+            scene, Frame.State(scene.states[frameIndex]),
             modifier, format, decorator, sceneMode
         )
     }

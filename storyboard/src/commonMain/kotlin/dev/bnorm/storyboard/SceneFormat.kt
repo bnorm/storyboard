@@ -1,10 +1,12 @@
 package dev.bnorm.storyboard
 
+import androidx.compose.runtime.Immutable
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntSize
 import kotlin.jvm.JvmField
 
+@Immutable
 public class SceneFormat(
     /** Defines the pixel dimensions of each scene in a Storyboard. */
     public val size: IntSize,

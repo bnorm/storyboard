@@ -5,7 +5,7 @@ import androidx.compose.runtime.Stable
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 
-@Stable
+@Immutable
 public class Storyboard private constructor(
     public val title: String,
     public val description: String?,
@@ -16,18 +16,18 @@ public class Storyboard private constructor(
     @Immutable
     public class Index(
         public val sceneIndex: Int,
-        public val stateIndex: Int,
+        public val frameIndex: Int,
     ) : Comparable<Index> {
         // TODO require sceneIndex >= 0?
-        // TODO require stateIndex >= 0?
+        // TODO require frameIndex >= 0?
         override fun compareTo(other: Index): Int {
             val cmp = compareValues(sceneIndex, other.sceneIndex)
             if (cmp != 0) return cmp
-            return compareValues(stateIndex, other.stateIndex)
+            return compareValues(frameIndex, other.frameIndex)
         }
 
         override fun toString(): String {
-            return "$sceneIndex,$stateIndex"
+            return "$sceneIndex,$frameIndex"
         }
 
         override fun equals(other: Any?): Boolean {
@@ -37,14 +37,14 @@ public class Storyboard private constructor(
             other as Index
 
             if (sceneIndex != other.sceneIndex) return false
-            if (stateIndex != other.stateIndex) return false
+            if (frameIndex != other.frameIndex) return false
 
             return true
         }
 
         override fun hashCode(): Int {
             var result = sceneIndex
-            result = 31 * result + stateIndex
+            result = 31 * result + frameIndex
             return result
         }
     }
@@ -68,7 +68,7 @@ public class Storyboard private constructor(
     }
 
     public val indices: ImmutableList<Index> = scenes.flatMapIndexed { sceneIndex, scene ->
-        List(scene.states.size) { stateIndex -> Index(sceneIndex, stateIndex) }
+        List(scene.states.size) { frameIndex -> Index(sceneIndex, frameIndex) }
     }.toImmutableList()
 }
 
