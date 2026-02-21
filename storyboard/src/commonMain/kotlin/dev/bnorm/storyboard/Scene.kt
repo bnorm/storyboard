@@ -6,7 +6,7 @@ import kotlinx.collections.immutable.ImmutableList
 @Immutable
 public class Scene<T> internal constructor(
     public val index: Int,
-    public val states: ImmutableList<T>,
+    public val frames: ImmutableList<T>,
     public val enterTransition: SceneEnterTransition,
     public val exitTransition: SceneExitTransition,
     public val content: SceneContent<T>,

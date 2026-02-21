@@ -19,11 +19,11 @@ import dev.bnorm.storyboard.easel.template.Body
 import dev.bnorm.storyboard.easel.template.Header
 import dev.bnorm.storyboard.easel.template.RevealEach
 import dev.bnorm.storyboard.toDpSize
-import dev.bnorm.storyboard.toState
+import dev.bnorm.storyboard.toValue
 
 @OptIn(ExperimentalTransitionApi::class)
 fun StoryboardBuilder.AppScene() {
-    scene(stateCount = 4) {
+    scene(frameCount = 4) {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
             Header { Text("Application") }
             Divider(color = MaterialTheme.colors.primary, thickness = 4.dp)
@@ -34,7 +34,7 @@ fun StoryboardBuilder.AppScene() {
                 ) {
                     val animatic = rememberAnimatic { createStoryboard() }
 
-                    RevealEach(transition.createChildTransition { it.toState() }) {
+                    RevealEach(transition.createChildTransition { it.toValue() }) {
                         item { Text("• Storyboard is ultimately just a Compose application.") }
                         item { Text("• Anything achievable with Compose, is possible in Storyboard!") }
                         item { Text("• You could even embed a Storyboard, in a Storyboard!") }

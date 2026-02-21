@@ -66,7 +66,7 @@ internal class OverviewState internal constructor(
                     index = sceneIndex,
                     start = sceneIndex > 0,
                     end = sceneIndex < lastSceneIndex,
-                    items = scene.states.mapIndexed { stateIndex, state ->
+                    items = scene.frames.mapIndexed { stateIndex, state ->
                         StateItem(
                             index = Storyboard.Index(sceneIndex, stateIndex),
                             state = state,

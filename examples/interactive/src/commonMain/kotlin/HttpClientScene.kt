@@ -21,7 +21,7 @@ import dev.bnorm.storyboard.easel.template.Header
 import dev.bnorm.storyboard.easel.template.RevealEach
 import dev.bnorm.storyboard.easel.template.StoryEffect
 import dev.bnorm.storyboard.example.shared.JetBrainsMono
-import dev.bnorm.storyboard.toState
+import dev.bnorm.storyboard.toValue
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.plugins.contentnegotiation.*
@@ -50,7 +50,7 @@ fun StoryboardBuilder.HttpClientScene() {
     var error by mutableStateOf<String?>(null)
     var stargazers by mutableIntStateOf(-1)
 
-    scene(stateCount = 3) {
+    scene(frameCount = 3) {
         // !!!
         // Make sure the HTTP call is properly scoped.
         // Running this with LaunchedEffect could cause it to trigger multiple times.
@@ -101,7 +101,7 @@ fun StoryboardBuilder.HttpClientScene() {
                     Modifier.padding(vertical = 16.dp, horizontal = 16.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp),
                 ) {
-                    RevealEach(transition.createChildTransition { it.toState() }) {
+                    RevealEach(transition.createChildTransition { it.toValue() }) {
                         item { Text("• Scenes aren't the only thing that can be interactive.") }
                         item { Text("• Press 'F2' to check the Story Assistant. (Desktop only!)") }
                         item {

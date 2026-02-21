@@ -15,7 +15,7 @@ import androidx.compose.ui.unit.dp
 import dev.bnorm.storyboard.StoryboardBuilder
 import dev.bnorm.storyboard.easel.template.Body
 import dev.bnorm.storyboard.easel.template.Header
-import dev.bnorm.storyboard.toState
+import dev.bnorm.storyboard.toValue
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.debounce
 import kotlin.time.Duration.Companion.seconds
@@ -25,8 +25,8 @@ fun StoryboardBuilder.InteractiveScene() {
     val initialText = "Sample"
     val textFieldState = TextFieldState(initialText)
 
-    scene(stateCount = 4) {
-        val state = transition.createChildTransition { it.toState() }
+    scene(frameCount = 4) {
+        val state = transition.createChildTransition { it.toValue() }
         TeleprompterOverlay(
             overlay = {
                 Input(textFieldState, Modifier.align(Alignment.BottomEnd).padding(32.dp))

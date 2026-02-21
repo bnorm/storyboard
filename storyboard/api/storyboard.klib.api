@@ -47,8 +47,8 @@ abstract fun interface dev.bnorm.storyboard/SceneExitTransition : kotlin/Functio
 }
 
 abstract interface <#A: out kotlin/Any?> dev.bnorm.storyboard/SceneScope { // dev.bnorm.storyboard/SceneScope|null[0]
-    abstract val states // dev.bnorm.storyboard/SceneScope.states|{}states[0]
-        abstract fun <get-states>(): kotlinx.collections.immutable/ImmutableList<#A> // dev.bnorm.storyboard/SceneScope.states.<get-states>|<get-states>(){}[0]
+    abstract val frames // dev.bnorm.storyboard/SceneScope.frames|{}frames[0]
+        abstract fun <get-frames>(): kotlinx.collections.immutable/ImmutableList<#A> // dev.bnorm.storyboard/SceneScope.frames.<get-frames>|<get-frames>(){}[0]
     abstract val transition // dev.bnorm.storyboard/SceneScope.transition|{}transition[0]
         abstract fun <get-transition>(): androidx.compose.animation.core/Transition<out dev.bnorm.storyboard/Frame<#A>> // dev.bnorm.storyboard/SceneScope.transition.<get-transition>|<get-transition>(){}[0]
 }
@@ -65,10 +65,10 @@ final class <#A: kotlin/Any?> dev.bnorm.storyboard/Scene : kotlin/Comparable<dev
         final fun <get-enterTransition>(): dev.bnorm.storyboard/SceneEnterTransition // dev.bnorm.storyboard/Scene.enterTransition.<get-enterTransition>|<get-enterTransition>(){}[0]
     final val exitTransition // dev.bnorm.storyboard/Scene.exitTransition|{}exitTransition[0]
         final fun <get-exitTransition>(): dev.bnorm.storyboard/SceneExitTransition // dev.bnorm.storyboard/Scene.exitTransition.<get-exitTransition>|<get-exitTransition>(){}[0]
+    final val frames // dev.bnorm.storyboard/Scene.frames|{}frames[0]
+        final fun <get-frames>(): kotlinx.collections.immutable/ImmutableList<#A> // dev.bnorm.storyboard/Scene.frames.<get-frames>|<get-frames>(){}[0]
     final val index // dev.bnorm.storyboard/Scene.index|{}index[0]
         final fun <get-index>(): kotlin/Int // dev.bnorm.storyboard/Scene.index.<get-index>|<get-index>(){}[0]
-    final val states // dev.bnorm.storyboard/Scene.states|{}states[0]
-        final fun <get-states>(): kotlinx.collections.immutable/ImmutableList<#A> // dev.bnorm.storyboard/Scene.states.<get-states>|<get-states>(){}[0]
 
     final fun compareTo(dev.bnorm.storyboard/Scene<*>): kotlin/Int // dev.bnorm.storyboard/Scene.compareTo|compareTo(dev.bnorm.storyboard.Scene<*>){}[0]
 }
@@ -121,13 +121,13 @@ final class dev.bnorm.storyboard/Storyboard { // dev.bnorm.storyboard/Storyboard
 }
 
 sealed class <#A: out kotlin/Any?> dev.bnorm.storyboard/Frame { // dev.bnorm.storyboard/Frame|null[0]
-    final class <#A1: out kotlin/Any?> State : dev.bnorm.storyboard/Frame<#A1> { // dev.bnorm.storyboard/Frame.State|null[0]
-        constructor <init>(#A1) // dev.bnorm.storyboard/Frame.State.<init>|<init>(1:0){}[0]
+    final class <#A1: out kotlin/Any?> Value : dev.bnorm.storyboard/Frame<#A1> { // dev.bnorm.storyboard/Frame.Value|null[0]
+        constructor <init>(#A1) // dev.bnorm.storyboard/Frame.Value.<init>|<init>(1:0){}[0]
 
-        final val state // dev.bnorm.storyboard/Frame.State.state|{}state[0]
-            final fun <get-state>(): #A1 // dev.bnorm.storyboard/Frame.State.state.<get-state>|<get-state>(){}[0]
+        final val value // dev.bnorm.storyboard/Frame.Value.value|{}value[0]
+            final fun <get-value>(): #A1 // dev.bnorm.storyboard/Frame.Value.value.<get-value>|<get-value>(){}[0]
 
-        final fun toString(): kotlin/String // dev.bnorm.storyboard/Frame.State.toString|toString(){}[0]
+        final fun toString(): kotlin/String // dev.bnorm.storyboard/Frame.Value.toString|toString(){}[0]
     }
 
     final object End : dev.bnorm.storyboard/Frame<kotlin/Nothing> { // dev.bnorm.storyboard/Frame.End|null[0]
@@ -146,7 +146,7 @@ sealed class <#A: out kotlin/Any?> dev.bnorm.storyboard/Frame { // dev.bnorm.sto
 final val dev.bnorm.storyboard/dev_bnorm_storyboard_Frame$stableprop // dev.bnorm.storyboard/dev_bnorm_storyboard_Frame$stableprop|#static{}dev_bnorm_storyboard_Frame$stableprop[0]
 final val dev.bnorm.storyboard/dev_bnorm_storyboard_Frame_End$stableprop // dev.bnorm.storyboard/dev_bnorm_storyboard_Frame_End$stableprop|#static{}dev_bnorm_storyboard_Frame_End$stableprop[0]
 final val dev.bnorm.storyboard/dev_bnorm_storyboard_Frame_Start$stableprop // dev.bnorm.storyboard/dev_bnorm_storyboard_Frame_Start$stableprop|#static{}dev_bnorm_storyboard_Frame_Start$stableprop[0]
-final val dev.bnorm.storyboard/dev_bnorm_storyboard_Frame_State$stableprop // dev.bnorm.storyboard/dev_bnorm_storyboard_Frame_State$stableprop|#static{}dev_bnorm_storyboard_Frame_State$stableprop[0]
+final val dev.bnorm.storyboard/dev_bnorm_storyboard_Frame_Value$stableprop // dev.bnorm.storyboard/dev_bnorm_storyboard_Frame_Value$stableprop|#static{}dev_bnorm_storyboard_Frame_Value$stableprop[0]
 final val dev.bnorm.storyboard/dev_bnorm_storyboard_Scene$stableprop // dev.bnorm.storyboard/dev_bnorm_storyboard_Scene$stableprop|#static{}dev_bnorm_storyboard_Scene$stableprop[0]
 final val dev.bnorm.storyboard/dev_bnorm_storyboard_SceneFormat$stableprop // dev.bnorm.storyboard/dev_bnorm_storyboard_SceneFormat$stableprop|#static{}dev_bnorm_storyboard_SceneFormat$stableprop[0]
 final val dev.bnorm.storyboard/dev_bnorm_storyboard_Storyboard$stableprop // dev.bnorm.storyboard/dev_bnorm_storyboard_Storyboard$stableprop|#static{}dev_bnorm_storyboard_Storyboard$stableprop[0]
@@ -155,16 +155,16 @@ final val dev.bnorm.storyboard/dev_bnorm_storyboard_Storyboard_Index$stableprop 
 final fun (dev.bnorm.storyboard/Decorator).dev.bnorm.storyboard/plus(dev.bnorm.storyboard/Decorator): dev.bnorm.storyboard/Decorator // dev.bnorm.storyboard/plus|plus@dev.bnorm.storyboard.Decorator(dev.bnorm.storyboard.Decorator){}[0]
 final fun (dev.bnorm.storyboard/SceneFormat).dev.bnorm.storyboard/toDpSize(): androidx.compose.ui.unit/DpSize // dev.bnorm.storyboard/toDpSize|toDpSize@dev.bnorm.storyboard.SceneFormat(){}[0]
 final fun (dev.bnorm.storyboard/StoryboardBuilder).dev.bnorm.storyboard/decorated(dev.bnorm.storyboard/Decorator, kotlin/Function1<dev.bnorm.storyboard/StoryboardBuilder, kotlin/Unit>) // dev.bnorm.storyboard/decorated|decorated@dev.bnorm.storyboard.StoryboardBuilder(dev.bnorm.storyboard.Decorator;kotlin.Function1<dev.bnorm.storyboard.StoryboardBuilder,kotlin.Unit>){}[0]
-final fun <#A: kotlin/Any?, #B: #A> (context(dev.bnorm.storyboard/SceneScope<#B>), dev.bnorm.storyboard/Frame<#B>).dev.bnorm.storyboard/toState(#A = ..., #A = ...): #A // dev.bnorm.storyboard/toState|toState(dev.bnorm.storyboard.SceneScope<0:1>)@dev.bnorm.storyboard.Frame<0:1>(0:0;0:0){0§<kotlin.Any?>;1§<0:0>}[0]
+final fun <#A: kotlin/Any?, #B: #A> (context(dev.bnorm.storyboard/SceneScope<#B>), dev.bnorm.storyboard/Frame<#B>).dev.bnorm.storyboard/toValue(#A = ..., #A = ...): #A // dev.bnorm.storyboard/toValue|toValue(dev.bnorm.storyboard.SceneScope<0:1>)@dev.bnorm.storyboard.Frame<0:1>(0:0;0:0){0§<kotlin.Any?>;1§<0:0>}[0]
 final fun <#A: kotlin/Any?, #B: kotlin/Any?> (dev.bnorm.storyboard/Frame<#A>).dev.bnorm.storyboard/map(kotlin/Function1<#A, #B>): dev.bnorm.storyboard/Frame<#B> // dev.bnorm.storyboard/map|map@dev.bnorm.storyboard.Frame<0:0>(kotlin.Function1<0:0,0:1>){0§<kotlin.Any?>;1§<kotlin.Any?>}[0]
 final fun <#A: kotlin/Any?> (context(androidx.compose.animation/AnimatedVisibilityScope, androidx.compose.animation/SharedTransitionScope), dev.bnorm.storyboard/SceneScope<#A>).dev.bnorm.storyboard/Render(dev.bnorm.storyboard/SceneContent<#A>, androidx.compose.runtime/Composer?, kotlin/Int) // dev.bnorm.storyboard/Render|Render(androidx.compose.animation.AnimatedVisibilityScope;androidx.compose.animation.SharedTransitionScope)@dev.bnorm.storyboard.SceneScope<0:0>(dev.bnorm.storyboard.SceneContent<0:0>;androidx.compose.runtime.Composer?;kotlin.Int){0§<kotlin.Any?>}[0]
-final fun <#A: kotlin/Any?> (dev.bnorm.storyboard/Frame<#A>).dev.bnorm.storyboard/toState(#A, #A): #A // dev.bnorm.storyboard/toState|toState@dev.bnorm.storyboard.Frame<0:0>(0:0;0:0){0§<kotlin.Any?>}[0]
+final fun <#A: kotlin/Any?> (dev.bnorm.storyboard/Frame<#A>).dev.bnorm.storyboard/toValue(#A, #A): #A // dev.bnorm.storyboard/toValue|toValue@dev.bnorm.storyboard.Frame<0:0>(0:0;0:0){0§<kotlin.Any?>}[0]
 final fun <#A: kotlin/Any?> (dev.bnorm.storyboard/SceneContent<#A>).dev.bnorm.storyboard/decorated(dev.bnorm.storyboard/Decorator): dev.bnorm.storyboard/SceneContent<#A> // dev.bnorm.storyboard/decorated|decorated@dev.bnorm.storyboard.SceneContent<0:0>(dev.bnorm.storyboard.Decorator){0§<kotlin.Any?>}[0]
 final fun <#A: kotlin/Comparable<#A>> (dev.bnorm.storyboard/Frame<#A>).dev.bnorm.storyboard/compareTo(dev.bnorm.storyboard/Frame<#A>): kotlin/Int // dev.bnorm.storyboard/compareTo|compareTo@dev.bnorm.storyboard.Frame<0:0>(dev.bnorm.storyboard.Frame<0:0>){0§<kotlin.Comparable<0:0>>}[0]
 final fun dev.bnorm.storyboard/dev_bnorm_storyboard_Frame$stableprop_getter(): kotlin/Int // dev.bnorm.storyboard/dev_bnorm_storyboard_Frame$stableprop_getter|dev_bnorm_storyboard_Frame$stableprop_getter(){}[0]
 final fun dev.bnorm.storyboard/dev_bnorm_storyboard_Frame_End$stableprop_getter(): kotlin/Int // dev.bnorm.storyboard/dev_bnorm_storyboard_Frame_End$stableprop_getter|dev_bnorm_storyboard_Frame_End$stableprop_getter(){}[0]
 final fun dev.bnorm.storyboard/dev_bnorm_storyboard_Frame_Start$stableprop_getter(): kotlin/Int // dev.bnorm.storyboard/dev_bnorm_storyboard_Frame_Start$stableprop_getter|dev_bnorm_storyboard_Frame_Start$stableprop_getter(){}[0]
-final fun dev.bnorm.storyboard/dev_bnorm_storyboard_Frame_State$stableprop_getter(): kotlin/Int // dev.bnorm.storyboard/dev_bnorm_storyboard_Frame_State$stableprop_getter|dev_bnorm_storyboard_Frame_State$stableprop_getter(){}[0]
+final fun dev.bnorm.storyboard/dev_bnorm_storyboard_Frame_Value$stableprop_getter(): kotlin/Int // dev.bnorm.storyboard/dev_bnorm_storyboard_Frame_Value$stableprop_getter|dev_bnorm_storyboard_Frame_Value$stableprop_getter(){}[0]
 final fun dev.bnorm.storyboard/dev_bnorm_storyboard_Scene$stableprop_getter(): kotlin/Int // dev.bnorm.storyboard/dev_bnorm_storyboard_Scene$stableprop_getter|dev_bnorm_storyboard_Scene$stableprop_getter(){}[0]
 final fun dev.bnorm.storyboard/dev_bnorm_storyboard_SceneFormat$stableprop_getter(): kotlin/Int // dev.bnorm.storyboard/dev_bnorm_storyboard_SceneFormat$stableprop_getter|dev_bnorm_storyboard_SceneFormat$stableprop_getter(){}[0]
 final fun dev.bnorm.storyboard/dev_bnorm_storyboard_Storyboard$stableprop_getter(): kotlin/Int // dev.bnorm.storyboard/dev_bnorm_storyboard_Storyboard$stableprop_getter|dev_bnorm_storyboard_Storyboard$stableprop_getter(){}[0]

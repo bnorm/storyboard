@@ -42,19 +42,19 @@ public final class dev/bnorm/storyboard/Frame$Start : dev/bnorm/storyboard/Frame
 	public fun toString ()Ljava/lang/String;
 }
 
-public final class dev/bnorm/storyboard/Frame$State : dev/bnorm/storyboard/Frame {
+public final class dev/bnorm/storyboard/Frame$Value : dev/bnorm/storyboard/Frame {
 	public static final field $stable I
 	public fun <init> (Ljava/lang/Object;)V
-	public final fun getState ()Ljava/lang/Object;
+	public final fun getValue ()Ljava/lang/Object;
 	public fun toString ()Ljava/lang/String;
 }
 
 public final class dev/bnorm/storyboard/FrameKt {
 	public static final fun compareTo (Ldev/bnorm/storyboard/Frame;Ldev/bnorm/storyboard/Frame;)I
 	public static final fun map (Ldev/bnorm/storyboard/Frame;Lkotlin/jvm/functions/Function1;)Ldev/bnorm/storyboard/Frame;
-	public static final fun toState (Ldev/bnorm/storyboard/Frame;Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
-	public static final fun toState (Ldev/bnorm/storyboard/SceneScope;Ldev/bnorm/storyboard/Frame;Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
-	public static synthetic fun toState$default (Ldev/bnorm/storyboard/SceneScope;Ldev/bnorm/storyboard/Frame;Ljava/lang/Object;Ljava/lang/Object;ILjava/lang/Object;)Ljava/lang/Object;
+	public static final fun toValue (Ldev/bnorm/storyboard/Frame;Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+	public static final fun toValue (Ldev/bnorm/storyboard/SceneScope;Ldev/bnorm/storyboard/Frame;Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+	public static synthetic fun toValue$default (Ldev/bnorm/storyboard/SceneScope;Ldev/bnorm/storyboard/Frame;Ljava/lang/Object;Ljava/lang/Object;ILjava/lang/Object;)Ljava/lang/Object;
 }
 
 public final class dev/bnorm/storyboard/Scene : java/lang/Comparable {
@@ -64,8 +64,8 @@ public final class dev/bnorm/storyboard/Scene : java/lang/Comparable {
 	public final fun getContent ()Ldev/bnorm/storyboard/SceneContent;
 	public final fun getEnterTransition ()Ldev/bnorm/storyboard/SceneEnterTransition;
 	public final fun getExitTransition ()Ldev/bnorm/storyboard/SceneExitTransition;
+	public final fun getFrames ()Lkotlinx/collections/immutable/ImmutableList;
 	public final fun getIndex ()I
-	public final fun getStates ()Lkotlinx/collections/immutable/ImmutableList;
 }
 
 public abstract interface class dev/bnorm/storyboard/SceneContent {
@@ -109,7 +109,7 @@ public final class dev/bnorm/storyboard/SceneFormatKt {
 }
 
 public abstract interface class dev/bnorm/storyboard/SceneScope {
-	public abstract fun getStates ()Lkotlinx/collections/immutable/ImmutableList;
+	public abstract fun getFrames ()Lkotlinx/collections/immutable/ImmutableList;
 	public abstract fun getTransition ()Landroidx/compose/animation/core/Transition;
 }
 

@@ -12,13 +12,13 @@ import androidx.compose.ui.unit.dp
 import dev.bnorm.storyboard.StoryboardBuilder
 import dev.bnorm.storyboard.easel.template.Body
 import dev.bnorm.storyboard.easel.template.Header
-import dev.bnorm.storyboard.toState
+import dev.bnorm.storyboard.toValue
 import kotlin.time.Duration.Companion.seconds
 
 @OptIn(ExperimentalTransitionApi::class)
 fun StoryboardBuilder.AnnotationScene() {
-    scene(stateCount = 5) {
-        val state = transition.createChildTransition { it.toState() }
+    scene(frameCount = 5) {
+        val state = transition.createChildTransition { it.toValue() }
         TeleprompterOverlay(
             overlay = {
                 StateTimer(duration = 10.seconds)

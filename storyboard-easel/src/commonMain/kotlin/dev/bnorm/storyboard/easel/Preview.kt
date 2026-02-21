@@ -22,7 +22,7 @@ import dev.bnorm.storyboard.*
 import kotlinx.collections.immutable.ImmutableList
 
 private class PreviewSceneScope<T>(
-    override val states: ImmutableList<T>,
+    override val frames: ImmutableList<T>,
     override val transition: Transition<out Frame<T>>,
 ) : SceneScope<T>
 
@@ -40,8 +40,8 @@ internal fun <T> ScenePreview(
             AnimatedVisibility(true) {
                 key(scene, frameIndex) {
                     val scope = PreviewSceneScope(
-                        states = scene.states,
-                        transition = updateTransition(Frame.State(scene.states[frameIndex])),
+                        frames = scene.frames,
+                        transition = updateTransition(Frame.Value(scene.frames[frameIndex])),
                     )
                     scope.Render(scene.content)
                 }
@@ -64,7 +64,7 @@ fun <T> ScenePreview(
             AnimatedVisibility(true) {
                 key(scene, frame) {
                     val scope = PreviewSceneScope(
-                        states = scene.states,
+                        frames = scene.frames,
                         transition = updateTransition(frame),
                     )
                     scope.Render(scene.content)
@@ -88,7 +88,7 @@ fun <T> ScenePreview(
                 AnimatedVisibility(true) {
                     key(scene, frame) {
                         val scope = PreviewSceneScope(
-                            states = scene.states,
+                            frames = scene.frames,
                             transition = updateTransition(frame),
                         )
                         scope.Render(scene.content)
@@ -132,10 +132,10 @@ fun <T> SceneGallery(
         modifier, format, decorator, sceneMode
     )
 
-    for (frameIndex in scene.states.indices) {
+    for (frameIndex in scene.frames.indices) {
         Text("Frame: $frameIndex")
         ScenePreview(
-            scene, Frame.State(scene.states[frameIndex]),
+            scene, Frame.Value(scene.frames[frameIndex]),
             modifier, format, decorator, sceneMode
         )
     }

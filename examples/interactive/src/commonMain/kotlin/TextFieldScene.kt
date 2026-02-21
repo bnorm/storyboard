@@ -14,11 +14,11 @@ import dev.bnorm.storyboard.StoryboardBuilder
 import dev.bnorm.storyboard.easel.template.Body
 import dev.bnorm.storyboard.easel.template.Header
 import dev.bnorm.storyboard.easel.template.RevealEach
-import dev.bnorm.storyboard.toState
+import dev.bnorm.storyboard.toValue
 
 @OptIn(ExperimentalTransitionApi::class)
 fun StoryboardBuilder.TextFieldScene() {
-    scene(stateCount = 3) {
+    scene(frameCount = 3) {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
             Header { Text("Text Fields") }
             Divider(color = MaterialTheme.colors.primary, thickness = 4.dp)
@@ -29,7 +29,7 @@ fun StoryboardBuilder.TextFieldScene() {
                 ) {
                     val text = rememberTextFieldState("World")
 
-                    RevealEach(transition.createChildTransition { it.toState() }) {
+                    RevealEach(transition.createChildTransition { it.toValue() }) {
                         item { Text("• Text fields can also be used directly in scenes.") }
                         item { TextField(text, label = { Text("Name") }) }
                         item { Text("• Hello, ${text.text}!") }

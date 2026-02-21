@@ -90,13 +90,13 @@ private class DecoratedStoryboardBuilder(
     private val decorator: Decorator,
 ) : StoryboardBuilder {
     override fun <T> scene(
-        states: List<T>,
+        frames: List<T>,
         enterTransition: SceneEnterTransition,
         exitTransition: SceneExitTransition,
         content: SceneContent<T>,
     ): Scene<T> {
         return upstream.scene(
-            states = states,
+            frames = frames,
             enterTransition = enterTransition,
             exitTransition = exitTransition,
             content = content.decorated(decorator)

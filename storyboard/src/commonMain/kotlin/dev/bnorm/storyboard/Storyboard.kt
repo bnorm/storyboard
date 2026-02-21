@@ -1,7 +1,6 @@
 package dev.bnorm.storyboard
 
 import androidx.compose.runtime.Immutable
-import androidx.compose.runtime.Stable
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 
@@ -68,7 +67,7 @@ public class Storyboard private constructor(
     }
 
     public val indices: ImmutableList<Index> = scenes.flatMapIndexed { sceneIndex, scene ->
-        List(scene.states.size) { frameIndex -> Index(sceneIndex, frameIndex) }
+        List(scene.frames.size) { frameIndex -> Index(sceneIndex, frameIndex) }
     }.toImmutableList()
 }
 
@@ -76,14 +75,14 @@ private class StoryboardBuilderImpl : StoryboardBuilder {
     private val scenes = mutableListOf<Scene<*>>()
 
     override fun <T> scene(
-        states: List<T>,
+        frames: List<T>,
         enterTransition: SceneEnterTransition,
         exitTransition: SceneExitTransition,
         content: SceneContent<T>,
     ): Scene<T> {
         val scene = Scene(
             index = scenes.size,
-            states = states.toImmutableList(),
+            frames = frames.toImmutableList(),
             enterTransition = enterTransition,
             exitTransition = exitTransition,
             content = content,

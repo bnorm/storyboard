@@ -28,7 +28,7 @@ import dev.bnorm.storyboard.text.highlight.CodeStyle
 import dev.bnorm.storyboard.text.highlight.Language
 import dev.bnorm.storyboard.text.highlight.highlight
 import dev.bnorm.storyboard.text.magic.MagicText
-import dev.bnorm.storyboard.toState
+import dev.bnorm.storyboard.toValue
 
 data class CodeSceneState(
     val description: String,
@@ -87,11 +87,11 @@ fun StoryboardBuilder.CodeScene() = scene(
         Divider(color = MaterialTheme.colors.primary)
         Body {
             Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                val currentState = transition.currentState.toState()
+                val currentState = transition.currentState.toValue()
                 Text(currentState.description)
 
                 @OptIn(ExperimentalTransitionApi::class)
-                val code = transition.createChildTransition { it.toState().code }
+                val code = transition.createChildTransition { it.toValue().code }
                 ProvideTextStyle(TextStyle(fontFamily = JetBrainsMono)) {
                     MagicText(code, modifier = Modifier.fillMaxSize())
                 }

@@ -125,7 +125,7 @@ internal class AnimaticInternal(
         var targetState = transition.currentState + direction.toInt()
         if (targetState !in frames.indices) return null
 
-        while (frames[targetState].frame !is Frame.State) {
+        while (frames[targetState].frame !is Frame.Value) {
             targetState += direction.toInt()
         }
         return frames[targetState]
@@ -176,11 +176,11 @@ internal class AnimaticInternal(
             transition.snapTo(index)
 
             var currentState = index
-            while (currentState >= 0 && frames[currentState].frame !is Frame.State) currentState--
+            while (currentState >= 0 && frames[currentState].frame !is Frame.Value) currentState--
             currentIndex = frames[currentState].storyboardIndex
 
             var targetState = index + if (fraction > 0f) 1 else 0
-            while (targetState < frames.size && frames[targetState].frame !is Frame.State) targetState++
+            while (targetState < frames.size && frames[targetState].frame !is Frame.Value) targetState++
             targetIndex = frames[targetState].storyboardIndex
         }
 
@@ -209,7 +209,7 @@ internal class AnimaticInternal(
             // Since the first frame of a storyboard is always a state frame,
             // this loop will never run out of bounds.
             var initialFrameIndex = -searchIndex - 1
-            while (frames[initialFrameIndex].frame !is Frame.State) {
+            while (frames[initialFrameIndex].frame !is Frame.Value) {
                 initialFrameIndex--
             }
 
@@ -230,14 +230,14 @@ internal class AnimaticInternal(
 
         val first = scenes.first()
         val last = scenes.last()
-        require(first.states.isNotEmpty() && last.states.isNotEmpty()) { "first and last scene must have states" }
+        require(first.frames.isNotEmpty() && last.frames.isNotEmpty()) { "first and last scene must have states" }
 
         var frameIndex = 0
         fun <T> MutableList<StoryStateFrame<*>>.addStates(scene: Scene<T>) {
-            for ((stateIndex, state) in scene.states.withIndex()) {
+            for ((stateIndex, state) in scene.frames.withIndex()) {
                 val index = StoryStateFrame(
                     scene = scene,
-                    frame = Frame.State(state),
+                    frame = Frame.Value(state),
                     frameIndex = frameIndex++,
                     storyboardIndex = Storyboard.Index(scene.index, stateIndex),
                 )
@@ -265,7 +265,7 @@ internal class AnimaticInternal(
                         scene = scene,
                         frame = Frame.End,
                         frameIndex = frameIndex++,
-                        storyboardIndex = Storyboard.Index(scene.index, scene.states.size)
+                        storyboardIndex = Storyboard.Index(scene.index, scene.frames.size)
                     )
                 )
             }

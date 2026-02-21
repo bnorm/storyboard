@@ -61,7 +61,7 @@ fun Easel(
 }
 
 private class StorySceneScope<T>(
-    override val states: ImmutableList<T>,
+    override val frames: ImmutableList<T>,
     override val transition: Transition<out Frame<T>>,
 ) : SceneScope<T>
 
@@ -82,7 +82,7 @@ fun <T> SceneContent(
 
     val scope = remember(scene, frame) {
         StorySceneScope(
-            states = scene.states,
+            frames = scene.frames,
             transition = frame,
         )
     }
