@@ -39,7 +39,7 @@ fun Easel(
     val holder = rememberSaveableStateHolder()
     SceneWrapper(storyboard, mode, modifier) {
         SharedTransitionLayout {
-            val sceneTransition = transition.createChildTransition { it.scene }
+            val sceneTransition = transition.createChildTransition(label = "Scene") { it.scene }
             sceneTransition.AnimatedContent(
                 transitionSpec = {
                     val direction = when {
@@ -51,9 +51,7 @@ fun Easel(
                 }
             ) { scene ->
                 holder.SaveableStateProvider(scene) {
-                    Box(Modifier.fillMaxSize()) {
-                        SceneContent(scene, transition)
-                    }
+                    SceneContent(scene, transition)
                 }
             }
         }
@@ -71,7 +69,7 @@ fun <T> SceneContent(
     scene: Scene<T>,
     sceneFrame: Transition<out Animatic.State<*>>,
 ) {
-    val frame = sceneFrame.createChildTransition {
+    val frame = sceneFrame.createChildTransition(label = "Frame") {
         @Suppress("UNCHECKED_CAST")
         when {
             scene > it.scene -> Frame.Start

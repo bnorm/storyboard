@@ -4,14 +4,13 @@ import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.key
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.AnnotatedString
+import kotlin.concurrent.atomics.AtomicLong
+import kotlin.concurrent.atomics.ExperimentalAtomicApi
 import kotlin.jvm.JvmName
 
 const val DefaultMoveDurationMillis = 300
@@ -69,31 +68,8 @@ fun MagicText(
     fadeDurationMillis: Int = DefaultFadeDurationMillis,
     delayDurationMillis: Int = DefaultDelayDurationMillis,
 ) {
-    // Keyed on current and target state, so a new transition is created with each new segment.
-    // This allows re-rendering of the previous text with the new transition keys.
-    val currentState = transition.currentState
-    val targetState = transition.targetState
-    key(currentState, targetState) { // TODO does this need to be keyed on currentState?
-
-        // TODO instead of Map<*, *>, could this be a special data structure?
-        // TODO should we be caching these maps for repeated transitions?
-        val sharedText = remember {
-            when (currentState == targetState) {
-                true -> mapOf(currentState to currentState.map { SharedText(it) }.flatMap { toLines(it) })
-
-                false -> {
-                    val (current, target) = findShared(currentState, targetState)
-                    mapOf(
-                        currentState to current.flatMap { toLines(it) }, // Re-render the previous text, split up based on diff with the next text.
-                        targetState to target.flatMap { toLines(it) }, // Render the next text, split up based on diff with the previous text.
-                    )
-                }
-            }
-        }
-
-        val child = transition.createChildTransition { text -> sharedText.getValue(text) }
-        MagicTextInternal(child, modifier, fadeDurationMillis, moveDurationMillis, delayDurationMillis)
-    }
+    val child = transition.createSharedTextTransition()
+    MagicTextInternal(child, modifier, fadeDurationMillis, moveDurationMillis, delayDurationMillis)
 }
 
 @OptIn(ExperimentalSharedTransitionApi::class)
@@ -108,37 +84,29 @@ private fun MagicTextInternal(
     val moveDelay = delayDuration + fadeDuration
     val fadeInDelay = 2 * delayDuration + fadeDuration + moveDuration
 
-    SharedTransitionLayout {
+    SharedTransitionLayout(modifier) {
         transition.AnimatedContent(
-            modifier = modifier.wrapContentSize(align = Alignment.TopStart, unbounded = true),
-            transitionSpec = { EnterTransition.None togetherWith ExitTransition.None },
+            transitionSpec = {
+                fadeIn(tween(fadeDuration, delayMillis = fadeInDelay, easing = EaseInCubic)) togetherWith
+                        fadeOut(tween(fadeDuration, easing = EaseOutCubic)) using
+                        SizeTransform(clip = false)
+            },
         ) { parts ->
 
             @Composable
             fun SharedText.toModifier(): Modifier {
-                return when {
-                    // Text is completely different and should fade in and out.
-                    key == null -> Modifier.animateEnterExit(
-                        enter = fadeIn(tween(fadeDuration, delayMillis = fadeInDelay, easing = EaseInCubic)),
-                        exit = fadeOut(tween(fadeDuration, easing = EaseOutCubic)),
-                    )
-
-                    // Text content is the same, but the styling may be different,
-                    // so move and cross-fade.
-                    crossFade -> Modifier.sharedBounds(
+                return if (key == null) {
+                    Modifier
+                } else {
+                    Modifier.sharedBounds(
                         rememberSharedContentState(key),
                         animatedVisibilityScope = this@AnimatedContent,
-                        enter = fadeIn(tween(moveDuration, delayMillis = moveDelay, easing = EaseInOut)),
-                        exit = fadeOut(tween(moveDuration, delayMillis = moveDelay, easing = EaseInOut)),
-                        boundsTransform = { _, _ ->
-                            tween(moveDuration, delayMillis = moveDelay, easing = EaseInOut)
-                        },
-                    )
-
-                    // Text and styling are the same, so only move.
-                    else -> Modifier.sharedElement(
-                        rememberSharedContentState(key),
-                        animatedVisibilityScope = this@AnimatedContent,
+                        enter =
+                            if (crossFade) fadeIn(tween(moveDuration, delayMillis = moveDelay, easing = EaseInOut))
+                            else EnterTransition.None,
+                        exit =
+                            if (crossFade) fadeOut(tween(moveDuration, delayMillis = moveDelay, easing = EaseInOut))
+                            else ExitTransition.None,
                         boundsTransform = { _, _ ->
                             tween(moveDuration, delayMillis = moveDelay, easing = EaseInOut)
                         },
@@ -168,24 +136,41 @@ private fun MagicTextInternal(
     }
 }
 
-private fun toLines(text: SharedText): List<SharedText> = buildList {
+@OptIn(ExperimentalAtomicApi::class)
+@Composable
+private fun Transition<List<AnnotatedString>>.createSharedTextTransition(): Transition<List<SharedText>> {
+    // TODO this is still not great...
+    //  - switching from element to bounds seems to break everything
+    val key: AtomicLong = remember { AtomicLong(0) }
+    var previousState by remember { mutableStateOf<List<SharedText>>(emptyList()) }
+    val child = createChildTransition("SharedText") { targetState ->
+        remember(targetState) { findShared(key, previousState, targetState.flatMap { toLines(it) }) }
+    }
+
+    // TODO doing this in remember seems broken...
+    remember(child.currentState, child.targetState) {
+        // When we reach the target state, update the previous state.
+        if (child.currentState == child.targetState) {
+            previousState = child.currentState
+        }
+    }
+
+    return child
+}
+
+private fun toLines(string: AnnotatedString): List<AnnotatedString> = buildList {
     return buildList {
-        val string = text.value
-
-        var subKeyCount = 0
-        fun nextKey(): String? = text.key?.let { "$it-${subKeyCount++}" }
-
         var offset = 0
         while (true) {
             val index = string.indexOf('\n', offset)
             if (index == -1) break
 
-            if (index > offset) add(SharedText(string.subSequence(offset, index), nextKey(), text.crossFade))
-            add(SharedText(AnnotatedString("\n")))
+            if (index > offset) add(string.subSequence(offset, index))
+            add(AnnotatedString("\n"))
             offset = index + 1
         }
         if (offset < string.length) {
-            add(SharedText(string.subSequence(offset, string.length), nextKey(), text.crossFade))
+            add(string.subSequence(offset, string.length))
         }
     }
 }

@@ -4,7 +4,6 @@ plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.kotlin.plugin.compose)
     alias(libs.plugins.compose)
-    alias(libs.plugins.compose.hot.reload)
 }
 
 group = "dev.bnorm.storyboard.example"

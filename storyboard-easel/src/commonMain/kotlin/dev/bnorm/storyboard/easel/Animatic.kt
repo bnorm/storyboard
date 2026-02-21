@@ -27,7 +27,7 @@ fun rememberAnimatic(
         transitionState = SeekableTransitionState(initialState)
     }
 
-    val transition = rememberTransition(transitionState)
+    val transition = rememberTransition(transitionState, label = "Animatic")
     return remember(storyboard, states, transitionState, transition) {
         Animatic(storyboard, states, transitionState, transition)
     }
@@ -103,13 +103,12 @@ class Animatic internal constructor(
 
     suspend fun jumpTo(index: Storyboard.Index): Boolean {
         // TODO a little inefficient?
-        val searchIndex = states.binarySearchBy(index) { it.index }
-        if (searchIndex < 0) return false
+        var jumpIndex = states.binarySearchBy(index) { it.index }
+        if (jumpIndex < 0) return false
 
         // Back up from the search index until a state frame is found.
         // Since the first frame of a storyboard is always a state frame,
         // this loop will never run out of bounds.
-        var jumpIndex = -searchIndex - 1
         while (states[jumpIndex].frame !is Frame.Value) {
             jumpIndex--
         }
