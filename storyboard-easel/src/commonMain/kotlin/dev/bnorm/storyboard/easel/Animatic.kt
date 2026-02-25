@@ -12,12 +12,16 @@ import kotlin.math.abs
 
 @Composable
 fun rememberAnimatic(
+    initialIndex: Storyboard.Index = Storyboard.Index(0, 0),
     storyboard: () -> Storyboard,
 ): Animatic {
     val storyboard = remember(storyboard) { storyboard() }
     val states = remember(storyboard) { Animatic.buildStates(storyboard) }
 
-    var transitionState by remember { mutableStateOf(SeekableTransitionState(states.first())) }
+    var transitionState by remember {
+        val initialState = states.find { it.index == initialIndex } ?: states.first()
+        mutableStateOf(SeekableTransitionState(initialState))
+    }
 
     remember(storyboard) {
         // TODO a little ugly to have this in a remember...
@@ -241,28 +245,27 @@ class Animatic internal constructor(
         }
 
     internal suspend fun seek(storyFraction: Float) {
+        // TODO this whole thing needs to be reworked... BADLY!
         val progress = storyFraction * storyDistance
         val index = progress.toInt()
-        val frameFraction = progress - index
+        val nextFraction = progress - index
 
         if (transitionState.currentState.stateIndex != index) {
             transitionState.snapTo(states[index])
 
-            var currentState = index
-            while (currentState >= 0 && states[currentState].frame !is Frame.Value) currentState--
-            this.currentState = states[currentState]
+            var currentIndex = index
+            while (currentIndex >= 0 && states[currentIndex].frame !is Frame.Value) currentIndex--
+            currentState = states[currentIndex]
 
-            var targetState = index + if (frameFraction > 0f) 1 else 0
-            while (targetState < states.size && states[targetState].frame !is Frame.Value) targetState++
-            this.targetState = states[targetState]
+            var targetIndex = index + if (nextFraction > 0f) 1 else 0
+            while (targetIndex < states.size && states[targetIndex].frame !is Frame.Value) targetIndex++
+            targetState = states[targetIndex]
         }
 
         // TODO there seems to be some serious bugs with SeekableTransitionState still...
         //  - seeking backwards seems to be broken for the opening animation
         //  - seeking backwards in general actually seems a little broken
         //  maybe I can create a minimal reproducer?
-        if (frameFraction != 0f) {
-            transitionState.seekTo(frameFraction, states[index + 1])
-        }
+        transitionState.seekTo(nextFraction, states[(index + 1).coerceAtMost(states.lastIndex)])
     }
 }

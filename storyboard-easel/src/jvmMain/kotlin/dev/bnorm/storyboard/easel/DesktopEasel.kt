@@ -19,7 +19,7 @@ import dev.bnorm.storyboard.plus
 fun ApplicationScope.DesktopEasel(
     storyboard: () -> Storyboard
 ) {
-    DesktopEasel(rememberAnimatic(storyboard))
+    DesktopEasel(rememberAnimatic(storyboard = storyboard))
 }
 
 @Composable
