@@ -32,7 +32,7 @@ internal fun <T> ScenePreview(
     frameIndex: Int,
     modifier: Modifier = Modifier,
     format: SceneFormat = SceneFormat.Default,
-    decorator: Decorator = Decorator.None,
+    decorator: ContentDecorator = ContentDecorator.None,
     sceneMode: SceneMode = SceneMode.Preview,
 ) {
     SceneWrapper(format, decorator, sceneMode, modifier) {
@@ -56,7 +56,7 @@ fun <T> ScenePreview(
     frame: Frame<T>,
     modifier: Modifier = Modifier,
     format: SceneFormat = SceneFormat.Default,
-    decorator: Decorator = Decorator.None,
+    decorator: ContentDecorator = ContentDecorator.None,
     sceneMode: SceneMode = SceneMode.Preview,
 ) {
     SceneWrapper(format, decorator, sceneMode, modifier) {
@@ -123,7 +123,7 @@ fun <T> SceneGallery(
     scene: Scene<T>,
     modifier: Modifier = Modifier,
     format: SceneFormat = SceneFormat.Default,
-    decorator: Decorator = Decorator.None,
+    decorator: ContentDecorator = ContentDecorator.None,
     sceneMode: SceneMode = SceneMode.Preview,
 ) {
     Text("Frame: Start")
@@ -183,7 +183,7 @@ fun StoryGallery(
     name: String = "Gallery",
     description: String? = null,
     format: SceneFormat = SceneFormat.Default,
-    decorator: Decorator = Decorator.None,
+    decorator: ContentDecorator = ContentDecorator.None,
     sceneMode: SceneMode = SceneMode.Preview,
     block: StoryboardBuilder.() -> Unit,
 ) {
@@ -200,7 +200,7 @@ fun StoryPreview(
     name: String = "Preview",
     description: String? = null,
     format: SceneFormat = SceneFormat.Default,
-    decorator: Decorator = Decorator.None,
+    decorator: ContentDecorator = ContentDecorator.None,
     sceneMode: SceneMode = SceneMode.Preview,
     block: StoryboardBuilder.() -> Unit,
 ) {

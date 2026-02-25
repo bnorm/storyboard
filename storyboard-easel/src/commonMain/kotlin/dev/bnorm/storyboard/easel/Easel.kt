@@ -3,8 +3,6 @@ package dev.bnorm.storyboard.easel
 import androidx.compose.animation.*
 import androidx.compose.animation.core.Transition
 import androidx.compose.animation.core.createChildTransition
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
@@ -91,7 +89,7 @@ fun <T> SceneContent(
 @Composable
 internal fun SceneWrapper(
     format: SceneFormat,
-    decorator: Decorator,
+    decorator: ContentDecorator,
     sceneMode: SceneMode,
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit,

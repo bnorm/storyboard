@@ -11,11 +11,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.text.TextStyle
 import dev.bnorm.storyboard.easel.LocalSceneMode
-import dev.bnorm.storyboard.Decorator
+import dev.bnorm.storyboard.ContentDecorator
 import dev.bnorm.storyboard.easel.SceneMode
 import dev.bnorm.storyboard.easel.Animatic
 
-fun SceneIndexDecorator(animatic: Animatic): Decorator = Decorator { content ->
+fun SceneIndexDecorator(animatic: Animatic): ContentDecorator = ContentDecorator { content ->
     content()
 
     Box(contentAlignment = Alignment.BottomStart, modifier = Modifier.fillMaxSize()) {

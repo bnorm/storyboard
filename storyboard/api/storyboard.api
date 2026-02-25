@@ -6,20 +6,20 @@ public final class dev/bnorm/storyboard/AdvanceDirection : java/lang/Enum {
 	public static fun values ()[Ldev/bnorm/storyboard/AdvanceDirection;
 }
 
-public abstract interface class dev/bnorm/storyboard/Decorator {
-	public static final field Companion Ldev/bnorm/storyboard/Decorator$Companion;
-	public static final field None Ldev/bnorm/storyboard/Decorator;
+public abstract interface class dev/bnorm/storyboard/ContentDecorator {
+	public static final field Companion Ldev/bnorm/storyboard/ContentDecorator$Companion;
+	public static final field None Ldev/bnorm/storyboard/ContentDecorator;
 	public abstract fun decorate (Lkotlin/jvm/functions/Function2;Landroidx/compose/runtime/Composer;I)V
 }
 
-public final class dev/bnorm/storyboard/Decorator$Companion {
-	public final fun from ([Ldev/bnorm/storyboard/Decorator;)Ldev/bnorm/storyboard/Decorator;
+public final class dev/bnorm/storyboard/ContentDecorator$Companion {
+	public final fun from ([Ldev/bnorm/storyboard/ContentDecorator;)Ldev/bnorm/storyboard/ContentDecorator;
 }
 
-public final class dev/bnorm/storyboard/DecoratorKt {
-	public static final fun decorated (Ldev/bnorm/storyboard/SceneContent;Ldev/bnorm/storyboard/Decorator;)Ldev/bnorm/storyboard/SceneContent;
-	public static final fun decorated (Ldev/bnorm/storyboard/StoryboardBuilder;Ldev/bnorm/storyboard/Decorator;Lkotlin/jvm/functions/Function1;)V
-	public static final fun plus (Ldev/bnorm/storyboard/Decorator;Ldev/bnorm/storyboard/Decorator;)Ldev/bnorm/storyboard/Decorator;
+public final class dev/bnorm/storyboard/ContentDecoratorKt {
+	public static final fun decorated (Ldev/bnorm/storyboard/SceneContent;Ldev/bnorm/storyboard/ContentDecorator;)Ldev/bnorm/storyboard/SceneContent;
+	public static final fun decorated (Ldev/bnorm/storyboard/StoryboardBuilder;Ldev/bnorm/storyboard/ContentDecorator;Lkotlin/jvm/functions/Function1;)V
+	public static final fun plus (Ldev/bnorm/storyboard/ContentDecorator;Ldev/bnorm/storyboard/ContentDecorator;)Ldev/bnorm/storyboard/ContentDecorator;
 }
 
 public abstract class dev/bnorm/storyboard/Frame {
@@ -116,8 +116,8 @@ public abstract interface class dev/bnorm/storyboard/SceneScope {
 public final class dev/bnorm/storyboard/Storyboard {
 	public static final field $stable I
 	public static final field Companion Ldev/bnorm/storyboard/Storyboard$Companion;
-	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Lkotlinx/collections/immutable/ImmutableList;Ldev/bnorm/storyboard/SceneFormat;Ldev/bnorm/storyboard/Decorator;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public final fun getDecorator ()Ldev/bnorm/storyboard/Decorator;
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Lkotlinx/collections/immutable/ImmutableList;Ldev/bnorm/storyboard/SceneFormat;Ldev/bnorm/storyboard/ContentDecorator;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun getDecorator ()Ldev/bnorm/storyboard/ContentDecorator;
 	public final fun getDescription ()Ljava/lang/String;
 	public final fun getFormat ()Ldev/bnorm/storyboard/SceneFormat;
 	public final fun getIndices ()Lkotlinx/collections/immutable/ImmutableList;
@@ -126,8 +126,8 @@ public final class dev/bnorm/storyboard/Storyboard {
 }
 
 public final class dev/bnorm/storyboard/Storyboard$Companion {
-	public final fun build (Ljava/lang/String;Ljava/lang/String;Ldev/bnorm/storyboard/SceneFormat;Ldev/bnorm/storyboard/Decorator;Lkotlin/jvm/functions/Function1;)Ldev/bnorm/storyboard/Storyboard;
-	public static synthetic fun build$default (Ldev/bnorm/storyboard/Storyboard$Companion;Ljava/lang/String;Ljava/lang/String;Ldev/bnorm/storyboard/SceneFormat;Ldev/bnorm/storyboard/Decorator;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Ldev/bnorm/storyboard/Storyboard;
+	public final fun build (Ljava/lang/String;Ljava/lang/String;Ldev/bnorm/storyboard/SceneFormat;Ldev/bnorm/storyboard/ContentDecorator;Lkotlin/jvm/functions/Function1;)Ldev/bnorm/storyboard/Storyboard;
+	public static synthetic fun build$default (Ldev/bnorm/storyboard/Storyboard$Companion;Ljava/lang/String;Ljava/lang/String;Ldev/bnorm/storyboard/SceneFormat;Ldev/bnorm/storyboard/ContentDecorator;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Ldev/bnorm/storyboard/Storyboard;
 }
 
 public final class dev/bnorm/storyboard/Storyboard$Index : java/lang/Comparable {

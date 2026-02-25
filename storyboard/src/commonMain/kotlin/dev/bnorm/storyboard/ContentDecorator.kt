@@ -5,45 +5,45 @@ import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.runtime.Composable
 import kotlin.jvm.JvmField
 
-public fun interface Decorator {
+public fun interface ContentDecorator {
     @Composable
     public fun decorate(content: @Composable () -> Unit)
 
     public companion object {
         @JvmField
-        public val None: Decorator = Decorator { it() }
+        public val None: ContentDecorator = ContentDecorator { it() }
 
-        public fun from(vararg decorators: Decorator): Decorator {
+        public fun from(vararg decorators: ContentDecorator): ContentDecorator {
             return when (decorators.size) {
                 0 -> None
                 1 -> decorators[0]
-                else -> CompositeDecorator(decorators.toList())
+                else -> CompositeContentDecorator(decorators.toList())
             }
         }
     }
 }
 
-public operator fun Decorator.plus(other: Decorator): Decorator {
+public operator fun ContentDecorator.plus(other: ContentDecorator): ContentDecorator {
     val self = this
-    return when (Decorator.None) {
+    return when (ContentDecorator.None) {
         other -> self
         self -> other
-        else -> CompositeDecorator(decorators = buildList {
+        else -> CompositeContentDecorator(decorators = buildList {
             when (self) {
-                is CompositeDecorator -> addAll(self.decorators)
+                is CompositeContentDecorator -> addAll(self.decorators)
                 else -> add(self)
             }
             when (other) {
-                is CompositeDecorator -> addAll(other.decorators)
+                is CompositeContentDecorator -> addAll(other.decorators)
                 else -> add(other)
             }
         })
     }
 }
 
-private class CompositeDecorator(
-    val decorators: List<Decorator>
-) : Decorator {
+private class CompositeContentDecorator(
+    val decorators: List<ContentDecorator>
+) : ContentDecorator {
     @Composable
     override fun decorate(content: @Composable () -> Unit) {
         @Composable
@@ -60,14 +60,14 @@ private class CompositeDecorator(
 }
 
 public fun <T> SceneContent<T>.decorated(
-    decorator: Decorator,
+    decorator: ContentDecorator,
 ): SceneContent<T> {
     return DecoratedSceneContent(this, decorator)
 }
 
 private class DecoratedSceneContent<T>(
     private val upstream: SceneContent<T>,
-    private val decorator: Decorator,
+    private val decorator: ContentDecorator,
 ) : SceneContent<T> {
     @Composable
     context(_: AnimatedVisibilityScope, _: SharedTransitionScope)
@@ -79,7 +79,7 @@ private class DecoratedSceneContent<T>(
 }
 
 public fun StoryboardBuilder.decorated(
-    decorator: Decorator,
+    decorator: ContentDecorator,
     block: StoryboardBuilder.() -> Unit,
 ) {
     DecoratedStoryboardBuilder(this, decorator).block()
@@ -87,7 +87,7 @@ public fun StoryboardBuilder.decorated(
 
 private class DecoratedStoryboardBuilder(
     private val upstream: StoryboardBuilder,
-    private val decorator: Decorator,
+    private val decorator: ContentDecorator,
 ) : StoryboardBuilder {
     override fun <T> scene(
         frames: List<T>,

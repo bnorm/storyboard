@@ -1,10 +1,9 @@
 package dev.bnorm.storyboard.easel
 
 import androidx.compose.runtime.*
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.awt.ComposeWindow
 import androidx.compose.ui.window.*
-import dev.bnorm.storyboard.Decorator
+import dev.bnorm.storyboard.ContentDecorator
 import dev.bnorm.storyboard.Storyboard
 import dev.bnorm.storyboard.easel.assist.rememberAssistantWindow
 import dev.bnorm.storyboard.easel.export.ExportMenu
@@ -70,7 +69,7 @@ fun ApplicationScope.DesktopEasel(
         Toolbar()
 
         val decorator = remember(windows) {
-            windows.fold(Decorator.None) { acc, sidecar -> acc + sidecar.decorator }
+            windows.fold(ContentDecorator.None) { acc, sidecar -> acc + sidecar.decorator }
         }
 
         decorator.decorate {

@@ -1,5 +1,5 @@
 import androidx.compose.material.Surface
-import dev.bnorm.storyboard.Decorator
+import dev.bnorm.storyboard.ContentDecorator
 import dev.bnorm.storyboard.Storyboard
 
 fun createStoryboard(): Storyboard {
@@ -15,7 +15,7 @@ fun createStoryboard(): Storyboard {
     }
 }
 
-private val theme = Decorator { content ->
+private val theme = ContentDecorator { content ->
     Surface {
         content()
     }

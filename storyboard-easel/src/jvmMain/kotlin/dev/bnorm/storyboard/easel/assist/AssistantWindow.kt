@@ -6,7 +6,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyShortcut
 import androidx.compose.ui.window.MenuScope
-import dev.bnorm.storyboard.Decorator
+import dev.bnorm.storyboard.ContentDecorator
 import dev.bnorm.storyboard.easel.Animatic
 import dev.bnorm.storyboard.easel.EaselWindow
 
@@ -30,7 +30,7 @@ class AssistantWindow(
             assistantState.visible = value
         }
 
-    override val decorator = Decorator { content ->
+    override val decorator = ContentDecorator { content ->
         CompositionLocalProvider(
             value = LocalCaptions provides assistantState.captions,
             content = content
