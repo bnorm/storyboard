@@ -3,7 +3,7 @@ import androidx.compose.material.Surface
 import androidx.compose.material.Typography
 import androidx.compose.material.darkColors
 import androidx.compose.ui.graphics.Color
-import dev.bnorm.storyboard.Decorator
+import dev.bnorm.storyboard.ContentDecorator
 import dev.bnorm.storyboard.SceneFormat
 import dev.bnorm.storyboard.Storyboard
 
@@ -20,7 +20,7 @@ fun createStoryboard(): Storyboard {
     }
 }
 
-private val theme = Decorator { content ->
+private val theme = ContentDecorator { content ->
     val colors = darkColors(
         background = Color.Black,
         surface = Color(0xFF1E1F22),

@@ -7,7 +7,7 @@ import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 
 @Stable
-class StoryOverviewState internal constructor(
+internal class OverviewState internal constructor(
     internal val columns: List<SceneColumn<*>>,
 ) {
     internal var currentColumnIndex by mutableStateOf(0)
@@ -22,7 +22,7 @@ class StoryOverviewState internal constructor(
 
         val column = columns[currentColumnIndex]
         column.currentItemIndex =
-            column.items.binarySearch { compareValues(it.index.stateIndex, index.stateIndex) }
+            column.items.binarySearch { compareValues(it.index.frameIndex, index.frameIndex) }
                 .coerceAtLeast(0)
     }
 
@@ -57,7 +57,7 @@ class StoryOverviewState internal constructor(
     )
 
     companion object {
-        internal fun of(storyboard: Storyboard): StoryOverviewState {
+        internal fun of(storyboard: Storyboard): OverviewState {
             val lastSceneIndex = storyboard.scenes.lastIndex
 
             fun <T> SceneColumn(scene: Scene<T>, sceneIndex: Int): SceneColumn<T> {
@@ -66,7 +66,7 @@ class StoryOverviewState internal constructor(
                     index = sceneIndex,
                     start = sceneIndex > 0,
                     end = sceneIndex < lastSceneIndex,
-                    items = scene.states.mapIndexed { stateIndex, state ->
+                    items = scene.frames.mapIndexed { stateIndex, state ->
                         StateItem(
                             index = Storyboard.Index(sceneIndex, stateIndex),
                             state = state,
@@ -79,7 +79,7 @@ class StoryOverviewState internal constructor(
                 .mapIndexed { sceneIndex, scene -> SceneColumn(scene, sceneIndex) }
                 .toImmutableList()
 
-            return StoryOverviewState(
+            return OverviewState(
                 columns = columns,
             )
         }

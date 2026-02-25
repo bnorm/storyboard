@@ -22,26 +22,26 @@ import dev.bnorm.storyboard.*
 import kotlinx.collections.immutable.ImmutableList
 
 private class PreviewSceneScope<T>(
-    override val states: ImmutableList<T>,
+    override val frames: ImmutableList<T>,
     override val transition: Transition<out Frame<T>>,
 ) : SceneScope<T>
 
 @Composable
 internal fun <T> ScenePreview(
     scene: Scene<T>,
-    stateIndex: Int,
+    frameIndex: Int,
     modifier: Modifier = Modifier,
     format: SceneFormat = SceneFormat.Default,
-    decorator: Decorator = Decorator.None,
+    decorator: ContentDecorator = ContentDecorator.None,
     sceneMode: SceneMode = SceneMode.Preview,
 ) {
     SceneWrapper(format, decorator, sceneMode, modifier) {
         SharedTransitionLayout {
             AnimatedVisibility(true) {
-                key(scene, stateIndex) {
+                key(scene, frameIndex) {
                     val scope = PreviewSceneScope(
-                        states = scene.states,
-                        transition = updateTransition(Frame.State(scene.states[stateIndex])),
+                        frames = scene.frames,
+                        transition = updateTransition(Frame.Value(scene.frames[frameIndex])),
                     )
                     scope.Render(scene.content)
                 }
@@ -56,7 +56,7 @@ fun <T> ScenePreview(
     frame: Frame<T>,
     modifier: Modifier = Modifier,
     format: SceneFormat = SceneFormat.Default,
-    decorator: Decorator = Decorator.None,
+    decorator: ContentDecorator = ContentDecorator.None,
     sceneMode: SceneMode = SceneMode.Preview,
 ) {
     SceneWrapper(format, decorator, sceneMode, modifier) {
@@ -64,7 +64,7 @@ fun <T> ScenePreview(
             AnimatedVisibility(true) {
                 key(scene, frame) {
                     val scope = PreviewSceneScope(
-                        states = scene.states,
+                        frames = scene.frames,
                         transition = updateTransition(frame),
                     )
                     scope.Render(scene.content)
@@ -88,7 +88,7 @@ fun <T> ScenePreview(
                 AnimatedVisibility(true) {
                     key(scene, frame) {
                         val scope = PreviewSceneScope(
-                            states = scene.states,
+                            frames = scene.frames,
                             transition = updateTransition(frame),
                         )
                         scope.Render(scene.content)
@@ -109,7 +109,7 @@ fun ScenePreview(
     CompositionLocalProvider(LocalStoryboard provides storyboard) {
         ScenePreview(
             scene = storyboard.scenes[index.sceneIndex],
-            stateIndex = index.stateIndex,
+            frameIndex = index.frameIndex,
             modifier = modifier,
             sceneMode = sceneMode,
             format = storyboard.format,
@@ -123,7 +123,7 @@ fun <T> SceneGallery(
     scene: Scene<T>,
     modifier: Modifier = Modifier,
     format: SceneFormat = SceneFormat.Default,
-    decorator: Decorator = Decorator.None,
+    decorator: ContentDecorator = ContentDecorator.None,
     sceneMode: SceneMode = SceneMode.Preview,
 ) {
     Text("Frame: Start")
@@ -132,10 +132,10 @@ fun <T> SceneGallery(
         modifier, format, decorator, sceneMode
     )
 
-    for (stateIndex in scene.states.indices) {
-        Text("Frame: $stateIndex")
+    for (frameIndex in scene.frames.indices) {
+        Text("Frame: $frameIndex")
         ScenePreview(
-            scene, Frame.State(scene.states[stateIndex]),
+            scene, Frame.Value(scene.frames[frameIndex]),
             modifier, format, decorator, sceneMode
         )
     }
@@ -183,7 +183,7 @@ fun StoryGallery(
     name: String = "Gallery",
     description: String? = null,
     format: SceneFormat = SceneFormat.Default,
-    decorator: Decorator = Decorator.None,
+    decorator: ContentDecorator = ContentDecorator.None,
     sceneMode: SceneMode = SceneMode.Preview,
     block: StoryboardBuilder.() -> Unit,
 ) {
@@ -200,7 +200,7 @@ fun StoryPreview(
     name: String = "Preview",
     description: String? = null,
     format: SceneFormat = SceneFormat.Default,
-    decorator: Decorator = Decorator.None,
+    decorator: ContentDecorator = ContentDecorator.None,
     sceneMode: SceneMode = SceneMode.Preview,
     block: StoryboardBuilder.() -> Unit,
 ) {

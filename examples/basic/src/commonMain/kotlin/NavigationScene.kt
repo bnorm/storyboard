@@ -11,12 +11,12 @@ import dev.bnorm.storyboard.StoryboardBuilder
 import dev.bnorm.storyboard.easel.assist.SceneCaption
 import dev.bnorm.storyboard.easel.template.Body
 import dev.bnorm.storyboard.easel.template.Header
-import dev.bnorm.storyboard.toState
+import dev.bnorm.storyboard.toValue
 
 fun StoryboardBuilder.NavigationScene() = scene(
-    stateCount = 5,
+    frameCount = 5,
 ) {
-    val currentState = transition.currentState.toState()
+    val currentState = transition.currentState.toValue()
 
     Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
         Header { Text("Navigation") }

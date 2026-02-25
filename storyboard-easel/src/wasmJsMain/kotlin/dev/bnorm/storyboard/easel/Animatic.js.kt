@@ -10,29 +10,25 @@ import org.w3c.dom.url.URLSearchParams
 
 @Composable
 @OptIn(ExperimentalWasmJsInterop::class)
-fun rememberEasel(
+fun rememberAnimatic(
     window: Window,
     storyboard: () -> Storyboard,
 ): Animatic {
     val storyboard = remember(storyboard) { storyboard() }
-    val state = remember(window) {
+    val initialIndex = remember(window) {
         val params = URLSearchParams(window.location.search.toJsString())
 
         // TODO what to rename frame to here?
         //  - not really a frame or index
         //  - separate values for scene and state?
         val frameIndex = params.get("frame")?.toIntOrNull()
-        val initialIndex = if (frameIndex != null) {
+        if (frameIndex != null) {
             storyboard.indices[frameIndex.coerceIn(storyboard.indices.indices)]
         } else {
             Storyboard.Index(0, 0)
         }
-
-        AnimaticInternal(initialIndex)
     }
-    remember(storyboard) { storyboard().also { state.updateStoryboard(it) } }
-    val transition = state.rememberTransition()
-    val animatic = remember(state, transition) { Animatic(state, transition) }
+    val animatic = rememberAnimatic(initialIndex) { storyboard }
 
     LaunchedWindowHistoryUpdate(animatic, window)
     return animatic

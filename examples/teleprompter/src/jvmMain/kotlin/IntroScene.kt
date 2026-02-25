@@ -10,7 +10,7 @@ import dev.bnorm.storyboard.easel.template.Header
 
 @OptIn(ExperimentalTransitionApi::class)
 fun StoryboardBuilder.IntroScene() {
-    scene(stateCount = 1) {
+    scene(frameCount = 1) {
         Header {
             Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {

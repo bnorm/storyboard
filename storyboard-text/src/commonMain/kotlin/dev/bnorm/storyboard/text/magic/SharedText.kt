@@ -1,11 +1,13 @@
 package dev.bnorm.storyboard.text.magic
 
 import androidx.compose.ui.text.AnnotatedString
+import kotlin.concurrent.atomics.AtomicLong
+import kotlin.concurrent.atomics.ExperimentalAtomicApi
 
 internal class SharedText(
     val value: AnnotatedString,
     val key: String? = null,
-    val crossFade: Boolean = false,
+    var crossFade: Boolean = false,
 )
 
 private class MutableSharedText(
@@ -15,6 +17,7 @@ private class MutableSharedText(
 
     var key: String? = null
     var crossFade: Boolean = false
+    var previousShared: SharedText? = null
 
     var prev: MutableSharedText? = null
     var next: MutableSharedText? = null
@@ -47,11 +50,15 @@ private class MutableSharedText(
     }
 }
 
+@OptIn(ExperimentalAtomicApi::class)
 internal fun findShared(
-    before: List<AnnotatedString>,
+    key: AtomicLong,
+    before: List<SharedText>,
     after: List<AnnotatedString>,
-): Pair<List<SharedText>, List<SharedText>> {
-    val beforeItems = before.mapIndexed { index, value -> MutableSharedText(index, value) }
+): List<SharedText> {
+    val beforeItems = before.mapIndexed { index, value ->
+        MutableSharedText(index, value.value).apply { previousShared = value }
+    }
     val afterItems = after.mapIndexed { index, value -> MutableSharedText(index, value) }
 
     val beforeNonBlank = beforeItems.filter { it.value.isNotBlank() || it.value.text == "\n" }
@@ -73,8 +80,12 @@ internal fun findShared(
 
     findSharedInternal(beforeNonBlank, afterNonBlank)
 
+    for (text in afterItems) {
+        if (text.key == null) text.key = "stable:${key.addAndFetch(1)}"
+    }
+
     // TODO is there a way to merge items to help with large amounts of text that don't change?
-    return beforeItems.map { it.toSharedItem() } to afterItems.map { it.toSharedItem() }
+    return afterItems.map { it.toSharedItem() }
 }
 
 private enum class Move {
@@ -141,17 +152,17 @@ private fun findSharedInternal(
     val matches = mutableListOf<MatchRegion>()
     val ignoredKeys = mutableSetOf<String>()
 
-    var index = 1
-    fun nextKey() = "stable:${index++}"
-
     fun associate(pair: MatchPair) {
-        val key = nextKey()
+        val key = pair.before.previousShared!!.key!!
         pair.before.key = key
         pair.after.key = key
 
         if (pair.before.value != pair.after.value) {
+            pair.before.previousShared!!.crossFade = true
             pair.before.crossFade = true
             pair.after.crossFade = true
+        } else {
+            pair.before.previousShared!!.crossFade = false
         }
     }
 

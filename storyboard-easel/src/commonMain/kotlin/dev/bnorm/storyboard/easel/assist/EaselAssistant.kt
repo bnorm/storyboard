@@ -17,131 +17,86 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
-import androidx.compose.ui.layout.Layout
-import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
 import dev.bnorm.storyboard.Storyboard
+import dev.bnorm.storyboard.easel.Animatic
 import dev.bnorm.storyboard.easel.ScenePreview
-import dev.bnorm.storyboard.easel.StoryController
+import dev.bnorm.storyboard.easel.internal.QuarteredBox
 import dev.bnorm.storyboard.easel.onStoryNavigation
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 @Composable
-fun StoryAssistant(
-    assistantState: StoryAssistantState,
+fun EaselAssistant(
+    assistantState: EaselAssistantState,
     modifier: Modifier = Modifier,
 ) {
-    val easel = assistantState.animatic
+    val animatic = assistantState.animatic
     val captions = assistantState.captions
 
-    // Box with constraints?
     Surface(
         modifier = modifier
             .fillMaxSize()
-            .onStoryNavigation(easel)
+            .onStoryNavigation(animatic)
     ) {
         Column(Modifier.padding(16.dp)) {
             Row(horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth()) {
-                StoryTimer()
+                EaselTimer()
             }
-            StorySlider(easel)
+            EaselSlider(animatic)
 
-            Layout(
-                content = {
-                    CurrentFramePreview(easel)
-                    NextFramePreview(easel)
-                    // TODO previous frame?
-                    // TODO highlight frame which is being advanced to?
-                    Captions(captions)
-                }
-            ) { measurables, constraints ->
-                val currentMeasurable = measurables[0]
-                val nextMeasurable = measurables[1]
-
-                val spacing = 16.dp.roundToPx()
-                val quarterBoxHeight = constraints.maxHeight / 2 - spacing
-                val quarterBoxWidth = constraints.maxWidth / 2 - spacing
-                val quarterBoxConstraints = Constraints(
-                    minWidth = 0, maxWidth = quarterBoxWidth,
-                    minHeight = 0, maxHeight = quarterBoxHeight,
-                )
-
-                val currentPlaceable = currentMeasurable.measure(quarterBoxConstraints)
-                val nextPlaceable = nextMeasurable.measure(quarterBoxConstraints)
-
-                val vertical = currentPlaceable.height < quarterBoxConstraints.maxHeight
-                val captionsConstraints = when {
-                    vertical -> Constraints.fixed(
-                        width = constraints.maxWidth,
-                        height = constraints.maxHeight - spacing - currentPlaceable.height,
-                    )
-
-                    else -> Constraints.fixed(
-                        width = constraints.maxWidth - spacing - currentPlaceable.width,
-                        height = constraints.maxHeight,
-                    )
-                }
-
-                val captionsMeasurable = measurables[2]
-                val captionsPlaceable = captionsMeasurable.measure(captionsConstraints)
-
-                layout(constraints.maxWidth, constraints.maxHeight) {
-                    currentPlaceable.placeRelative(0, 0)
-                    if (vertical) {
-                        nextPlaceable.placeRelative(currentPlaceable.width + spacing, 0)
-                        captionsPlaceable.placeRelative(0, currentPlaceable.height + spacing)
-                    } else {
-                        nextPlaceable.placeRelative(0, currentPlaceable.height + spacing)
-                        captionsPlaceable.placeRelative(currentPlaceable.width + spacing, 0)
-                    }
-                }
-            }
+            QuarteredBox(
+                // TODO highlight frame which is being advanced to?
+                quarter1 = { CurrentFramePreview(animatic, modifier = Modifier.padding(8.dp)) },
+                quarter2 = { NextFramePreview(animatic, modifier = Modifier.padding(8.dp)) },
+                remaining = { Captions(captions, modifier = Modifier.padding(8.dp)) },
+                modifier = modifier,
+            )
         }
     }
 }
 
 @Composable
-private fun CurrentFramePreview(storyController: StoryController, modifier: Modifier = Modifier) {
+private fun CurrentFramePreview(animatic: Animatic, modifier: Modifier = Modifier) {
     Column(modifier = modifier, horizontalAlignment = Alignment.CenterHorizontally) {
         // TODO should "current" actually be target index?
-        Text("Current Frame", style = MaterialTheme.typography.h4)
+        Text("Current Frame", style = MaterialTheme.typography.h5)
         Spacer(Modifier.size(8.dp))
         Box {
             ClickableScenePreview(
-                storyController.storyboard,
-                storyController.currentIndex,
+                animatic.storyboard,
+                animatic.currentIndex,
                 // Add padding for the progress indicator.
                 modifier = Modifier.padding(bottom = 2.dp),
             )
             Box(Modifier.matchParentSize(), contentAlignment = Alignment.BottomCenter) {
-                SceneAnimationProgressIndicator(storyController, modifier = Modifier.height(2.dp))
+                SceneAnimationProgressIndicator(animatic, modifier = Modifier.height(2.dp))
             }
         }
     }
 }
 
 @Composable
-private fun NextFramePreview(storyController: StoryController, modifier: Modifier = Modifier) {
+private fun NextFramePreview(animatic: Animatic, modifier: Modifier = Modifier) {
     val coroutineScope = rememberCoroutineScope()
     var job by remember { mutableStateOf<Job?>(null) }
 
     Column(modifier = modifier, horizontalAlignment = Alignment.CenterHorizontally) {
-        Text("Next Frame", style = MaterialTheme.typography.h4)
+        Text("Next Frame", style = MaterialTheme.typography.h5)
         Spacer(Modifier.size(8.dp))
         val nextIndex by derivedStateOf {
-            val i = storyController.storyboard.indices.binarySearch(storyController.currentIndex)
+            val i = animatic.storyboard.indices.binarySearch(animatic.currentIndex)
             require(i >= 0) { "targetIndex not found in storyboard" }
-            storyController.storyboard.indices.getOrNull(i + 1)
+            animatic.storyboard.indices.getOrNull(i + 1)
         }
         nextIndex?.let {
             ClickableScenePreview(
-                storyboard = storyController.storyboard,
+                storyboard = animatic.storyboard,
                 index = it,
                 onClick = {
                     job?.cancel()
                     job = coroutineScope.launch {
-                        storyController.jumpTo(it)
+                        animatic.jumpTo(it)
                         job = null
                     }
                 },
@@ -152,8 +107,8 @@ private fun NextFramePreview(storyController: StoryController, modifier: Modifie
 
 @Composable
 private fun Captions(captions: SnapshotStateList<Caption>, modifier: Modifier = Modifier) {
-    Column(modifier = modifier, horizontalAlignment = Alignment.CenterHorizontally) {
-        Text("Captions", style = MaterialTheme.typography.h4)
+    Column(modifier = modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+        Text("Captions", style = MaterialTheme.typography.h5)
         Spacer(Modifier.size(8.dp))
         LazyColumn {
             items(captions) { caption ->
@@ -200,10 +155,10 @@ private fun ClickableScenePreview(
 }
 
 @Composable
-private fun SceneAnimationProgressIndicator(storyController: StoryController, modifier: Modifier = Modifier) {
+private fun SceneAnimationProgressIndicator(animatic: Animatic, modifier: Modifier = Modifier) {
     Row(modifier) {
-        val advancementDistance = storyController.advancementDistance
-        val advancementProgress = storyController.advancementProgress
+        val advancementDistance = animatic.advancementDistance
+        val advancementProgress = animatic.advancementProgress
         when {
             advancementProgress == advancementDistance -> {
                 Spacer(Modifier.fillMaxHeight().weight(1f).background(Color.Green))

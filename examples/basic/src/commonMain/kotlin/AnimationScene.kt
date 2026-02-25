@@ -12,18 +12,18 @@ import androidx.compose.ui.unit.dp
 import dev.bnorm.storyboard.StoryboardBuilder
 import dev.bnorm.storyboard.easel.template.*
 import dev.bnorm.storyboard.easel.template.rememberAdvanceDirection
-import dev.bnorm.storyboard.toState
+import dev.bnorm.storyboard.toValue
 import kotlin.math.roundToInt
 
 fun StoryboardBuilder.AnimationScene() = scene(
-    stateCount = 6,
+    frameCount = 6,
     enterTransition = enter(end = SceneEnter(alignment = Alignment.CenterEnd)),
     exitTransition = exit(end = SceneExit(alignment = Alignment.CenterEnd)),
 ) {
     fun <T> quick(): SpringSpec<T> = spring(stiffness = Spring.StiffnessVeryLow)
 
     @OptIn(ExperimentalTransitionApi::class)
-    val state = transition.createChildTransition { it.toState() }
+    val state = transition.createChildTransition { it.toValue() }
     val direction = rememberAdvanceDirection()
 
     Column(verticalArrangement = Arrangement.spacedBy(16.dp), modifier = Modifier.padding(16.dp)) {

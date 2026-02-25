@@ -3,8 +3,6 @@ package dev.bnorm.storyboard.easel
 import androidx.compose.animation.*
 import androidx.compose.animation.core.Transition
 import androidx.compose.animation.core.createChildTransition
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
@@ -19,14 +17,12 @@ import kotlinx.collections.immutable.ImmutableList
 fun Easel(
     animatic: Animatic,
     mode: SceneMode = SceneMode.Story,
-    decorator: Decorator = Decorator.None,
     modifier: Modifier = Modifier,
 ) {
     Easel(
         storyboard = animatic.storyboard,
         transition = animatic.transition,
         mode = mode,
-        decorator = decorator,
         modifier = modifier
     )
 }
@@ -34,31 +30,26 @@ fun Easel(
 @Composable
 fun Easel(
     storyboard: Storyboard,
-    transition: Transition<SceneFrame<*>>,
+    transition: Transition<out Animatic.State<*>>,
     mode: SceneMode = SceneMode.Story,
-    decorator: Decorator = Decorator.None,
     modifier: Modifier = Modifier,
 ) {
-    decorator.decorate {
-        val holder = rememberSaveableStateHolder()
-        SceneWrapper(storyboard, mode, modifier) {
-            SharedTransitionLayout {
-                val sceneTransition = transition.createChildTransition { it.scene }
-                sceneTransition.AnimatedContent(
-                    transitionSpec = {
-                        val direction = when {
-                            targetState > initialState -> AdvanceDirection.Forward
-                            else -> AdvanceDirection.Backward
-                        }
-                        targetState.enterTransition(direction) togetherWith
-                                initialState.exitTransition(direction)
+    val holder = rememberSaveableStateHolder()
+    SceneWrapper(storyboard, mode, modifier) {
+        SharedTransitionLayout {
+            val sceneTransition = transition.createChildTransition(label = "Scene") { it.scene }
+            sceneTransition.AnimatedContent(
+                transitionSpec = {
+                    val direction = when {
+                        targetState > initialState -> AdvanceDirection.Forward
+                        else -> AdvanceDirection.Backward
                     }
-                ) { scene ->
-                    holder.SaveableStateProvider(scene) {
-                        Box(Modifier.fillMaxSize()) {
-                            SceneContent(scene, transition)
-                        }
-                    }
+                    targetState.enterTransition(direction) togetherWith
+                            initialState.exitTransition(direction)
+                }
+            ) { scene ->
+                holder.SaveableStateProvider(scene) {
+                    SceneContent(scene, transition)
                 }
             }
         }
@@ -66,7 +57,7 @@ fun Easel(
 }
 
 private class StorySceneScope<T>(
-    override val states: ImmutableList<T>,
+    override val frames: ImmutableList<T>,
     override val transition: Transition<out Frame<T>>,
 ) : SceneScope<T>
 
@@ -74,9 +65,9 @@ private class StorySceneScope<T>(
 context(_: AnimatedVisibilityScope, _: SharedTransitionScope)
 fun <T> SceneContent(
     scene: Scene<T>,
-    sceneFrame: Transition<SceneFrame<*>>,
+    sceneFrame: Transition<out Animatic.State<*>>,
 ) {
-    val frame = sceneFrame.createChildTransition {
+    val frame = sceneFrame.createChildTransition(label = "Frame") {
         @Suppress("UNCHECKED_CAST")
         when {
             scene > it.scene -> Frame.Start
@@ -87,7 +78,7 @@ fun <T> SceneContent(
 
     val scope = remember(scene, frame) {
         StorySceneScope(
-            states = scene.states,
+            frames = scene.frames,
             transition = frame,
         )
     }
@@ -98,7 +89,7 @@ fun <T> SceneContent(
 @Composable
 internal fun SceneWrapper(
     format: SceneFormat,
-    decorator: Decorator,
+    decorator: ContentDecorator,
     sceneMode: SceneMode,
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit,

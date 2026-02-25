@@ -13,11 +13,11 @@ class Caption(
 internal val LocalCaptions = compositionLocalOf<SnapshotStateList<Caption>?> { null }
 
 /**
- * Creates a [Caption] within the [StoryAssistant].
+ * Creates a [Caption] within the [EaselAssistant].
  *
  * Captions are only created when the Scene is in [Story][SceneMode.Story] mode.
  * This means captions will disappear when the
- * [overview][dev.bnorm.storyboard.easel.overview.StoryOverview] is opened.
+ * [overview][dev.bnorm.storyboard.easel.overview.EaselOverview] is opened.
  */
 // TODO should the overview be able to support gathering captions for the selected scene?
 @Composable

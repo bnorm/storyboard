@@ -19,7 +19,7 @@ import kotlin.io.path.writeText
 
 @Composable
 fun rememberWindowState(fileName: String, format: StringFormat = Json): WindowState? {
-    return rememberWindowState(Paths.get(".storyboard", "$fileName.json"), format)
+    return rememberWindowState(Paths.get(".storyboard", "${fileName.lowercase()}.json"), format)
 }
 
 @Composable

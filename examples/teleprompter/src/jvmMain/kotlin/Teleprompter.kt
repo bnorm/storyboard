@@ -1,24 +1,14 @@
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.ReadOnlyComposable
-import androidx.compose.runtime.compositionLocalOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.lightColors
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyShortcut
 import androidx.compose.ui.window.MenuScope
-import dev.bnorm.storyboard.Decorator
-import dev.bnorm.storyboard.easel.Animatic
-import dev.bnorm.storyboard.easel.EaselWindow
-import dev.bnorm.storyboard.easel.SceneMode
-import dev.bnorm.storyboard.easel.Easel
-import dev.bnorm.storyboard.easel.onStoryNavigation
+import dev.bnorm.storyboard.easel.*
 
 val isTeleprompter: Boolean
     @Composable
@@ -32,10 +22,28 @@ fun rememberTeleprompter(animatic: Animatic): TeleprompterWindow {
     return remember(animatic) { TeleprompterWindow(animatic) }
 }
 
+@Composable
+fun TeleprompterOverlay(
+    overlay: @Composable BoxScope.() -> Unit,
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit,
+) {
+    Box(modifier) {
+        content()
+
+        if (isTeleprompter) {
+            Box(Modifier.matchParentSize()) {
+                MaterialTheme(colors = lightColors()) {
+                    overlay()
+                }
+            }
+        }
+    }
+}
+
 class TeleprompterWindow(
     val animatic: Animatic,
     val mode: SceneMode = SceneMode.Preview,
-    override val decorator: Decorator = Decorator.None,
 ) : EaselWindow {
     override val name: String get() = "Teleprompter"
     override var visible by mutableStateOf(false)
@@ -54,14 +62,13 @@ class TeleprompterWindow(
     @Composable
     override fun Content() {
         CompositionLocalProvider(LocalTeleprompter provides true) {
-            Box(
-                contentAlignment = Alignment.Center,
+            Easel(
+                animatic,
+                mode,
                 modifier = Modifier
                     .fillMaxSize()
                     .onStoryNavigation(animatic)
-            ) {
-                Easel(animatic, mode, decorator)
-            }
+            )
         }
     }
 }

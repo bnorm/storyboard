@@ -19,11 +19,11 @@ import dev.bnorm.storyboard.StoryboardBuilder
 import dev.bnorm.storyboard.easel.template.Body
 import dev.bnorm.storyboard.easel.template.Header
 import dev.bnorm.storyboard.easel.template.RevealEach
-import dev.bnorm.storyboard.toState
+import dev.bnorm.storyboard.toValue
 
 @OptIn(ExperimentalTransitionApi::class)
 fun StoryboardBuilder.ButtonScene() {
-    scene(stateCount = 6) {
+    scene(frameCount = 6) {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
             Header { Text("Buttons") }
             Divider(color = MaterialTheme.colors.primary, thickness = 4.dp)
@@ -32,7 +32,7 @@ fun StoryboardBuilder.ButtonScene() {
                     Modifier.padding(vertical = 16.dp, horizontal = 16.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp),
                 ) {
-                    RevealEach(transition.createChildTransition { it.toState() }) {
+                    RevealEach(transition.createChildTransition { it.toValue() }) {
                         item { Text("• Scenes can contain interactive content.") }
                         item { Text("• For example, buttons!") }
                         item { IncreaseDecreaseCounter() }

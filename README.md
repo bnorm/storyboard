@@ -108,7 +108,7 @@ which determines the _**constant render size**_ of all scenes.
 This makes it so the scenes of the storyboard automatically scale according to the available space,
 while maintaining a constant pixel space for defining the size and spacing of elements.
 
-A [SceneDecorator][SceneDecorator] may also be provided when building a storyboard.
+A [ContentDecorator][ContentDecorator] may also be provided when building a storyboard.
 This decorator will be applied around all scenes
 and can be used to adjust theming, provide composition locals, or add a shared background.
 
@@ -151,7 +151,7 @@ Want to see Storyboard in action?
 
 [Storyboard]: storyboard/src/commonMain/kotlin/dev/bnorm/storyboard/Storyboard.kt
 [StoryboardBuilder]: storyboard/src/commonMain/kotlin/dev/bnorm/storyboard/StoryboardBuilder.kt
-[SceneDecorator]: /storyboard/src/commonMain/kotlin/dev/bnorm/storyboard/SceneDecorator.kt
+[ContentDecorator]: /storyboard/src/commonMain/kotlin/dev/bnorm/storyboard/ContentDecorator.kt
 [SceneFormat]: /storyboard/src/commonMain/kotlin/dev/bnorm/storyboard/SceneFormat.kt
 [SceneScope]: /storyboard/src/commonMain/kotlin/dev/bnorm/storyboard/SceneScope.kt
 

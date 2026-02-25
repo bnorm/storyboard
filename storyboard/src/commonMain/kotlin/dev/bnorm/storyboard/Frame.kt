@@ -9,8 +9,8 @@ public sealed class Frame<out T> {
         override fun toString(): String = "Frame.End"
     }
 
-    public class State<out T>(public val state: T) : Frame<T>() {
-        override fun toString(): String = "Frame.State($state)"
+    public class Value<out T>(public val value: T) : Frame<T>() {
+        override fun toString(): String = "Frame.Value($value)"
     }
 }
 
@@ -18,10 +18,10 @@ public operator fun <T : Comparable<T>> Frame<T>.compareTo(other: Frame<T>): Int
     return when (this) {
         Frame.Start -> if (other == Frame.Start) 0 else -1
         Frame.End -> if (other == Frame.End) 0 else 1
-        is Frame.State -> when (other) {
+        is Frame.Value -> when (other) {
             Frame.Start -> 1
             Frame.End -> -1
-            is Frame.State -> state.compareTo(other.state)
+            is Frame.Value -> value.compareTo(other.value)
         }
     }
 }
@@ -30,7 +30,7 @@ public fun <T, R> Frame<T>.map(transform: (T) -> R): Frame<R> {
     return when (this) {
         Frame.Start -> Frame.Start
         Frame.End -> Frame.End
-        is Frame.State -> Frame.State(transform(state))
+        is Frame.Value -> Frame.Value(transform(value))
     }
 }
 
@@ -38,24 +38,24 @@ public fun <T, R> Frame<T>.map(transform: (T) -> R): Frame<R> {
  * Converts the [Frame] of type [T] to just a value of type `T`; where [start] is the default
  * representation for [Frame.Start], and [end] is the default representation for
  * [Frame.End].
- * By default, the first and last states of the scene will be used
- * and must be specified if the scene has no states.
+ * By default, the first and last frames of the scene will be used
+ * and must be specified if the scene has no frames.
  */
 context(sceneScope: SceneScope<R>)
-public fun <T, R : T> Frame<R>.toState(
+public fun <T, R : T> Frame<R>.toValue(
     start: T = when {
-        sceneScope.states.isNotEmpty() -> sceneScope.states.first()
-        else -> error("implicit conversion to state requires non-empty states")
+        sceneScope.frames.isNotEmpty() -> sceneScope.frames.first()
+        else -> error("implicit conversion to value requires non-empty frames")
     },
     end: T = when {
-        sceneScope.states.isNotEmpty() -> sceneScope.states.last()
-        else -> error("implicit conversion to state requires non-empty states")
+        sceneScope.frames.isNotEmpty() -> sceneScope.frames.last()
+        else -> error("implicit conversion to value requires non-empty frames")
     },
 ): T {
     return when (this) {
         Frame.Start -> start
         Frame.End -> end
-        is Frame.State -> state
+        is Frame.Value -> value
     }
 }
 
@@ -64,10 +64,10 @@ public fun <T, R : T> Frame<R>.toState(
  * representation for [Frame.Start], and [end] is the default representation for
  * [Frame.End].
  */
-public fun <T> Frame<T>.toState(start: T, end: T): T {
+public fun <T> Frame<T>.toValue(start: T, end: T): T {
     return when (this) {
         Frame.Start -> start
         Frame.End -> end
-        is Frame.State -> state
+        is Frame.Value -> value
     }
 }

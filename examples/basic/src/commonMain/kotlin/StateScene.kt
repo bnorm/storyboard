@@ -15,7 +15,7 @@ import dev.bnorm.storyboard.StoryboardBuilder
 import dev.bnorm.storyboard.easel.assist.SceneCaption
 import dev.bnorm.storyboard.easel.template.Body
 import dev.bnorm.storyboard.easel.template.Header
-import dev.bnorm.storyboard.toState
+import dev.bnorm.storyboard.toValue
 
 class StateSceneState(
     val index: Int,
@@ -54,7 +54,7 @@ fun StoryboardBuilder.StateScene() = scene(
         ),
     )
 ) {
-    val currentState = transition.currentState.toState()
+    val currentState = transition.currentState.toValue()
     val index = currentState.index
     Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
         Header { Text(currentState.title) }

@@ -42,7 +42,7 @@ import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
 
 @Composable
-fun StoryTimer(clock: Clock = Clock.System) {
+fun EaselTimer(clock: Clock = Clock.System) {
     val timer = remember(clock) { Timer(clock) }
     val duration by timer.flow.collectAsState(initial = 0.seconds)
 
