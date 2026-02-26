@@ -4,14 +4,17 @@ import androidx.compose.animation.core.createChildTransition
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.*
+import androidx.compose.material.Divider
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Surface
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import dev.bnorm.storyboard.StoryboardBuilder
-import dev.bnorm.storyboard.easel.template.Body
-import dev.bnorm.storyboard.easel.template.Header
+import dev.bnorm.storyboard.layout.template.Body
+import dev.bnorm.storyboard.layout.template.Header
 import dev.bnorm.storyboard.toValue
 import kotlin.time.Duration.Companion.seconds
 

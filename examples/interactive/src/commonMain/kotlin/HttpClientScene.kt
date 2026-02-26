@@ -8,6 +8,7 @@ import androidx.compose.material.Divider
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -15,12 +16,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import dev.bnorm.storyboard.StoryboardBuilder
+import dev.bnorm.storyboard.easel.LocalSceneMode
+import dev.bnorm.storyboard.easel.SceneMode
 import dev.bnorm.storyboard.easel.assist.SceneCaption
-import dev.bnorm.storyboard.easel.template.Body
-import dev.bnorm.storyboard.easel.template.Header
-import dev.bnorm.storyboard.easel.template.RevealEach
-import dev.bnorm.storyboard.easel.template.StoryEffect
 import dev.bnorm.storyboard.example.shared.JetBrainsMono
+import dev.bnorm.storyboard.layout.template.RevealEach
+import dev.bnorm.storyboard.layout.template.Body
+import dev.bnorm.storyboard.layout.template.Header
 import dev.bnorm.storyboard.toValue
 import io.ktor.client.*
 import io.ktor.client.call.*
@@ -55,27 +57,29 @@ fun StoryboardBuilder.HttpClientScene() {
         // Make sure the HTTP call is properly scoped.
         // Running this with LaunchedEffect could cause it to trigger multiple times.
         // The scene could be displayed twice, in both the main story and assistant.
-        // By restricting to a StoryEffect, we make sure it is only launched a single time.
+        // By restricting to a Story SceneMode, we make sure it is only launched a single time.
         //
         // A view-model-like class could also help properly scope this work
         // by using a snapshotFlow on the repository and collecting within
         // a custom CoroutineScope.
         // !!!
-        StoryEffect(repository.text) {
-            error = null
-            delay(300) // Debounce keyboard events.
-            try {
-                val response = client.get("https://api.github.com/repos/${repository.text}")
-                if (response.status.isSuccess()) {
-                    stargazers = response.body<Repository>().stargazers
-                } else {
+        if (LocalSceneMode.current == SceneMode.Story) {
+            LaunchedEffect(repository.text) {
+                error = null
+                delay(300) // Debounce keyboard events.
+                try {
+                    val response = client.get("https://api.github.com/repos/${repository.text}")
+                    if (response.status.isSuccess()) {
+                        stargazers = response.body<Repository>().stargazers
+                    } else {
+                        stargazers = -1
+                        error = "Error retrieving repository information: ${response.status}"
+                    }
+                } catch (e: Throwable) {
+                    if (e is CancellationException) throw e
                     stargazers = -1
-                    error = "Error retrieving repository information: ${response.status}"
+                    error = e.stackTraceToString()
                 }
-            } catch (e: Throwable) {
-                if (e is CancellationException) throw e
-                stargazers = -1
-                error = e.stackTraceToString()
             }
         }
 

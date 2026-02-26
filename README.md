@@ -36,6 +36,7 @@ repository {
 dependencies {
     implementation("dev.bnorm.storyboard:storyboard:0.1.0-SNAPSHOT")
     implementation("dev.bnorm.storyboard:storyboard-easel:0.1.0-SNAPSHOT")
+    implementation("dev.bnorm.storyboard:storyboard-layout:0.1.0-SNAPSHOT")
     implementation("dev.bnorm.storyboard:storyboard-text:0.1.0-SNAPSHOT")
 }
 ```

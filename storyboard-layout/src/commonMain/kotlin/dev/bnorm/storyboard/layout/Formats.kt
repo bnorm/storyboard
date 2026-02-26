@@ -1,4 +1,4 @@
-package dev.bnorm.storyboard.easel.template
+package dev.bnorm.storyboard.layout
 
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize

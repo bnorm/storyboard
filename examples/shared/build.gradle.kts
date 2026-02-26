@@ -23,6 +23,7 @@ kotlin {
             dependencies {
                 implementation(project(":storyboard"))
                 implementation(project(":storyboard-easel"))
+                implementation(project(":storyboard-layout"))
                 implementation(project(":storyboard-text"))
 
                 implementation(compose.material)

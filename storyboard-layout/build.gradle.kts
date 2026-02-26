@@ -20,6 +20,7 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
+                api(project(":storyboard"))
                 implementation(compose.material)
             }
         }

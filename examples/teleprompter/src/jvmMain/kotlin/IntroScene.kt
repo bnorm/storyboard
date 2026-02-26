@@ -6,7 +6,7 @@ import androidx.compose.material.Text
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import dev.bnorm.storyboard.StoryboardBuilder
-import dev.bnorm.storyboard.easel.template.Header
+import dev.bnorm.storyboard.layout.template.Header
 
 @OptIn(ExperimentalTransitionApi::class)
 fun StoryboardBuilder.IntroScene() {
