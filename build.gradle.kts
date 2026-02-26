@@ -117,6 +117,9 @@ tasks.register<Sync>("site") {
         into("basic") {
             from(project(":examples:basic").tasks.named("wasmJsBrowserDistribution"))
         }
+        into("diagram") {
+            from(project(":examples:diagram").tasks.named("wasmJsBrowserDistribution"))
+        }
         into("interactive") {
             from(project(":examples:interactive").tasks.named("wasmJsBrowserDistribution"))
         }
