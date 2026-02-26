@@ -1,15 +1,10 @@
-@file:OptIn(ExperimentalTypeInference::class)
-
-package dev.bnorm.storyboard.easel.template
+package dev.bnorm.storyboard.layout.template
 
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import dev.bnorm.storyboard.AdvanceDirection
-import dev.bnorm.storyboard.Frame
 import dev.bnorm.storyboard.SceneEnterTransition
 import dev.bnorm.storyboard.SceneExitTransition
-import dev.bnorm.storyboard.SceneScope
-import kotlin.experimental.ExperimentalTypeInference
 
 /**
  * Storyboard animations may have to deal with at least two separate things:
@@ -34,8 +29,8 @@ import kotlin.experimental.ExperimentalTypeInference
  * [     ] <-{Exit}--- [     ] <-{Enter}-- [     ] // Backwards
  * ```
  *
- * This distinction is the same as the [SceneScope.transition] of a scene, which
- * has a [Frame.Start] as the first element and a [Frame.End] as the last
+ * This distinction is the same as the [dev.bnorm.storyboard.SceneScope.transition] of a scene, which
+ * has a [dev.bnorm.storyboard.Frame.Start] as the first element and a [dev.bnorm.storyboard.Frame.End] as the last
  * element, to help manage transitions between scenes.
  */
 @Suppress("unused")

@@ -16,9 +16,9 @@ import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.unit.dp
 import dev.bnorm.storyboard.StoryboardBuilder
-import dev.bnorm.storyboard.easel.template.Body
-import dev.bnorm.storyboard.easel.template.Header
-import dev.bnorm.storyboard.easel.template.RevealEach
+import dev.bnorm.storyboard.layout.template.RevealEach
+import dev.bnorm.storyboard.layout.template.Body
+import dev.bnorm.storyboard.layout.template.Header
 import dev.bnorm.storyboard.toValue
 
 @OptIn(ExperimentalTransitionApi::class)

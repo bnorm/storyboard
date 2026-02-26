@@ -1,4 +1,4 @@
-package dev.bnorm.storyboard.easel.template
+package dev.bnorm.storyboard.layout.template
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope

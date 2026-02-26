@@ -13,8 +13,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import dev.bnorm.storyboard.StoryboardBuilder
-import dev.bnorm.storyboard.easel.template.Body
-import dev.bnorm.storyboard.easel.template.Header
+import dev.bnorm.storyboard.layout.template.Body
+import dev.bnorm.storyboard.layout.template.Header
 import dev.bnorm.storyboard.toValue
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.debounce

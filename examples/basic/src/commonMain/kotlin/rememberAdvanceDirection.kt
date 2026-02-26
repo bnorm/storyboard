@@ -1,5 +1,3 @@
-package dev.bnorm.storyboard.easel.template
-
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import dev.bnorm.storyboard.AdvanceDirection

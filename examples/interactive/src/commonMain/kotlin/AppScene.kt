@@ -15,9 +15,9 @@ import dev.bnorm.storyboard.easel.Easel
 import dev.bnorm.storyboard.easel.overlay.EaselOverlay
 import dev.bnorm.storyboard.easel.overlay.OverlayNavigation
 import dev.bnorm.storyboard.easel.rememberAnimatic
-import dev.bnorm.storyboard.easel.template.Body
-import dev.bnorm.storyboard.easel.template.Header
-import dev.bnorm.storyboard.easel.template.RevealEach
+import dev.bnorm.storyboard.layout.template.RevealEach
+import dev.bnorm.storyboard.layout.template.Body
+import dev.bnorm.storyboard.layout.template.Header
 import dev.bnorm.storyboard.toDpSize
 import dev.bnorm.storyboard.toValue
 
