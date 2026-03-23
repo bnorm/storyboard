@@ -18,22 +18,17 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.unit.dp
-import dev.bnorm.storyboard.Storyboard
-import dev.bnorm.storyboard.easel.Animatic
-import dev.bnorm.storyboard.easel.ScenePreview
+import dev.bnorm.storyboard.easel.*
 import dev.bnorm.storyboard.easel.internal.QuarteredBox
-import dev.bnorm.storyboard.easel.onStoryNavigation
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 @Composable
 fun EaselAssistant(
-    assistantState: EaselAssistantState,
+    animatic: Animatic,
+    captions: SnapshotStateList<Caption>,
     modifier: Modifier = Modifier,
 ) {
-    val animatic = assistantState.animatic
-    val captions = assistantState.captions
-
     Surface(
         modifier = modifier
             .fillMaxSize()
@@ -59,13 +54,12 @@ fun EaselAssistant(
 @Composable
 private fun CurrentFramePreview(animatic: Animatic, modifier: Modifier = Modifier) {
     Column(modifier = modifier, horizontalAlignment = Alignment.CenterHorizontally) {
-        // TODO should "current" actually be target index?
         Text("Current Frame", style = MaterialTheme.typography.h5)
         Spacer(Modifier.size(8.dp))
         Box {
-            ClickableScenePreview(
-                animatic.storyboard,
-                animatic.currentIndex,
+            Easel(
+                animatic,
+                mode = SceneMode.Preview,
                 // Add padding for the progress indicator.
                 modifier = Modifier.padding(bottom = 2.dp),
             )
@@ -90,17 +84,30 @@ private fun NextFramePreview(animatic: Animatic, modifier: Modifier = Modifier) 
             animatic.storyboard.indices.getOrNull(i + 1)
         }
         nextIndex?.let {
-            ClickableScenePreview(
-                storyboard = animatic.storyboard,
-                index = it,
-                onClick = {
-                    job?.cancel()
-                    job = coroutineScope.launch {
-                        animatic.jumpTo(it)
-                        job = null
-                    }
-                },
-            )
+            // TODO share with StoryboardOverview?
+            Box(Modifier) {
+                ScenePreview(
+                    storyboard = animatic.storyboard,
+                    index = it,
+                )
+
+                // Use a Box to overlay the preview so nothing within the preview can be clicked.
+                // Also gives it a pointer hand.
+                Box(
+                    modifier = Modifier.matchParentSize()
+                        .pointerHoverIcon(PointerIcon.Hand)
+                        .clickable(
+                            interactionSource = null, indication = null, // disable ripple effect
+                            onClick = {
+                                job?.cancel()
+                                job = coroutineScope.launch {
+                                    animatic.jumpTo(it)
+                                    job = null
+                                }
+                            }
+                        )
+                )
+            }
         }
     }
 }
@@ -121,35 +128,6 @@ private fun Captions(captions: SnapshotStateList<Caption>, modifier: Modifier = 
                     }
                 }
             }
-        }
-    }
-}
-
-@Composable
-private fun ClickableScenePreview(
-    storyboard: Storyboard,
-    index: Storyboard.Index,
-    onClick: (() -> Unit)? = null,
-    modifier: Modifier = Modifier,
-) {
-    // TODO share with StoryboardOverview?
-    Box(modifier) {
-        ScenePreview(
-            storyboard = storyboard,
-            index = index,
-        )
-
-        if (onClick != null) {
-            Box(
-                modifier = Modifier.matchParentSize()
-                    .pointerHoverIcon(PointerIcon.Hand)
-                    .clickable(
-                        interactionSource = null, indication = null, // disable ripple effect
-                        onClick = {
-                            onClick.invoke()
-                        }
-                    )
-            )
         }
     }
 }
