@@ -14,10 +14,19 @@ public fun interface ContentDecorator {
         public val None: ContentDecorator = ContentDecorator { it() }
 
         public fun from(vararg decorators: ContentDecorator): ContentDecorator {
-            return when (decorators.size) {
+            val decoratorList = buildList {
+                for (decorator in decorators) {
+                    when (decorator) {
+                        None -> Unit
+                        is CompositeContentDecorator -> addAll(decorator.decorators)
+                        else -> add(decorator)
+                    }
+                }
+            }
+            return when (decoratorList.size) {
                 0 -> None
-                1 -> decorators[0]
-                else -> CompositeContentDecorator(decorators.toList())
+                1 -> decoratorList[0]
+                else -> CompositeContentDecorator(decoratorList)
             }
         }
     }
@@ -28,7 +37,7 @@ public operator fun ContentDecorator.plus(other: ContentDecorator): ContentDecor
     return when (ContentDecorator.None) {
         other -> self
         self -> other
-        else -> CompositeContentDecorator(decorators = buildList {
+        else -> CompositeContentDecorator(buildList {
             when (self) {
                 is CompositeContentDecorator -> addAll(self.decorators)
                 else -> add(self)
@@ -44,6 +53,13 @@ public operator fun ContentDecorator.plus(other: ContentDecorator): ContentDecor
 private class CompositeContentDecorator(
     val decorators: List<ContentDecorator>
 ) : ContentDecorator {
+    init {
+        require(decorators.size > 1) { "Must be more than one decorator" }
+        require(decorators.all { it != ContentDecorator.None && it !is CompositeContentDecorator }) {
+            "Decorators must not contain ContentDecorator.None or CompositeContentDecorator"
+        }
+    }
+
     @Composable
     override fun decorate(content: @Composable () -> Unit) {
         @Composable
