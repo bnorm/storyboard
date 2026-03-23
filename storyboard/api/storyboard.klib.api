@@ -53,7 +53,7 @@ abstract interface <#A: out kotlin/Any?> dev.bnorm.storyboard/SceneScope { // de
         abstract fun <get-transition>(): androidx.compose.animation.core/Transition<out dev.bnorm.storyboard/Frame<#A>> // dev.bnorm.storyboard/SceneScope.transition.<get-transition>|<get-transition>(){}[0]
 }
 
-sealed interface dev.bnorm.storyboard/StoryboardBuilder { // dev.bnorm.storyboard/StoryboardBuilder|null[0]
+abstract interface dev.bnorm.storyboard/StoryboardBuilder { // dev.bnorm.storyboard/StoryboardBuilder|null[0]
     abstract fun <#A1: kotlin/Any?> scene(kotlin.collections/List<#A1>, dev.bnorm.storyboard/SceneEnterTransition = ..., dev.bnorm.storyboard/SceneExitTransition = ..., dev.bnorm.storyboard/SceneContent<#A1>): dev.bnorm.storyboard/Scene<#A1> // dev.bnorm.storyboard/StoryboardBuilder.scene|scene(kotlin.collections.List<0:0>;dev.bnorm.storyboard.SceneEnterTransition;dev.bnorm.storyboard.SceneExitTransition;dev.bnorm.storyboard.SceneContent<0:0>){0§<kotlin.Any?>}[0]
     open fun scene(kotlin/Int = ..., dev.bnorm.storyboard/SceneEnterTransition = ..., dev.bnorm.storyboard/SceneExitTransition = ..., dev.bnorm.storyboard/SceneContent<kotlin/Int>): dev.bnorm.storyboard/Scene<kotlin/Int> // dev.bnorm.storyboard/StoryboardBuilder.scene|scene(kotlin.Int;dev.bnorm.storyboard.SceneEnterTransition;dev.bnorm.storyboard.SceneExitTransition;dev.bnorm.storyboard.SceneContent<kotlin.Int>){}[0]
 }

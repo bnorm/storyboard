@@ -4,8 +4,7 @@ package dev.bnorm.storyboard
 internal annotation class StoryboardBuilderDsl
 
 @StoryboardBuilderDsl
-public sealed interface StoryboardBuilder {
-    @StoryboardBuilderDsl
+public interface StoryboardBuilder {
     public fun <T> scene(
         frames: List<T>,
         enterTransition: SceneEnterTransition = SceneEnterTransition.None,
@@ -13,7 +12,6 @@ public sealed interface StoryboardBuilder {
         content: SceneContent<T>,
     ): Scene<T>
 
-    @StoryboardBuilderDsl
     public fun scene(
         frameCount: Int = 1,
         enterTransition: SceneEnterTransition = SceneEnterTransition.None,
