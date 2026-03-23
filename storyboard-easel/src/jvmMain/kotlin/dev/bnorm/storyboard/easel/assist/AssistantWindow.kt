@@ -1,8 +1,7 @@
 package dev.bnorm.storyboard.easel.assist
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyShortcut
 import androidx.compose.ui.window.MenuScope
@@ -16,23 +15,21 @@ fun rememberAssistantWindow(animatic: Animatic, captions: List<Caption> = emptyL
 }
 
 class AssistantWindow(
-    val animatic: Animatic,
-    captions: List<Caption> = emptyList(),
+    private val animatic: Animatic,
+    initialCaptions: List<Caption> = emptyList(),
 ) : EaselWindow {
-    private val assistantState = EaselAssistantState(animatic, captions)
+    private val captions = SnapshotStateList<Caption>().apply {
+        addAll(initialCaptions)
+    }
 
     override val name: String
         get() = "Assistant"
 
-    override var visible: Boolean
-        get() = assistantState.visible
-        set(value) {
-            assistantState.visible = value
-        }
+    override var visible: Boolean by mutableStateOf(false)
 
     override val decorator = ContentDecorator { content ->
         CompositionLocalProvider(
-            value = LocalCaptions provides assistantState.captions,
+            value = LocalCaptions provides this.captions,
             content = content
         )
     }
@@ -41,15 +38,15 @@ class AssistantWindow(
     override fun MenuScope.Menu() {
         CheckboxItem(
             text = "Show",
-            checked = assistantState.visible,
+            checked = visible,
             shortcut = KeyShortcut(Key.F2),
         ) {
-            assistantState.visible = it
+            visible = it
         }
     }
 
     @Composable
     override fun Content() {
-        EaselAssistant(assistantState)
+        EaselAssistant(animatic = animatic, captions = captions)
     }
 }

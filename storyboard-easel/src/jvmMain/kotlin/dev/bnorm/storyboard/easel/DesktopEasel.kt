@@ -17,9 +17,14 @@ import dev.bnorm.storyboard.plus
 
 @Composable
 fun ApplicationScope.DesktopEasel(
-    storyboard: () -> Storyboard
+    animaticFileName: String? = "animatic",
+    storyboard: () -> Storyboard,
 ) {
-    DesktopEasel(rememberAnimatic(storyboard = storyboard))
+    val animatic = when (animaticFileName) {
+        null -> rememberAnimatic(storyboard = storyboard)
+        else -> rememberAnimatic(animaticFileName, storyboard = storyboard)
+    }
+    DesktopEasel(animatic)
 }
 
 @Composable

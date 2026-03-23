@@ -18,17 +18,9 @@ fun rememberAnimatic(
     val storyboard = remember(storyboard) { storyboard() }
     val states = remember(storyboard) { Animatic.buildStates(storyboard) }
 
-    var transitionState by remember {
+    val transitionState = remember(storyboard) {
         val initialState = states.find { it.index == initialIndex } ?: states.first()
-        mutableStateOf(SeekableTransitionState(initialState))
-    }
-
-    remember(storyboard) {
-        // TODO a little ugly to have this in a remember...
-        // TODO need to backtrack to the nearest frame value
-        // Attempt to preserve the index of the previous Storyboard instance when it changes.
-        val initialState = states.find { it.index == transitionState.currentState.index } ?: states.first()
-        transitionState = SeekableTransitionState(initialState)
+        SeekableTransitionState(initialState)
     }
 
     val transition = rememberTransition(transitionState, label = "Animatic")
