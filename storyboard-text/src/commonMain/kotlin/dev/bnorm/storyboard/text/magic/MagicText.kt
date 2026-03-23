@@ -4,6 +4,7 @@ import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -91,8 +92,8 @@ private fun MagicTextInternal(
                         fadeOut(tween(fadeDuration, easing = EaseOutCubic)) using
                         SizeTransform(clip = false)
             },
+            modifier = Modifier.wrapContentSize(align = Alignment.TopStart, unbounded = true)
         ) { parts ->
-
             @Composable
             fun SharedText.toModifier(): Modifier {
                 return if (key == null) {
