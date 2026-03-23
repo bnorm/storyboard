@@ -27,16 +27,14 @@ fun rememberWindowState(path: Path, format: StringFormat = Json): WindowState? {
     var state by remember { mutableStateOf<WindowState?>(null) }
 
     LaunchedEffect(Unit) {
-        withContext(Dispatchers.IO) {
-            runInterruptible {
-                if (path.exists()) {
-                    val text = path.readText()
-                    state = runCatching { format.decodeFromString(WindowStateSerializer, text) }
-                        .getOrElse { WindowState() }
-                } else {
-                    path.createParentDirectories()
-                    state = WindowState()
-                }
+        runInterruptible(Dispatchers.IO) {
+            if (path.exists()) {
+                val text = path.readText()
+                state = runCatching { format.decodeFromString(WindowStateSerializer, text) }
+                    .getOrElse { WindowState() }
+            } else {
+                path.createParentDirectories()
+                state = WindowState()
             }
         }
     }
@@ -48,15 +46,13 @@ fun rememberWindowState(path: Path, format: StringFormat = Json): WindowState? {
 }
 
 @Composable
-private fun LaunchedStateWriter(state: WindowState?, file: Path, format: StringFormat) {
+private fun LaunchedStateWriter(state: WindowState?, path: Path, format: StringFormat) {
     state ?: return
-    LaunchedEffect(state.hash(), file) {
+    LaunchedEffect(state.hash(), path, format) {
         try {
-            withContext(Dispatchers.IO) {
-                runInterruptible {
-                    val text = format.encodeToString(WindowStateSerializer, state)
-                    file.writeText(text, options = arrayOf(WRITE, CREATE, TRUNCATE_EXISTING))
-                }
+            runInterruptible(Dispatchers.IO) {
+                val text = format.encodeToString(WindowStateSerializer, state)
+                path.writeText(text, options = arrayOf(WRITE, CREATE, TRUNCATE_EXISTING))
             }
         } catch (_: IOException) {
         }
