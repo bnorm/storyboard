@@ -52,6 +52,7 @@ public final class dev/bnorm/storyboard/Frame$Value : dev/bnorm/storyboard/Frame
 public final class dev/bnorm/storyboard/FrameKt {
 	public static final fun compareTo (Ldev/bnorm/storyboard/Frame;Ldev/bnorm/storyboard/Frame;)I
 	public static final fun map (Ldev/bnorm/storyboard/Frame;Lkotlin/jvm/functions/Function1;)Ldev/bnorm/storyboard/Frame;
+	public static final fun mapToValue (Ldev/bnorm/storyboard/Frame;Ljava/lang/Object;Ljava/lang/Object;Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
 	public static final fun toValue (Ldev/bnorm/storyboard/Frame;Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
 	public static final fun toValue (Ldev/bnorm/storyboard/SceneScope;Ldev/bnorm/storyboard/Frame;Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
 	public static synthetic fun toValue$default (Ldev/bnorm/storyboard/SceneScope;Ldev/bnorm/storyboard/Frame;Ljava/lang/Object;Ljava/lang/Object;ILjava/lang/Object;)Ljava/lang/Object;
