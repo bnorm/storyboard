@@ -34,6 +34,14 @@ public fun <T, R> Frame<T>.map(transform: (T) -> R): Frame<R> {
     }
 }
 
+public fun <T, R> Frame<T>.mapToValue(start: R, end: R, transform: (T) -> R): R {
+    return when (this) {
+        Frame.Start -> start
+        Frame.End -> end
+        is Frame.Value -> transform(value)
+    }
+}
+
 /**
  * Converts the [Frame] of type [T] to just a value of type `T`; where [start] is the default
  * representation for [Frame.Start], and [end] is the default representation for
