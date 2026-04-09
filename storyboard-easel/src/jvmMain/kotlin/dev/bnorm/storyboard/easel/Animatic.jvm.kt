@@ -57,13 +57,12 @@ fun AnimaticPersistenceEffect(
             }
         }
 
-        // TODO is the jump noticeable when starting a desktop easel?
         if (index != null) {
             val indices = animatic.storyboard.indices
             val searchIndex = indices.binarySearch(index)
             val jumpIndex = when {
                 searchIndex >= 0 -> indices[searchIndex]
-                else -> indices[-searchIndex - 1]
+                else -> indices[(-searchIndex - 1).coerceAtMost(indices.lastIndex)]
             }
             animatic.jumpTo(jumpIndex)
         }
