@@ -147,7 +147,7 @@ Want to see Storyboard in action?
   [Storyboard](https://deck.bnorm.dev/dcnyc25),
   [Code](https://github.com/bnorm/deck.bnorm.dev/tree/dcnyc25/dcnyc25/story),
   [Recording](https://www.youtube.com/watch?v=PgzBWebeJsk)
-* **Shrinking Vector Artwork _(droidcon USA 2026)_
+* **Shrinking Vector Artwork** _(droidcon USA 2026)_
   [Storyboard](https://jzbrooks.com/presentations/shrinking-vector-art/),
   [Code](https://github.com/jzbrooks/decks/tree/main/dc26/story)
 
