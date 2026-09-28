@@ -7,6 +7,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -51,7 +52,7 @@ fun dev.bnorm.storyboard.StoryboardBuilder.warp(
         }
         val hScrollState = rememberScrollState()
         val vScrollState = rememberScrollState()
-        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+        Column(Modifier.fillMaxSize().padding(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
             Header { header() }
             Divider(color = MaterialTheme.colors.primary)
             Body(modifier = Modifier.verticalScroll(vScrollState).horizontalScroll(hScrollState)) {

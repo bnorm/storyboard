@@ -24,6 +24,19 @@ class Token(
      * This is guaranteed to be stable across a story board. */
     private var key: String? = null
 
+    /**
+     * A related token, when applicable. This is only ever populated for [Token]s that are
+     * brackets. So `}`, `]`, `>`, `)` will point to their corresponding matching pairs.
+     *
+     * This helps ensure that once we find a match for one of these [Token]s, we also match the
+     * corresponding matching related tokens.
+     */
+    public var related: Token? = null
+        private set
+
+    public var relatedIndex: Int? = null
+        private set
+
     fun hasKey(): Boolean {
         return key != null
     }
@@ -32,6 +45,11 @@ class Token(
         val key = key
         check(key == null) { "Cannot override `key` for $this" }
         this.key = newKey
+    }
+
+    fun assignRelated(related: Token, relatedIndex: Int) {
+        this.related = related
+        this.relatedIndex = relatedIndex
     }
 
     fun key(): String {
@@ -43,7 +61,6 @@ class Token(
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is Token) return false
-        if (depth != other.depth) return false
         if (content != other.content) return false
         if (scope != other.scope) return false
 
