@@ -32,6 +32,13 @@ object Xml : Language {
     }
 }
 
+/** Protobuf v3 */
+object ProtobufV3 : Language {
+    override fun scopeName(): String {
+        return "source.proto"
+    }
+}
+
 /** A custom language that is [Parser] aware */
 class Custom(val parser: Parser) : Language {
     override fun scopeName(): String {

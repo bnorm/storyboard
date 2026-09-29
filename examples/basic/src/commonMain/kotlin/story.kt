@@ -18,6 +18,7 @@ fun createStoryboard(): Storyboard {
         AnimationScene()
         CodeScene()
         WarpScene()
+        ProtobufWarpScene()
     }
 }
 

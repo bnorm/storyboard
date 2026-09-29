@@ -90,6 +90,7 @@ val GRAMMAR_REGISTRY: ScatterMap<Language, Lazy<IGrammarSource>> = mutableScatte
     Json to grammarResource(name = "json.tmLanguage.json"),
     Kotlin to grammarResource(name = "kotlin.tmLanguage.json"),
     Xml to grammarResource("xml.tmLanguage.json"),
+    ProtobufV3 to grammarResource("proto.tmLanguage.json"),
 )
 
 internal fun grammarResource(
